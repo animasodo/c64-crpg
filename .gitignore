@@ -1,0 +1,8 @@
+
+# directories
+/build
+/.vscode
+
+# files
+*.ctm
+*.pe
