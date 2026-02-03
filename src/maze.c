@@ -1,7 +1,8 @@
 #include <conio.h>
 #include <string.h>
 #include <c64.h>
-#include "writeblock.h"
+#include "writeline.h"
+#include "simplewrite.h"
 #include "maze_data.h"
 #include "ui.h"
 #include "globals.h"
@@ -14,19 +15,90 @@
 
 // the code will assume the maze size is always 16x16, as it fits inside a one byte array
 
-// very unoptimal way to draw the walls
-// will replace with proper graphics at some point
+// better way to draw squares. it really is that simple lol
 void drawSquare(char x, char y, char len, char finaly, char c, char color) {
-    char i;
+    char oldColor = textcolor(color);
     for (; y <= finaly; y++) {
-        char *scr = (char *)(SCREEN_MEM + yScreenArray[y] + x);
-        char *clr = (char *)(COLOR_MEM + yScreenArray[y] + x);
-        for (i = 0; i < len; i++) {
-            scr[i] = c;
-            clr[i] = color;
-        }
+        writeh(x, y, c, len);
     }
+    textcolor(oldColor);
 }
+
+const char leftWall[] = {
+    0x7F, 0x0D,
+    0x7A, 0x7F, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7B, 0x0D,
+    0x7B, 0x00
+};
+
+const char rightWall[] = {
+    0x20, 0x7E, 0x0D,
+    0x7E, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x0D,
+    0x7C, 0x7A, 0x0D,
+    0x20, 0x7C, 0x00
+};
+
+const char leftWallOne[] = {
+    0x7F, 0x0D,
+    0x7A, 0x7F, 0x0D,
+    0x7A, 0x7A, 0x7F, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7B, 0x0D,
+    0x7A, 0x7B, 0x0D,
+    0x7B, 0x00
+};
+
+const char rightWallOne[] = {
+    0x20, 0x20, 0x7E, 0x0D,
+    0x20, 0x7E, 0x7A, 0x0D,
+    0x7E, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7A, 0x7A, 0x7A, 0x0D,
+    0x7C, 0x7A, 0x7A, 0x0D,
+    0x20, 0x7C, 0x7A, 0x0D,
+    0x20, 0x20, 0x7C, 0x00
+};
 
 void drawLeftFour(void){
     // tiles
@@ -132,68 +204,6 @@ void drawRightTwo(void){
     (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 13) + 17)) = 0x7C;
 }
 
-void drawLeftOne(void){
-    drawSquare(3, 5, 3, 14, BLOCK_TILE_CHR, CYAN);
-    drawSquare(1, 3, 2, 16, BLOCK_TILE_CHR, WHITE);
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 3)) = BLOCK_TILE_CHR;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 3)) = BLOCK_TILE_CHR;
-
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 3) + 3)) = 0x7F;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 4)) = 0x7F;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 5) + 5)) = 0x7F;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 16) + 3)) = 0x7B;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 4)) = 0x7B;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 14) + 5)) = 0x7B;
-
-    // (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 5)) = ' ';
-    // (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 5)) = ' ';
-}
-
-void drawRightOne(void){
-    drawSquare(18, 5, 3, 14, BLOCK_TILE_CHR, CYAN);
-    drawSquare(21, 3, 2, 16, BLOCK_TILE_CHR, WHITE);
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 20)) = BLOCK_TILE_CHR;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 20)) = BLOCK_TILE_CHR;
-
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 3) + 20)) = 0x7E;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 19)) = 0x7E;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 5) + 18)) = 0x7E;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 16) + 20)) = 0x7C;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 19)) = 0x7C;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 14) + 18)) = 0x7C;
-
-    // (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 18)) = ' ';
-    // (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 18)) = ' ';
-}
-
-void drawLeft(void){
-    // drawSquare(1, 2, 2, 17, BLOCK_TILE_CHR, WHITE);
-    cvblock(1, 2, 16);
-    cvblock(2, 3, 14);
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 1) + 1)) = 0x7F;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 2) + 2)) = 0x7F;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 18) + 1)) = 0x7B;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 17) + 2)) = 0x7B;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 1) + 1)) = WHITE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 2) + 2)) = WHITE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 18) + 1)) = WHITE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 17) + 2)) = WHITE;
-}
-
-void drawRight(void){
-    // drawSquare(21, 2, 2, 17, BLOCK_TILE_CHR, WHITE);
-    cvblock(22, 2, 16);
-    cvblock(21, 3, 14);
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 1) + 22)) = 0x7E;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 2) + 21)) = 0x7E;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 18) + 22)) = 0x7C;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 17) + 21)) = 0x7C;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 1) + 22)) = WHITE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 2) + 21)) = WHITE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 18) + 22)) = WHITE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 17) + 21)) = WHITE;
-}
-
 void drawView(void){
     char playerpos = (playery << 4) + playerx; // we can do a shift left since the width of the map is always 16
     char left[5], right[5], front[4];
@@ -288,12 +298,34 @@ void drawView(void){
     }
 
     drawSquare(1, 1, 22, 18, ' ', CYAN);
+    
+    writeh(1, 2, 0x6E, 22);
+    writeh(1, 5, 0x6E, 22);
+    writeh(1, 7, 0x6E, 22);
+    writeh(1, 8, 0x6E, 22);
+    writeh(1, 11, 0x6D, 22);
+    writeh(1, 12, 0x6D, 22);
+    writeh(1, 14, 0x6D, 22);
+    writeh(1, 17, 0x6D, 22);
 
-    if (wall_left[0]) drawLeft();
-    if (wall_right[0]) drawRight();
 
-    if (wall_left[1]) drawLeftOne();
-    if (wall_right[1]) drawRightOne();
+    if (wall_left[0]){
+        gotoxy(1, 1);
+        simplewrite(leftWall);
+    }
+    if (wall_right[0]){
+        gotoxy(21, 1);
+        simplewrite(rightWall);
+    }
+
+    if (wall_left[1]){
+        gotoxy(3, 3);
+        simplewrite(leftWallOne);
+    }
+    if (wall_right[1]){
+        gotoxy(18, 3);
+        simplewrite(rightWallOne);
+    }
     if (wall_front[0]) {
         drawSquare(3, 3, 18, 16, BLOCK_TILE_CHR, WHITE);
         return;

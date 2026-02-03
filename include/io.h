@@ -21,8 +21,8 @@ unsigned int parse(void);
 
 void loadMapCompressed(const char *in, char width, char height);
 
-void start_timer(void);
+void startTimer(void);
 
-unsigned long read_timer();
+void writeTimer();
 
 #endif

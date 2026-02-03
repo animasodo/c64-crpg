@@ -205,7 +205,7 @@ void loadMapCompressed(const char *in, char width, char height){
     }
 }
 
-void start_timer(void) {
+void startTimer(void) {
     CIA2.ta_lo = 0xFF; // set initial timer values
     CIA2.ta_hi = 0xFF; // (Note that timers count down to 0).
     CIA2.tb_lo = 0xFF;
@@ -214,8 +214,8 @@ void start_timer(void) {
     CIA2.cra = 0x11; // start timer A in continuous mode
 }
 
-unsigned long read_timer(void) {
+void writeTimer(void) {
     CIA2.cra = 0x00; // stop timers
     CIA2.crb = 0x40;
-    return (unsigned long)0xFFFFFFFF - *(unsigned long*)(&CIA2.ta_lo);
+    timer = (unsigned long)0xFFFFFFFF - *(unsigned long*)(&CIA2.ta_lo);
 }

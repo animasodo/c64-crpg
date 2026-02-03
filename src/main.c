@@ -52,7 +52,7 @@ void createPlayer(void){
 }
 
 void dungeon(){
-    char c, o, update;
+    char o, update;
 
     direction = NORTH;
     playerx = 1;
@@ -60,12 +60,20 @@ void dungeon(){
 
     while(1){
         printDirection();
-        if(!update || o) drawView();
+        if(!update || o) { // some stuff to see how many cycles rewritten functions take
+            // startTimer();
+            drawView();
+            // writeTimer();
+            // gotoxy(1,20);
+            // printf("%lu", timer);
+        }
         update = 1;
+
+        cbm_k_scnkey();
+        lastKey = cbm_k_getin();
         
         if(keyMode){ // direct mode
-            c = cgetc();
-            switch(c){
+            switch(lastKey){
                 case 's':
                     message("Stats are not yet\nimplemented!");
                     break;
@@ -85,7 +93,7 @@ void dungeon(){
                     break;
             }
         }
-        switch(c){
+        switch(lastKey){
             case UP:
                 update = advance();
                 break;
