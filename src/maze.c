@@ -5,6 +5,7 @@
 #include "simplewrite.h"
 #include "maze_data.h"
 #include "ui.h"
+#include "io.h"
 #include "globals.h"
 
 #define SCREEN_MEM 0xC800
@@ -23,82 +24,6 @@ void drawSquare(char x, char y, char len, char finaly, char c, char color) {
     }
     textcolor(oldColor);
 }
-
-const char leftWall[] = {
-    0x7F, 0x0D,
-    0x7A, 0x7F, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7B, 0x0D,
-    0x7B, 0x00
-};
-
-const char rightWall[] = {
-    0x20, 0x7E, 0x0D,
-    0x7E, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x0D,
-    0x7C, 0x7A, 0x0D,
-    0x20, 0x7C, 0x00
-};
-
-const char leftWallOne[] = {
-    0x7F, 0x0D,
-    0x7A, 0x7F, 0x0D,
-    0x7A, 0x7A, 0x7F, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7B, 0x0D,
-    0x7A, 0x7B, 0x0D,
-    0x7B, 0x00
-};
-
-const char rightWallOne[] = {
-    0x20, 0x20, 0x7E, 0x0D,
-    0x20, 0x7E, 0x7A, 0x0D,
-    0x7E, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7A, 0x7A, 0x7A, 0x0D,
-    0x7C, 0x7A, 0x7A, 0x0D,
-    0x20, 0x7C, 0x7A, 0x0D,
-    0x20, 0x20, 0x7C, 0x00
-};
 
 void drawLeftFour(void){
     // tiles
@@ -136,9 +61,6 @@ void drawLeftThree(void){
     (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 11) + 8)) = 0x7B;
 
     // color
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 9) + 8)) = BLUE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 8)) = BLUE;
-
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 8) + 7)) = CYAN;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 9) + 7)) = CYAN;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 7)) = CYAN;
@@ -148,6 +70,8 @@ void drawLeftThree(void){
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 6)) = CYAN;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 11) + 6)) = CYAN;
 
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 9) + 8)) = BLUE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 8)) = BLUE;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 8) + 8)) = BLUE;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 11) + 8)) = BLUE;
 }
@@ -170,9 +94,6 @@ void drawRightThree(void){
     (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 11) + 15)) = 0x7C;
 
     // color
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 9) + 15)) = BLUE;
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 15)) = BLUE;
-
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 8) + 16)) = CYAN;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 9) + 16)) = CYAN;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 16)) = CYAN;
@@ -182,6 +103,8 @@ void drawRightThree(void){
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 17)) = CYAN;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 11) + 17)) = CYAN;
 
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 9) + 15)) = BLUE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 10) + 15)) = BLUE;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 8) + 15)) = BLUE;
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 11) + 15)) = BLUE;
 }
@@ -202,6 +125,60 @@ void drawRightTwo(void){
     (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 7) + 16)) = 0x7E;
     (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 12) + 16)) = 0x7C;
     (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 13) + 17)) = 0x7C;
+}
+
+void drawLeftOne(void){
+    drawSquare(3, 5, 3, 14, BLOCK_TILE_CHR, CYAN);
+    drawSquare(1, 3, 2, 16, BLOCK_TILE_CHR, WHITE);
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 3)) = BLOCK_TILE_CHR;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 3)) = BLOCK_TILE_CHR;
+
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 3) + 3)) = 0x7F;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 4)) = 0x7F;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 5) + 5)) = 0x7F;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 16) + 3)) = 0x7B;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 4)) = 0x7B;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 14) + 5)) = 0x7B;
+}
+
+void drawRightOne(void){
+    drawSquare(18, 5, 3, 14, BLOCK_TILE_CHR, CYAN);
+    drawSquare(21, 3, 2, 16, BLOCK_TILE_CHR, WHITE);
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 20)) = BLOCK_TILE_CHR;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 20)) = BLOCK_TILE_CHR;
+
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 3) + 20)) = 0x7E;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 4) + 19)) = 0x7E;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 5) + 18)) = 0x7E;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 16) + 20)) = 0x7C;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 15) + 19)) = 0x7C;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 14) + 18)) = 0x7C;
+}
+
+void drawLeft(void){
+    writev(1, 2, BLOCK_TILE_CHR, 16);
+    writev(2, 3, BLOCK_TILE_CHR, 14);
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 1) + 1)) = 0x7F;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 2) + 2)) = 0x7F;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 18) + 1)) = 0x7B;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 17) + 2)) = 0x7B;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 1) + 1)) = WHITE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 2) + 2)) = WHITE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 18) + 1)) = WHITE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 17) + 2)) = WHITE;
+}
+
+void drawRight(void){
+    writev(22, 2, BLOCK_TILE_CHR, 16);
+    writev(21, 3, BLOCK_TILE_CHR, 14);
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 1) + 22)) = 0x7E;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 2) + 21)) = 0x7E;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 18) + 22)) = 0x7C;
+    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 17) + 21)) = 0x7C;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 1) + 22)) = WHITE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 2) + 21)) = WHITE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 18) + 22)) = WHITE;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 17) + 21)) = WHITE;
 }
 
 void drawView(void){
@@ -307,25 +284,13 @@ void drawView(void){
     writeh(1, 12, 0x6D, 22);
     writeh(1, 14, 0x6D, 22);
     writeh(1, 17, 0x6D, 22);
+    // someone remind me to optimize this
 
+    if (wall_left[0]) drawLeft();
+    if (wall_right[0]) drawRight();
 
-    if (wall_left[0]){
-        gotoxy(1, 1);
-        simplewrite(leftWall);
-    }
-    if (wall_right[0]){
-        gotoxy(21, 1);
-        simplewrite(rightWall);
-    }
-
-    if (wall_left[1]){
-        gotoxy(3, 3);
-        simplewrite(leftWallOne);
-    }
-    if (wall_right[1]){
-        gotoxy(18, 3);
-        simplewrite(rightWallOne);
-    }
+    if (wall_left[1]) drawLeftOne();
+    if (wall_right[1]) drawRightOne();
     if (wall_front[0]) {
         drawSquare(3, 3, 18, 16, BLOCK_TILE_CHR, WHITE);
         return;

@@ -54,6 +54,8 @@ void createPlayer(void){
 void dungeon(){
     char o, update;
 
+    setSpriteVisibility(0b00000000);
+
     direction = NORTH;
     playerx = 1;
     playery = 3;
@@ -96,21 +98,25 @@ void dungeon(){
         switch(lastKey){
             case UP:
                 update = advance();
+                delayFrames(7);
                 break;
             case DOWN:
                 update = retreat();
+                delayFrames(7);
                 break;
             case LEFT:
                 update = 0;
                 if((direction - 1) < 0){
                     direction = 3;
                 }else{ direction--; }
+                delayFrames(10);
                 break;
             case RIGHT:
                 update = 0;
                 if((direction + 1) > 3){
                     direction = 0;
                 }else{ direction++; }
+                delayFrames(10);
                 break;
             case 133:
                 keyMode = keyMode? 0 : 1;
