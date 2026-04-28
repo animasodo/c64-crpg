@@ -132,7 +132,7 @@ void main(void){
     createPlayer();
     drawMainUI();
 
-    loadMapCompressed(OVERWORLD, OVERWORLD_WIDTH, OVERWORLD_HEIGHT);
+    loadMapCompressed(&OVERWORLD);
 
     setSpritePointer(0xCC00, 0);
 	// the sprite pointer is located at (screen base + 1016)

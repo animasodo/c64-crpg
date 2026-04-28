@@ -190,16 +190,16 @@ unsigned int parse(void){ // wip
     return 0;
 }
 
-void loadMapCompressed(const char *in, char width, char height){
+void loadMapCompressed(const Map *map){
     unsigned int i = 0, j = 0;
     char chr, chrLen;
 
-    mapHeight = height;
-    mapWidth = width;
+    mapHeight = map->height;
+    mapWidth = map->width;
     
     for(; j < sizeof(mapBuffer); i++){
-        chr = in[i] & 0x0F;
-        chrLen = ((in[i] & 0xF0) >> 4) + 1;
+        chr = map->data[i] & 0x0F;
+        chrLen = ((map->data[i] & 0xF0) >> 4) + 1;
         memset(&mapBuffer[j], chr, chrLen);
         j += chrLen;
     }

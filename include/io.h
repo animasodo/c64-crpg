@@ -19,7 +19,7 @@ void message(const char* format, ...);
 
 unsigned int parse(void);
 
-void loadMapCompressed(const char *in, char width, char height);
+void loadMapCompressed(const Map *map);
 
 void startTimer(void);
 
