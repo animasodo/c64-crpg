@@ -14,6 +14,8 @@ typedef struct {
 #define LEFT 157
 #define RIGHT 29
 
+#define FPS 50
+
 #define STACK_SIZE 256
 
 extern char playerName[10];
@@ -32,7 +34,6 @@ extern char species;
 
 extern char mapWidth;
 extern char mapHeight;
-extern unsigned int mapLength;
 extern char mapBuffer[1024];
 
 extern unsigned long timer;

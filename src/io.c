@@ -94,7 +94,7 @@ unsigned int prompt(void){
             gotox (x);
             cputc (' ');
             gotox (x);
-            for(i = 0; i < 50; i++){
+            for(i = 0; i < 25; i++){
                 waitvsync();
             }
         }
@@ -170,8 +170,8 @@ unsigned int parse(void){ // wip
 
     bufferPrompt[strcspn(bufferPrompt, "\n")] = 0; // remove new line code
     for(i = 0; bufferPrompt[i]; i++){
-        bufferPrompt[i] = tolower(bufferPrompt[i]); // make lowercase
-        if(bufferPrompt[i] == 0xa0){ bufferPrompt[i] = 0x20; } // convert space shift to space
+        bufferPrompt[i] = bufferPrompt[i] & 0b01111111; // make lowercase
+        if(bufferPrompt[i] == 0xa0) bufferPrompt[i] = 0x20;  // convert space shift to space
     }
     
     first = strtok(bufferPrompt, " ");
@@ -191,7 +191,7 @@ unsigned int parse(void){ // wip
 }
 
 void loadMapCompressed(const Map *map){
-    unsigned int i = 0, j = 0;
+    unsigned int i, j;
     char chr, chrLen;
 
     mapHeight = map->height;

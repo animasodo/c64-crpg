@@ -4,6 +4,7 @@
 #include "globals.h"
 
 #define scrollScreen() asm("jmp $E8EA")
+#define delaySeconds(s) delayFrames(s * FPS)
 
 extern char lastKey;
 extern char keyMode;

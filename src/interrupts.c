@@ -15,7 +15,7 @@ void initIrq(void) {
 }
 
 unsigned char irqRoutine(void) {
-    if(++frameCount == 50) frameCount = 0;
+    if(++frameCount == FPS) frameCount = 0;
     asm("inc $D019");
     return IRQ_NOT_HANDLED; // let the kernal do its job
 }
