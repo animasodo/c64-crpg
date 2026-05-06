@@ -14,21 +14,9 @@
 #define SCREEN_WIDTH 40
 #define SCREEN_HEIGHT 25
 
-char lastKey, keyMode, textIndex;
+char lastKey, textIndex;
 
 char bufferPrompt[20];
-
-typedef struct {
-    const char* verb;
-    const char code;
-} VerbMap;
-
-const VerbMap verbs[] = {
-    {"take", 1}, {"gather", 1}, {"grab", 1},
-    {"open", 2}, {"unlock", 2},
-    {"enter", 3},
-    {"save", 8}
-};
 
 void delayFrames(char count) {
     while (count--) {
@@ -73,39 +61,6 @@ void readString (char* buffer, char size){
         }
         // cursor (0);
     }
-}
-
-unsigned int prompt(void){
-    #define SIZE 20
-    unsigned char x, i;
-
-    gotoxy(3 + textIndex, 23);
-    if(textIndex){
-        if(lastKey == ENTER){
-            cclearxy(3, 23, SIZE);
-            gotox(3);
-            textIndex = 0;
-            return parse();
-        }
-        if(lastKey == '\b'){
-            bufferPrompt[--textIndex] = '\0';
-            x = wherex ();
-            x = x >= 3? x - 1: SCREEN_WIDTH - 1;
-            gotox (x);
-            cputc (' ');
-            gotox (x);
-            for(i = 0; i < 25; i++){
-                waitvsync();
-            }
-        }
-    }
-    if((char)isprint(lastKey) && textIndex < (SIZE - 1)){   // if character printable
-        cputc(lastKey); // type
-        bufferPrompt[textIndex] = lastKey; // set i in string to character
-        bufferPrompt[++textIndex] = '\0'; // null terminate string
-        lastKey = 0;
-    }
-    #undef SIZE
 }
 
 static void itoa16(int val, char *buf){
@@ -161,33 +116,6 @@ void message(const char* format, ...){
     }
     va_end(args);
     gotoxy(sx, sy); // return cursor
-}
-
-unsigned int parse(void){ // wip
-    char *first = 0, *second = 0, *third = 0, *fourth = 0, i;
-
-    if(bufferPrompt[0] == 0) return 0; // edge case scenario
-
-    bufferPrompt[strcspn(bufferPrompt, "\n")] = 0; // remove new line code
-    for(i = 0; bufferPrompt[i]; i++){
-        bufferPrompt[i] = bufferPrompt[i] & 0b01111111; // make lowercase
-        if(bufferPrompt[i] == 0xa0) bufferPrompt[i] = 0x20;  // convert space shift to space
-    }
-    
-    first = strtok(bufferPrompt, " ");
-    second = strtok(NULL, " ");
-    third = strtok(NULL, " ");
-    fourth = strtok(NULL, " ");
-
-    for(i = 0; i < sizeof(verbs); i++){
-        if(strcmp(first, verbs[i].verb) == 0) return verbs[i].code;
-    }
-    if(rand() % 2){
-        message("Huh?");
-    }else{
-        message("I beg you pardon?");
-    }
-    return 0;
 }
 
 void loadMapCompressed(const Map *map){

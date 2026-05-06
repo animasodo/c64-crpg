@@ -7,7 +7,6 @@
 #define delaySeconds(s) delayFrames(s * FPS)
 
 extern char lastKey;
-extern char keyMode;
 extern char textIndex;
 
 void delayFrames(char count);

@@ -74,27 +74,12 @@ void dungeon(){
         cbm_k_scnkey();
         lastKey = cbm_k_getin();
         
-        if(keyMode){ // direct mode
-            switch(lastKey){
-                case 's':
-                    message("Stats are not yet\nimplemented!");
-                    break;
+        switch(lastKey){
+            case 's':
+                message("Stats are not yet\nimplemented!");
+                break;
         }
-        }else{ // command mode
-            // c = prompt(text);
-            // o = parse(text);
-            switch(o){
-                case 1:
-                    message("What exactly?");
-                    break;
-                case 2:
-                    message("There's no door or\nchest nearby.");
-                    break;
-                case 3:
-                    message("Enter where?");
-                    break;
-            }
-        }
+
         switch(lastKey){
             case UP:
                 update = advance();
@@ -118,16 +103,11 @@ void dungeon(){
                 }else{ direction++; }
                 delayFrames(10);
                 break;
-            case 133:
-                keyMode = keyMode? 0 : 1;
-                break;
         }
     }
 }
 
 void main(void){
-    char parseOut;
-
     c64Setup();
     createPlayer();
     drawMainUI();
@@ -165,43 +145,12 @@ void main(void){
         
         if(lastKey == UP || lastKey == DOWN || lastKey == LEFT || lastKey == RIGHT) {
             walk();
-        }else if(lastKey == CH_F1){
-            if(keyMode){
-                keyMode = 0;
-                cursor(1);
-            }else{
-                keyMode = 1;
-                cursor(0);
-                cclearxy(3, 23, 20);
-                gotox(3);
-                textIndex = 0;
-            }
         }
 
-        if(keyMode){ // direct mode
-            switch(lastKey){
-                case 's':
-                    message("Stats are not yet\nimplemented!");
-                    break;
-        }
-        }else{ // command mode
-            gotoxy(3 + textIndex, 23);
-            parseOut = prompt();
-            switch(parseOut){
-                case 1:
-                    message("What exactly?");
-                    break;
-                case 2:
-                    message("There's no door or\nchest nearby.");
-                    break;
-                case 3:
-                    // message("Enter where?");
-                    dungeon();
-                    break;
-                case 8:
-                    message("This is not\nimplemented just yet.");
-                    break;
-            }
+        switch(lastKey){
+            case 's':
+                message("Stats are not yet\nimplemented!");
+                break;
         }
     }
 }

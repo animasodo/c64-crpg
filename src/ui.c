@@ -62,7 +62,4 @@ void drawMainUI(void){
     printDirection();
     textcolor(RED);
     textcolor(oldColor);
-
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 23) + 1)) = WHITE;
-    (*(char*)(SCREEN_MEM + (SCREEN_WIDTH * 23) + 1)) = 0x1C; // pound
 }
