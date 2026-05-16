@@ -7,9 +7,9 @@
 ;     char xViewport = 1, yViewport = 1;
 ;     char oldColor = textcolor(WHITE);
 ;     char xCursor = wherex(), yCursor = wherey();
-;     for(y = 0; y < 9; y++){
+;     for(y = 0; y < HEIGHT; y++){
 ;         unsigned int i = ((y + cameray) << 5) + camerax;
-;         for(x = 0; x < 11; x++){
+;         for(x = 0; x < WIDTH; x++){
 ;			  gotoxy(xViewport, yViewport);
 ;             drawtile(mapBuffer[i++]);
 ;             xViewport += 2;
@@ -28,6 +28,9 @@
 	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar
 	.export		_drawmap
 	.include    "c64.inc"
+
+	HEIGHT = $09
+	WIDTH = $0B
 
 .segment "RODATA"
 
@@ -65,7 +68,7 @@ color:
 	sta     tmp4				; init stuff
 yloop:
 	lda     tmp4
-	cmp     #$09
+	cmp     #HEIGHT
 	jcs     L0010
 
 	ldx     #$00				; beginning of index calculation
@@ -92,7 +95,7 @@ L000C:
 	sei							; avoid interruptions that do weird stuff
 L000E:
 	lda     tmp3				; for(x = 0; x < 11; x++)
-	cmp     #$0B
+	cmp     #WIDTH
 	bcs     L000F
 
 	lda     tmp2
