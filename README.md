@@ -11,3 +11,6 @@ There's also the chance I might be a horrible coder in some spots, but this is k
 Probably not. Who knows. Mayhaps. Perchance. The lack of a proper IDE kills me.
 
 ![Screenshot of the thing](screenshot.png)
+
+## Building
+To build the game, you need to install `make`, `cc65`, [`cc1541` (v4.2)](https://csdb.dk/release/?id=240041) and [`mapp`](https://github.com/animasodo/mapp) in a folder that can be accessed system or user-wide. Then just run the makefile.

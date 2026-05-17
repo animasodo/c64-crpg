@@ -10,7 +10,6 @@
 #include "ui.h"
 #include "drawmap.h"
 #include "charset.h"
-#include "map.h"
 #include "maze.h"
 #include "maze_data.h"
 #include "sprites.h"
@@ -63,11 +62,7 @@ void dungeon(){
     while(1){
         printDirection();
         if(!update || o) { // some stuff to see how many cycles rewritten functions take
-            // startTimer();
             drawView();
-            // writeTimer();
-            // gotoxy(1,20);
-            // printf("%lu", timer);
         }
         update = 1;
 
@@ -111,8 +106,8 @@ void main(void){
     c64Setup();
     createPlayer();
     drawMainUI();
-
-    loadMapCompressed(&OVERWORLD);
+    
+    loadMapCompressed("overworld");
 
     setSpritePointer(0xCC00, 0);
 	// the sprite pointer is located at (screen base + 1016)

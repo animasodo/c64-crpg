@@ -23,5 +23,3 @@ char mapBuffer[1024]; // just enough for 32x32 tiles
 unsigned long timer;
 char frameCount;
 char tempStack[STACK_SIZE];
-
-const unsigned int yScreenArray[] = {0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600, 640, 680, 720, 760, 800, 840, 880, 920, 960};

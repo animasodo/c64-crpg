@@ -16,6 +16,9 @@ typedef struct {
 
 #define FPS 50
 
+#define LFN 2
+#define FLOPPY 8
+
 #define STACK_SIZE 256
 
 extern char playerName[10];
@@ -39,7 +42,5 @@ extern char mapBuffer[1024];
 extern unsigned long timer;
 extern char frameCount;
 extern char tempStack[STACK_SIZE];
-
-extern const unsigned int yScreenArray[];
 
 #endif

@@ -3,9 +3,11 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <peekpoke.h>
 #include <cbm.h>
 #include <c64.h>
 #include "io.h"
+#include "ui.h"
 #include "globals.h"
 
 #define CRLF "\r\n"
@@ -118,19 +120,27 @@ void message(const char* format, ...){
     gotoxy(sx, sy); // return cursor
 }
 
-void loadMapCompressed(const Map *map){
-    unsigned int i, j;
-    char chr, chrLen;
+void loadMapCompressed(const char *filename){
+    unsigned int j;
+    char byte, chr, chrLen;
 
-    mapHeight = map->height;
-    mapWidth = map->width;
+    cbm_open(LFN, FLOPPY, 2, filename);
+    cbm_k_chkin(LFN); // set LFN 2 as active input channel
+
+    mapWidth = cbm_k_basin();
+    mapHeight = cbm_k_basin();
     
-    for(; j < sizeof(mapBuffer); i++){
-        chr = map->data[i] & 0x0F;
-        chrLen = ((map->data[i] & 0xF0) >> 4) + 1;
+    for(; j < sizeof(mapBuffer); ){
+        byte = cbm_k_basin();
+
+        chr = byte & 0x0F;
+        chrLen = ((byte & 0xF0) >> 4) + 1;
         memset(&mapBuffer[j], chr, chrLen);
         j += chrLen;
     }
+
+    cbm_k_clrch(); // clean up
+    cbm_close(LFN);
 }
 
 void startTimer(void) {
