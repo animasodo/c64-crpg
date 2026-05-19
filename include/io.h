@@ -8,6 +8,7 @@
 
 extern char lastKey;
 extern char textIndex;
+extern char bufferPrompt[];
 
 void delayFrames(char count);
 
@@ -17,12 +18,12 @@ unsigned int prompt(void);
 
 void message(const char* format, ...);
 
-unsigned int parse(void);
-
 void loadMapCompressed(const char *filename);
+
+void saveData(char *filename);
 
 void startTimer(void);
 
-void writeTimer();
+void writeTimer(void);
 
 #endif

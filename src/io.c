@@ -10,15 +10,18 @@
 #include "ui.h"
 #include "globals.h"
 
-#define CRLF "\r\n"
 #define ENTER 13
 #define F1 133
 #define SCREEN_WIDTH 40
 #define SCREEN_HEIGHT 25
 
-char lastKey, textIndex;
+#define MAP_DATA 0
+#define SAVE_DATA 1
 
+char lastKey, textIndex;
 char bufferPrompt[20];
+
+char *mapErrorMessage = "Map error.";
 
 void delayFrames(char count) {
     while (count--) {
@@ -61,7 +64,6 @@ void readString (char* buffer, char size){
                 buffer[++i] = '\0';     
             }
         }
-        // cursor (0);
     }
 }
 
@@ -83,7 +85,7 @@ static void itoa16(int val, char *buf){
 
 void message(const char* format, ...){
     va_list args;
-    char i, y = 20, sx = wherex(), sy = wherey();
+    char i, y = 20;
     char out[8];
 
     cclearxy(1, 20, 22); // clear screen
@@ -117,18 +119,35 @@ void message(const char* format, ...){
         }
     }
     va_end(args);
-    gotoxy(sx, sy); // return cursor
 }
 
 void loadMapCompressed(const char *filename){
+    // map format structure:
+    // 2 bytes: header (MP)
+    // 1 byte: width
+    // 1 byte: height
+    // 2 bytes: compressed map size
+    // rest of the file: map data
+    // will add more stuff to it later
+
     unsigned int j;
     char byte, chr, chrLen;
-
+    
     cbm_open(LFN, FLOPPY, 2, filename);
     cbm_k_chkin(LFN); // set LFN 2 as active input channel
 
+    if(cbm_k_basin() != 0x4D || cbm_k_basin() != 0x50){ // check header
+        message(mapErrorMessage);
+        cbm_k_clrch();
+        cbm_close(LFN);
+        return;
+    }
+
     mapWidth = cbm_k_basin();
     mapHeight = cbm_k_basin();
+
+    cbm_k_basin();
+    cbm_k_basin(); // skipping this for now
     
     for(; j < sizeof(mapBuffer); ){
         byte = cbm_k_basin();
@@ -139,6 +158,20 @@ void loadMapCompressed(const char *filename){
         j += chrLen;
     }
 
+    cbm_k_clrch(); // clean up
+    cbm_close(LFN);
+}
+
+void saveData(char *filename){
+    char testData[] = "\1test";
+
+    if(cbm_open(LFN, FLOPPY, 2, filename) != 0){
+        message("Couldn't open for saving.");
+        cbm_close(LFN);
+        return;
+    }
+
+    cbm_write(LFN, testData, 6); // testing data saving
     cbm_k_clrch(); // clean up
     cbm_close(LFN);
 }

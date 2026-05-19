@@ -146,6 +146,28 @@ void main(void){
             case 's':
                 message("Stats are not yet\nimplemented!");
                 break;
+            case 'q':
+                message("Save to (8,9)? ");
+                readString(bufferPrompt, 3);
+                if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
+                    message("Not a valid\ndevice number.");
+                }else{
+                    message("Save in %c as?\n", bufferPrompt[0]);
+                    readString(bufferPrompt, 14);
+                    saveData(strlower(bufferPrompt)); // not working correctly yet, just a test for now
+                }
+                break;
+            case 'w':
+                message("Load from (8,9)? ");
+                readString(bufferPrompt, 3);
+                if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
+                    message("Not a valid\ndevice number.");
+                }else{
+                    message("Load from %c as?\n", bufferPrompt[0]);
+                    readString(bufferPrompt, 14);
+                    // loadData(strlower(bufferPrompt)); // to be added
+                }
+                break;
         }
     }
 }

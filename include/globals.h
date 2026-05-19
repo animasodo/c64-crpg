@@ -3,12 +3,6 @@
 
 typedef enum {NORTH, EAST, SOUTH, WEST} dir;
 
-typedef struct {
-    char width;
-    char height;
-    char data[];
-} Map;
-
 #define UP 145
 #define DOWN 17
 #define LEFT 157
