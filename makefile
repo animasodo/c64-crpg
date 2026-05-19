@@ -2,7 +2,7 @@
 # Project
 # -------------------------------------------------
 TARGET      := crpg
-PLATFORM    := c64
+CONFIG    	:= c64.cfg
 
 BUILD_DIR   := build
 SRC_DIR		:= src
@@ -48,7 +48,7 @@ all: $(DISK)
 # -------------------------------------------------
 $(OUT): $(SOURCES) | $(BUILD_DIR)
 	@printf "CL65: building %s\n" "$@"
-	$(CL65) -t $(PLATFORM) $(CFLAGS) $(ASFLAGS) $(LDFLAGS) -o $@ \
+	$(CL65) -C $(CONFIG) $(CFLAGS) $(ASFLAGS) $(LDFLAGS) -o $@ \
 	$(SOURCES)
 
 $(DISK): $(OUT) $(MAP_FILES)

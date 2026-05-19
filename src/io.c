@@ -129,9 +129,6 @@ void loadMapCompressed(const char *filename){
     // 2 bytes: compressed map size
     // rest of the file: map data
     // will add more stuff to it later
-
-    unsigned int j;
-    char byte, chr, chrLen;
     
     cbm_open(LFN, FLOPPY, 2, filename);
     cbm_k_chkin(LFN); // set LFN 2 as active input channel
@@ -149,13 +146,13 @@ void loadMapCompressed(const char *filename){
     cbm_k_basin();
     cbm_k_basin(); // skipping this for now
     
-    for(; j < sizeof(mapBuffer); ){
-        byte = cbm_k_basin();
+    for(uint0 = 0; uint0 < sizeof(mapBuffer); ){
+        byte0 = cbm_k_basin();
 
-        chr = byte & 0x0F;
-        chrLen = ((byte & 0xF0) >> 4) + 1;
-        memset(&mapBuffer[j], chr, chrLen);
-        j += chrLen;
+        byte1 = byte0 & 0x0F;
+        byte2 = ((byte0 & 0xF0) >> 4) + 1;
+        memset(&mapBuffer[uint0], byte1, byte2);
+        uint0 += byte2;
     }
 
     cbm_k_clrch(); // clean up
