@@ -1,9 +1,9 @@
 #include <conio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <c64.h>
 #include "writeline.h"
 #include "simplewrite.h"
-#include "maze_data.h"
 #include "ui.h"
 #include "io.h"
 #include "globals.h"
@@ -13,9 +13,91 @@
 #define SCREEN_WIDTH 40
 #define BLOCK_TILE_CHR 0x7A
 #define BLOCK_TILE_SCR 0xBA
+
 #define position uint0
 
 // the code will assume the maze size is always 16x16, as it fits inside a one byte array
+
+char* mazeStack = &mapBuffer[256];
+signed char mazeStackTop = -1;
+
+void calculatePosition(void) { position = (playery << 4) + playerx; }
+
+void pushTraverse(char value){
+    mazeStack[++mazeStackTop] = value;
+}
+
+char popTraverse(void){
+    return mazeStack[mazeStackTop--];
+}
+
+char peekTraverse(void){
+    return mazeStack[mazeStackTop];
+}
+
+char isStackEmpty(void){
+    if(mazeStackTop == -1) return 1;
+    return 0;
+}
+
+void generateMap(void){
+    char i, canMove = 0;
+
+    memset(mapBuffer, 1, 256); // fill everything with walls
+
+    playerx = 0;
+    playery = 0;
+    position = 0;
+    mapBuffer[position] = 0;
+    pushTraverse(position);
+
+    for(i = 0; i < 3; i++){
+        while(canMove == 0){
+            byte4 = rand() % 4;
+            canMove = 1;
+            switch(byte4){
+                case 0:
+                    byte1 = position - 32;
+                    if(playery == 0) canMove = 0;
+                    break;
+                case 1:
+                    byte1 = position + 2;
+                    if(playerx == 14) canMove = 0;
+                    break;
+                case 2:
+                    byte1 = position + 32;
+                    if(playery == 14) canMove = 0;
+                    break;
+                case 3:
+                    byte1 = position - 2;
+                    if(playerx == 0) canMove = 0;
+                    break;
+            }
+        }
+        if(mapBuffer[byte1] == 1){
+            switch(byte4){
+            case 0:
+                mapBuffer[position - 16] = 0;
+                break;
+            case 1:
+                mapBuffer[position + 1] = 0;
+                break;
+            case 2:
+                mapBuffer[position + 16] = 0;
+                break;
+            case 3:
+                mapBuffer[position - 1] = 0;
+                break;
+            }
+            position = byte1;
+            mapBuffer[position] = 0;
+            pushTraverse(position);
+        }
+    }
+
+    message("%d%d%d%d %d\n%d%d%d%d\n%d%d%d%d", mapBuffer[0], mapBuffer[1], mapBuffer[2], mapBuffer[3], byte4, mapBuffer[16], mapBuffer[17], mapBuffer[18], mapBuffer[19],
+    mapBuffer[32], mapBuffer[33], mapBuffer[34], mapBuffer[35]);
+}
 
 // better way to draw squares. it really is that simple lol
 void drawSquare(char x, char y, char len, char finaly, char c, char color) {
@@ -186,7 +268,7 @@ void drawView(void){
     char left[5], right[5], front[4];
     char wall_left[5], wall_right[5], wall_front[4];
     
-    position = (playery << 4) + playerx; // we can do a shift left since the width of the map is always 16
+    position = (playery << 4) + playerx;
     switch(direction){
         case NORTH:
             front[0] = position - 16;
@@ -256,19 +338,19 @@ void drawView(void){
 
     // Precompute wall presence and boundaries
     for (idx8 = 0; idx8 < 5; idx8++) {
-        wall_left[idx8] = (test_maze_data[left[idx8]] == 1)
+        wall_left[idx8] = (mapBuffer[left[idx8]] == 1)
             || (direction == NORTH && playerx == 0)
             || (direction == EAST && playery == 0)
             || (direction == SOUTH && playerx == 15)
             || (direction == WEST && playery == 15);
-        wall_right[idx8] = (test_maze_data[right[idx8]] == 1)
+        wall_right[idx8] = (mapBuffer[right[idx8]] == 1)
             || (direction == NORTH && playerx == 15)
             || (direction == EAST && playery == 15)
             || (direction == SOUTH && playerx == 0)
             || (direction == WEST && playery == 0);
     }
     for (idx8 = 0; idx8 < 4; idx8++) {
-        wall_front[idx8] = (test_maze_data[front[idx8]] == 1)
+        wall_front[idx8] = (mapBuffer[front[idx8]] == 1)
             || (direction == NORTH && playery == idx8)
             || (direction == EAST && playerx == 15 - idx8)
             || (direction == SOUTH && playery == 15 - idx8)
@@ -323,13 +405,13 @@ char advance(void){
     position = (playery << 4) + playerx;
     switch(direction){
         case NORTH:
-            if(test_maze_data[position - 16] != 1 && playery != 0){ --playery; return 0;} break;
+            if(mapBuffer[position - 16] != 1 && playery != 0){ --playery; return 0;} break;
         case EAST:
-            if(test_maze_data[position + 1] != 1 && playerx != 15){ ++playerx; return 0;} break;
+            if(mapBuffer[position + 1] != 1 && playerx != 15){ ++playerx; return 0;} break;
         case SOUTH:
-            if(test_maze_data[position + 16] != 1 && playery != 15){ ++playery; return 0;} break;
+            if(mapBuffer[position + 16] != 1 && playery != 15){ ++playery; return 0;} break;
         case WEST:
-            if(test_maze_data[position - 1] != 1 && playerx != 0){ --playerx; return 0;} break;
+            if(mapBuffer[position - 1] != 1 && playerx != 0){ --playerx; return 0;} break;
     }
     return 1;
 }
@@ -338,13 +420,13 @@ char retreat(void){
     position = (playery << 4) + playerx;
     switch(direction){
         case NORTH:
-            if(test_maze_data[position + 16] != 1 && playery != 15){ ++playery; return 0;} break;
+            if(mapBuffer[position + 16] != 1 && playery != 15){ ++playery; return 0;} break;
         case EAST:
-            if(test_maze_data[position - 1] != 1 && playerx != 0){ --playerx; return 0;} break;
+            if(mapBuffer[position - 1] != 1 && playerx != 0){ --playerx; return 0;} break;
         case SOUTH:
-            if(test_maze_data[position - 16] != 1 && playery != 0){ --playery; return 0;} break;
+            if(mapBuffer[position - 16] != 1 && playery != 0){ --playery; return 0;} break;
         case WEST:
-            if(test_maze_data[position + 1] != 1 && playerx != 15){ ++playerx; return 0;} break;
+            if(mapBuffer[position + 1] != 1 && playerx != 15){ ++playerx; return 0;} break;
     }
     return 1;
 }

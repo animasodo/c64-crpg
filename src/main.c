@@ -11,7 +11,6 @@
 #include "drawmap.h"
 #include "charset.h"
 #include "maze.h"
-#include "maze_data.h"
 #include "sprites.h"
 #include "topdown.h"
 #include "interrupts.h"
@@ -55,9 +54,11 @@ void dungeon(){
 
     setSpriteVisibility(0b00000000);
 
+    generateMap();
+
     direction = NORTH;
-    playerx = 1;
-    playery = 3;
+    playerx = 0;
+    playery = 0;
 
     while(1){
         printDirection();
@@ -106,6 +107,8 @@ void main(void){
     c64Setup();
     createPlayer();
     drawMainUI();
+
+    _randomize();
     
     loadMapCompressed("overworld");
 
@@ -167,6 +170,17 @@ void main(void){
                     readString(bufferPrompt, 14);
                     // loadData(strlower(bufferPrompt)); // to be added
                 }
+                break;
+            case 'e':
+                dungeon(); // for testing rn
+                break;
+            case 'o':
+                message("Push what? ");
+                readString(bufferPrompt, 5);
+                pushTraverse(atoi(bufferPrompt));
+                break;
+            case 'p':
+                message("%d", popTraverse());
                 break;
         }
     }
