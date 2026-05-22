@@ -21,7 +21,8 @@
 char lastKey, textIndex;
 char bufferPrompt[20];
 
-char *mapErrorMessage = "Map error.";
+char *diskErrorMessage = "Disk error.";
+char *mapErrorMessage = "Not a map.";
 
 void delayFrames(char count) {
     while (count--) {
@@ -61,26 +62,10 @@ void readString (char* buffer, char size){
             } else if ((char)isprint (c) && i < (size - 1)) {   // if character printable
                 cputc (c);              // type character
                 buffer[i] = c;          // set i in string to character
-                buffer[++i] = '\0';     
+                buffer[++i] = '\0';
             }
         }
     }
-}
-
-static void itoa16(int val, char *buf){
-    unsigned int u = (val < 0) ? -val : val;
-    char tmp[6], j, i = 0;
-
-    do {
-        tmp[i++] = '0' + (u % 10);
-        u /= 10;
-    } while (u);
-
-    if (val < 0) tmp[i++] = '-';
-
-    /* reverse into buf */
-    for (j = 0; j < i; ++j) buf[j] = tmp[i - 1 - j];
-    buf[i] = '\0';
 }
 
 void message(const char* format, ...){
@@ -99,7 +84,7 @@ void message(const char* format, ...){
             if(format[i] == '%'){ // hrm? is this a data type?
                 switch(format[++i]){
                     case 'd': // why yes it is!
-                        itoa16(va_arg(args, int), out);
+                        itoa(va_arg(args, int), out, 10);
                         cputs(out);
                         break;
                     case 'c':
@@ -121,22 +106,13 @@ void message(const char* format, ...){
     va_end(args);
 }
 
-void loadMapCompressed(const char *filename){
-    // map format structure:
-    // 2 bytes: header (MP)
-    // 1 byte: width
-    // 1 byte: height
-    // 2 bytes: compressed map size
-    // rest of the file: map data
-    // will add more stuff to it later
-    
-    cbm_open(LFN, FLOPPY, 2, filename);
+void loadMapCompressed(char *filename){
+    openFile(filename);
     cbm_k_chkin(LFN); // set LFN 2 as active input channel
 
     if(cbm_k_basin() != 0x4D || cbm_k_basin() != 0x50){ // check header
         message(mapErrorMessage);
-        cbm_k_clrch();
-        cbm_close(LFN);
+        closeDevice();
         return;
     }
 
@@ -144,46 +120,30 @@ void loadMapCompressed(const char *filename){
     mapHeight = cbm_k_basin();
 
     cbm_k_basin();
-    cbm_k_basin(); // skipping this for now
+    asm("sta _uint1");
+    cbm_k_basin();
+    asm("sta _uint1+1"); // get compressed length
     
-    for(uint0 = 0; uint0 < sizeof(mapBuffer); ){
-        byte0 = cbm_k_basin();
+    idx16 = 0; // uncompressed index
+    jdx16 = 0; // compressed index
 
-        byte1 = byte0 & 0x0F;
-        byte2 = ((byte0 & 0xF0) >> 4) + 1;
-        memset(&mapBuffer[uint0], byte1, byte2);
-        uint0 += byte2;
+    while(jdx16 < uint1){ // get map data
+        byte0 = cbm_k_basin(); // byte0: byte
+
+        byte1 = byte0 & 0x0F; // byte1: tile
+        byte2 = ((byte0 & 0xF0) >> 4) + 1; // byte2: length
+        memset(&mapBuffer[idx16], byte1, byte2);
+        idx16 += byte2;
+        jdx16++;
     }
 
-    cbm_k_clrch(); // clean up
-    cbm_close(LFN);
+    closeDevice();
 }
 
 void saveData(char *filename){
     char testData[] = "\1test";
 
-    if(cbm_open(LFN, FLOPPY, 2, filename) != 0){
-        message("Couldn't open for saving.");
-        cbm_close(LFN);
-        return;
-    }
-
+    openFile(filename);
     cbm_write(LFN, testData, 6); // testing data saving
-    cbm_k_clrch(); // clean up
-    cbm_close(LFN);
-}
-
-void startTimer(void) {
-    CIA2.ta_lo = 0xFF; // set initial timer values
-    CIA2.ta_hi = 0xFF; // (Note that timers count down to 0).
-    CIA2.tb_lo = 0xFF;
-    CIA2.tb_hi = 0xFF;
-    CIA2.crb = 0x51; // start timer B counting Timer A rollovers
-    CIA2.cra = 0x11; // start timer A in continuous mode
-}
-
-void writeTimer(void) {
-    CIA2.cra = 0x00; // stop timers
-    CIA2.crb = 0x40;
-    timer = (unsigned long)0xFFFFFFFF - *(unsigned long*)(&CIA2.ta_lo);
+    closeDevice();
 }

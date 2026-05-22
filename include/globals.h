@@ -37,8 +37,8 @@ extern unsigned long timer;
 extern char frameCount;
 extern char tempStack[STACK_SIZE];
 
-extern char byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7;
-extern unsigned int uint0, uint1, uint2, uint3;
+extern char byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, idx8, jdx8;
+extern unsigned int uint0, uint1, uint2, uint3, idx16, jdx16, ptr;
 extern int int0, int1, int2, int3;
 
 #pragma zpsym("byte0");
@@ -57,5 +57,10 @@ extern int int0, int1, int2, int3;
 #pragma zpsym("int1");
 #pragma zpsym("int2");
 #pragma zpsym("int3");
+#pragma zpsym("idx8");
+#pragma zpsym("jdx8");
+#pragma zpsym("idx16");
+#pragma zpsym("jdx16");
+#pragma zpsym("ptr");
 
 #endif

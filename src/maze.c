@@ -13,6 +13,7 @@
 #define SCREEN_WIDTH 40
 #define BLOCK_TILE_CHR 0x7A
 #define BLOCK_TILE_SCR 0xBA
+#define position uint0
 
 // the code will assume the maze size is always 16x16, as it fits inside a one byte array
 
@@ -182,96 +183,96 @@ void drawRight(void){
 }
 
 void drawView(void){
-    char playerpos = (playery << 4) + playerx; // we can do a shift left since the width of the map is always 16
     char left[5], right[5], front[4];
     char wall_left[5], wall_right[5], wall_front[4];
-    char i;
+    
+    position = (playery << 4) + playerx; // we can do a shift left since the width of the map is always 16
     switch(direction){
         case NORTH:
-            front[0] = playerpos - 16;
-            front[1] = playerpos - 32;
-            front[2] = playerpos - 48;
-            front[3] = playerpos - 64;
-            left[0] = playerpos - 1;
-            left[1] = playerpos - 17;
-            left[2] = playerpos - 33;
-            left[3] = playerpos - 49;
-            left[4] = playerpos - 65;
-            right[0] = playerpos + 1;
-            right[1] = playerpos - 15;
-            right[2] = playerpos - 31;
-            right[3] = playerpos - 47;
-            right[4] = playerpos - 63;
+            front[0] = position - 16;
+            front[1] = position - 32;
+            front[2] = position - 48;
+            front[3] = position - 64;
+            left[0] = position - 1;
+            left[1] = position - 17;
+            left[2] = position - 33;
+            left[3] = position - 49;
+            left[4] = position - 65;
+            right[0] = position + 1;
+            right[1] = position - 15;
+            right[2] = position - 31;
+            right[3] = position - 47;
+            right[4] = position - 63;
             break;
         case EAST:
-            front[0] = playerpos + 1;
-            front[1] = playerpos + 2;
-            front[2] = playerpos + 3;
-            front[3] = playerpos + 4;
-            left[0] = playerpos - 16;
-            left[1] = playerpos - 15;
-            left[2] = playerpos - 14;
-            left[3] = playerpos - 13;
-            left[4] = playerpos - 12;
-            right[0] = playerpos + 16;
-            right[1] = playerpos + 17;
-            right[2] = playerpos + 18;
-            right[3] = playerpos + 19;
-            right[4] = playerpos + 20;
+            front[0] = position + 1;
+            front[1] = position + 2;
+            front[2] = position + 3;
+            front[3] = position + 4;
+            left[0] = position - 16;
+            left[1] = position - 15;
+            left[2] = position - 14;
+            left[3] = position - 13;
+            left[4] = position - 12;
+            right[0] = position + 16;
+            right[1] = position + 17;
+            right[2] = position + 18;
+            right[3] = position + 19;
+            right[4] = position + 20;
             break;
         case SOUTH:
-            front[0] = playerpos + 16;
-            front[1] = playerpos + 32;
-            front[2] = playerpos + 48;
-            front[3] = playerpos + 64;
-            left[0] = playerpos + 1;
-            left[1] = playerpos + 17;
-            left[2] = playerpos + 33;
-            left[3] = playerpos + 49;
-            left[4] = playerpos + 65;
-            right[0] = playerpos - 1;
-            right[1] = playerpos + 15;
-            right[2] = playerpos + 31;
-            right[3] = playerpos + 47;
-            right[4] = playerpos + 63;
+            front[0] = position + 16;
+            front[1] = position + 32;
+            front[2] = position + 48;
+            front[3] = position + 64;
+            left[0] = position + 1;
+            left[1] = position + 17;
+            left[2] = position + 33;
+            left[3] = position + 49;
+            left[4] = position + 65;
+            right[0] = position - 1;
+            right[1] = position + 15;
+            right[2] = position + 31;
+            right[3] = position + 47;
+            right[4] = position + 63;
             break;
         case WEST:
-            front[0] = playerpos - 1;
-            front[1] = playerpos - 2;
-            front[2] = playerpos - 3;
-            front[3] = playerpos - 4;
-            left[0] = playerpos + 16;
-            left[1] = playerpos + 15;
-            left[2] = playerpos + 14;
-            left[3] = playerpos + 13;
-            left[4] = playerpos + 12;
-            right[0] = playerpos - 16;
-            right[1] = playerpos - 17;
-            right[2] = playerpos - 18;
-            right[3] = playerpos - 19;
-            right[4] = playerpos - 20;
+            front[0] = position - 1;
+            front[1] = position - 2;
+            front[2] = position - 3;
+            front[3] = position - 4;
+            left[0] = position + 16;
+            left[1] = position + 15;
+            left[2] = position + 14;
+            left[3] = position + 13;
+            left[4] = position + 12;
+            right[0] = position - 16;
+            right[1] = position - 17;
+            right[2] = position - 18;
+            right[3] = position - 19;
+            right[4] = position - 20;
             break;
     }
 
     // Precompute wall presence and boundaries
-    for (i = 0; i < 5; i++) {
-        wall_left[i] = (test_maze_data[left[i]] == 1)
+    for (idx8 = 0; idx8 < 5; idx8++) {
+        wall_left[idx8] = (test_maze_data[left[idx8]] == 1)
             || (direction == NORTH && playerx == 0)
             || (direction == EAST && playery == 0)
             || (direction == SOUTH && playerx == 15)
             || (direction == WEST && playery == 15);
-        wall_right[i] = (test_maze_data[right[i]] == 1)
+        wall_right[idx8] = (test_maze_data[right[idx8]] == 1)
             || (direction == NORTH && playerx == 15)
             || (direction == EAST && playery == 15)
             || (direction == SOUTH && playerx == 0)
             || (direction == WEST && playery == 0);
     }
-    for (i = 0; i < 4; i++) {
-        wall_front[i] = (test_maze_data[front[i]] == 1)
-            || (direction == NORTH && playery == i)
-            || (direction == EAST && playerx == 15 - i)
-            || (direction == SOUTH && playery == 15 - i)
-            || (direction == WEST && playerx == i);
+    for (idx8 = 0; idx8 < 4; idx8++) {
+        wall_front[idx8] = (test_maze_data[front[idx8]] == 1)
+            || (direction == NORTH && playery == idx8)
+            || (direction == EAST && playerx == 15 - idx8)
+            || (direction == SOUTH && playery == 15 - idx8)
+            || (direction == WEST && playerx == idx8);
     }
 
     drawSquare(1, 1, 22, 18, ' ', CYAN);
@@ -319,7 +320,7 @@ void drawView(void){
 }
 
 char advance(void){
-    char position = (playery << 4) + playerx;
+    position = (playery << 4) + playerx;
     switch(direction){
         case NORTH:
             if(test_maze_data[position - 16] != 1 && playery != 0){ --playery; return 0;} break;
@@ -334,7 +335,7 @@ char advance(void){
 }
 
 char retreat(void){
-    char position = (playery << 4) + playerx;
+    position = (playery << 4) + playerx;
     switch(direction){
         case NORTH:
             if(test_maze_data[position + 16] != 1 && playery != 15){ ++playery; return 0;} break;

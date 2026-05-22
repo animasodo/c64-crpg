@@ -6,6 +6,8 @@
 #include "sprites.h"
 #include "io.h"
 
+#define position uint0
+
 void setCameraSprite(void){
     if(playerx > 5 && playerx < (mapWidth - 6)) {
         camerax = playerx - 5;
@@ -31,40 +33,39 @@ void setCameraSprite(void){
 }
 
 char walk(void){
-    unsigned int position = (playery * mapWidth) + playerx;
-    char moved;
+    position = (playery * mapWidth) + playerx;
     switch(lastKey){
         case UP:
             if(mapBuffer[position - mapWidth] < 8){
                 playery--;
                 direction = NORTH;
-                moved = 1;
+                byte0 = 1;
             }
             break;
         case DOWN:
             if(mapBuffer[position + mapWidth] < 8){
                 playery++;
                 direction = SOUTH;
-                moved = 1;
+                byte0 = 1;
             }
             break;
         case LEFT:
             if(mapBuffer[position - 1] < 8){
                 playerx--;
                 direction = WEST;
-                moved = 1;
+                byte0 = 1;
             }
             break;
         case RIGHT:
             if(mapBuffer[position + 1] < 8){
                 playerx++;
                 direction = EAST;
-                moved = 1;
+                byte0 = 1;
             }
             break;
     }
-    
-    if(moved) {
+
+    if(byte0) {
         if(direction == NORTH || direction == EAST) { // set walking sprite
             setSpritePointer(0xCCC0, 0);
         } else {
