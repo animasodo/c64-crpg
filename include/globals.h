@@ -3,6 +3,14 @@
 
 typedef enum {NORTH, EAST, SOUTH, WEST} dir;
 
+typedef struct {
+    char filename[12][8];
+    char src_x[8];
+    char src_y[8];
+    char dst_x[8];
+    char dst_y[8];
+} warp;
+
 #define UP 145
 #define DOWN 17
 #define LEFT 157
@@ -32,6 +40,7 @@ extern char species;
 extern char mapWidth;
 extern char mapHeight;
 extern char mapBuffer[1024];
+extern warp warps;
 
 extern unsigned long timer;
 extern char frameCount;

@@ -19,6 +19,7 @@ char mapWidth;
 char mapHeight;
 unsigned int mapLength;
 char mapBuffer[1024]; // just enough for 32x32 tiles
+warp warps;
 
 unsigned long timer;
 char frameCount;

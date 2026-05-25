@@ -136,7 +136,7 @@ void loadMapCompressed(char *filename){
         idx16 += byte2;
         jdx16++;
     }
-
+    
     closeDevice();
 }
 

@@ -1,0 +1,13 @@
+{
+    "width": 32,
+    "height": 32,
+    "warps": [
+        {
+            "map": "overworld",
+            "src_x": 2,
+            "src_y": 4,
+            "dst_x": 7,
+            "dst_y": 4
+        }
+    ]
+}

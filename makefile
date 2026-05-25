@@ -19,6 +19,7 @@ MAP         := $(BUILD_DIR)/$(TARGET).map
 # -------------------------------------------------
 CL65	:= cl65
 CC1541	:= cc1541
+MAPP	:= mapp
 
 # -------------------------------------------------
 # Flags
@@ -37,6 +38,12 @@ MAP_FILES	:= $(wildcard $(MAP_DIR)/*.bin)
 SOURCES		:= $(C_SOURCES) $(DATA_SOURCES) $(ASM_SOURCES)
 
 # -------------------------------------------------
+# Processed Maps
+# -------------------------------------------------
+PROC_MAP_DIR	:= $(BUILD_DIR)/maps
+PROC_MAP_FILES	:= $(patsubst $(MAP_DIR)/%.bin,$(PROC_MAP_DIR)/%.bin,$(MAP_FILES))
+
+# -------------------------------------------------
 # Phony targets
 # -------------------------------------------------
 .PHONY: all clean rebuild help
@@ -51,16 +58,23 @@ $(OUT): $(SOURCES) | $(BUILD_DIR)
 	$(CL65) -C $(CONFIG) $(CFLAGS) $(ASFLAGS) $(LDFLAGS) -o $@ \
 	$(SOURCES)
 
-$(DISK): $(OUT) $(MAP_FILES)
+$(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json | $(PROC_MAP_DIR)
+	@printf "MAPP: processing %s\n" "$<"
+	$(MAPP) $< -j $(MAP_DIR)/$*.json -o $@
+
+$(DISK): $(OUT) $(PROC_MAP_FILES)
 	@printf "CC1541: creating %s\n" "$@"
 	$(CC1541) -n "$(TARGET)" -i "jay" \
 		-f "$(TARGET)" -w $(OUT) \
-		$(foreach map,$(MAP_FILES), \
+		$(foreach map,$(PROC_MAP_FILES), \
 			-f "$(notdir $(basename $(map)))" -T SEQ -w $(map)) \
 		$(DISK)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
+
+$(PROC_MAP_DIR): | $(BUILD_DIR)
+	@mkdir -p $(PROC_MAP_DIR)
 
 # -------------------------------------------------
 # Utility
