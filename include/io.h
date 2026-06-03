@@ -23,4 +23,6 @@ void loadMapCompressed(char *filename);
 
 void saveData(char *filename);
 
+void loadCharset(void);
+
 #endif

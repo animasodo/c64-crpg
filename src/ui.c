@@ -7,7 +7,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "io.h"
-#include "charset.h"
 #include "globals.h"
 
 #include "ui.h"

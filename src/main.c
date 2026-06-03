@@ -9,7 +9,6 @@
 #include "io.h"
 #include "ui.h"
 #include "drawmap.h"
-#include "charset.h"
 #include "maze.h"
 #include "maze_data.h"
 #include "sprites.h"
@@ -18,23 +17,7 @@
 #include "lizard_sprite.h"
 #include "globals.h"
 
-#ifdef __C64__
-void c64Setup(void){
-    char videoMode = PEEK(0xD016);
-    loadCharset();
-    POKE(MULTICOLOR_0, WHITE);
-    POKE(MULTICOLOR_1, BROWN);
-    POKE(0xD016, videoMode | 0x10);
-    POKE(BORDER_COLOR, BLACK);
-    POKE(BG_COLOR, BLACK);
-    textcolor(WHITE);
-    clrscr();
-}
-#endif
-
 void createPlayer(void){
-    c64Setup();
-
     drawBox(0, 0, 40, 25);
     textcolor(YELLOW);
     cputsxy(2, 2, "Welcome to the CRPG demo!");
@@ -103,7 +86,20 @@ void dungeon(){
 }
 
 void main(void){
-    c64Setup();
+    byte0 = PEEK(0xD016);
+    
+    clrscr();
+    POKE(MULTICOLOR_0, WHITE);
+    POKE(MULTICOLOR_1, BROWN);
+    POKE(BORDER_COLOR, BLACK);
+    POKE(BG_COLOR, BLACK);
+    textcolor(WHITE);
+    POKE(0xD016, byte0 | 0x10);
+    cputsxy(0, 24, "Loading...");
+
+    loadCharset();
+    clrscr();
+
     createPlayer();
     drawMainUI();
     

@@ -30,12 +30,13 @@ LDFLAGS 	:= -Ln $(LABELS) -m $(MAP)
 # -------------------------------------------------
 # Sources
 # -------------------------------------------------
-C_SOURCES	:= $(wildcard $(SRC_DIR)/*.c)
-DATA_SOURCES:= $(wildcard $(DATA_DIR)/*.c)
-ASM_SOURCES	:= $(wildcard $(SRC_DIR)/*.s)
-MAP_FILES	:= $(wildcard $(MAP_DIR)/*.bin)
+C_SOURCES		:= $(wildcard $(SRC_DIR)/*.c)
+DATA_SOURCES	:= $(wildcard $(DATA_DIR)/*.c)
+ASM_SOURCES		:= $(wildcard $(SRC_DIR)/*.s)
+DATA_FILES		:= $(wildcard $(DATA_DIR)/*.bin)
+MAP_FILES		:= $(wildcard $(MAP_DIR)/*.bin)
 
-SOURCES		:= $(C_SOURCES) $(DATA_SOURCES) $(ASM_SOURCES)
+SOURCES			:= $(C_SOURCES) $(DATA_SOURCES) $(ASM_SOURCES)
 
 # -------------------------------------------------
 # Processed Maps
@@ -66,6 +67,8 @@ $(DISK): $(OUT) $(PROC_MAP_FILES)
 	@printf "CC1541: creating %s\n" "$@"
 	$(CC1541) -n "$(TARGET)" -i "jay" \
 		-f "$(TARGET)" -w $(OUT) \
+		$(foreach data,$(DATA_FILES), \
+			-f "$(notdir $(basename $(data)))" -T SEQ -w $(data)) \
 		$(foreach map,$(PROC_MAP_FILES), \
 			-f "$(notdir $(basename $(map)))" -T SEQ -w $(map)) \
 		$(DISK)
