@@ -86,15 +86,15 @@ void dungeon(){
 }
 
 void main(void){
+    // init
     byte0 = PEEK(0xD016);
-    
     clrscr();
     POKE(MULTICOLOR_0, WHITE);
     POKE(MULTICOLOR_1, BROWN);
     POKE(BORDER_COLOR, BLACK);
     POKE(BG_COLOR, BLACK);
     textcolor(WHITE);
-    POKE(0xD016, byte0 | 0x10);
+    POKE(0xD016, byte0 | 0x10); // set multicolor character mode
     cputsxy(0, 24, "Loading...");
 
     loadCharset();
@@ -126,11 +126,11 @@ void main(void){
     playery = 5;
     setCameraSprite();
 
+    drawmap();
+
     initIrq();
 
     while(1){
-        drawmap();
-        
         cbm_k_scnkey();
         lastKey = cbm_k_getin();
         

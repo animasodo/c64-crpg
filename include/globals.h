@@ -21,7 +21,7 @@ typedef struct {
 #define LFN 2
 #define FLOPPY 8
 
-#define STACK_SIZE 256
+#define STACK_SIZE 64 // since we got the global setting on, maybe we don't need as much stack space?
 
 extern char playerName[10];
 extern char playerx;
@@ -42,7 +42,6 @@ extern char mapHeight;
 extern char mapBuffer[1024];
 extern warp warps;
 
-extern unsigned long timer;
 extern char frameCount;
 extern char tempStack[STACK_SIZE];
 

@@ -19,11 +19,11 @@
 
 // better way to draw squares. it really is that simple lol
 void drawSquare(char x, char y, char len, char finaly, char c, char color) {
-    char oldColor = textcolor(color);
+    byte0 = textcolor(color);
     for (; y <= finaly; y++) {
         writeh(x, y, c, len);
     }
-    textcolor(oldColor);
+    textcolor(byte0);
 }
 
 void drawLeftFour(void){

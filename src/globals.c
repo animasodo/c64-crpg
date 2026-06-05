@@ -12,7 +12,6 @@ char playerStamina;
 char playerPower;
 unsigned int playerExp;
 unsigned int gold;
-
 char species;
 
 char mapWidth;
@@ -21,6 +20,5 @@ unsigned int mapLength;
 char mapBuffer[1024]; // just enough for 32x32 tiles
 warp warps;
 
-unsigned long timer;
 char frameCount;
 char tempStack[STACK_SIZE];

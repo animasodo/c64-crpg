@@ -20,45 +20,49 @@
 const char dirChar[4] = {'N', 'E', 'S', 'W'};
 
 void drawBox(char x, char y, char length, char height){
-    char xl = (x + length) - 1, yh = (y + height) - 1, oldColor = textcolor(LIGHT_PURPLE);
+    byte0 = (x + length) - 1, byte1 = (y + height) - 1, byte2 = textcolor(LIGHT_PURPLE);
     chlinexy(x, y, length);
     cvlinexy(x, y, height);
-    chlinexy(x, yh, length);
-    cvlinexy(xl, y, height);
+    chlinexy(x, byte1, length);
+    cvlinexy(byte0, y, height);
 
-    oldColor = textcolor(YELLOW);
+    byte2 = textcolor(YELLOW);
     cputcxy(x, y, 0x9C); // top left
-    cputcxy(xl, y, 0x9C); // top right
-    cputcxy(x, yh, 0x9C); // bottom left
-    cputcxy(xl, yh, 0x9C); // bottom right
-    textcolor(oldColor);
+    cputcxy(byte0, y, 0x9C); // top right
+    cputcxy(x, byte1, 0x9C); // bottom left
+    cputcxy(byte0, byte1, 0x9C); // bottom right
+    textcolor(byte2);
 }
 
 void drawStats(void){
-    cputsxy(25, 0, playerName);
-    cputsxy(24, 2, "Health:");
-    cputsxy(24, 3, "Stamina:");
-    cputsxy(24, 4, "Power:");
-    cputsxy(24, 5, "Exp:");
-    cputsxy(24, 6, "Gold:");
+    cputsxy(29, 0, playerName);
+    cputsxy(29, 2, "Health:");
+    cputsxy(30, 3, itoa(playerHealth, (char*)byte0, 10));
+    cputsxy(29, 4, "Stamina:");
+    cputsxy(30, 5, itoa(playerStamina, (char*)byte0, 10));
+    cputsxy(29, 6, "Power:");
+    cputsxy(30, 7, itoa(playerPower, (char*)byte0, 10));
+    cputsxy(29, 8, "Exp:");
+    cputsxy(30, 9, itoa(playerExp, (char*)byte0, 10));
+    cputsxy(29, 10, "Gold:");
+    cputsxy(30, 11, itoa(gold, (char*)byte0, 10));
 }
 
 void drawMainUI(void){
-    char oldColor = textcolor(LIGHT_PURPLE);
+    byte0 = textcolor(LIGHT_PURPLE);
     clrscr();
     drawBox(0, 0, 40, 25);
-    chlinexy(1, 19, 23);
-    cvlinexy(23, 1, 24);
+    chlinexy(1, 19, 27);
+    cvlinexy(27, 1, 24);
     
     textcolor(YELLOW);
-    cputcxy(23, 0, 0x9C);
-    cputcxy(23, 24, 0x9C);
+    cputcxy(27, 0, 0x9C);
+    cputcxy(27, 24, 0x9C);
     cputcxy(0, 19, 0x9C);
-    cputcxy(23, 19, 0x9C);
+    cputcxy(27, 19, 0x9C);
     
     drawStats();
-    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 0) + 37)) = YELLOW;
+    (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 0) + 37)) = RED;
     printDirection();
-    textcolor(RED);
-    textcolor(oldColor);
+    textcolor(byte0);
 }

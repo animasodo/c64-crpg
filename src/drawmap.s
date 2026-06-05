@@ -9,7 +9,7 @@
 ;     char xCursor = wherex(), yCursor = wherey();
 ;     for(y = 0; y < HEIGHT; y++){
 ;         unsigned int i = ((y + cameray) << 5) + camerax;
-;         for(x = 0; x < WIDTH; x++){
+;         for(x = WIDTH; x != 0; x--){ // bit faster due to architecture
 ;			  gotoxy(xViewport, yViewport);
 ;             drawtile(mapBuffer[i++]);
 ;             xViewport += 2;
@@ -23,14 +23,14 @@
 ;
 
 	.importzp	c_sp
-	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2
+	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _ptr
 	.macpack	longbranch
 	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar
 	.export		_drawmap
 	.include    "c64.inc"
 
 	HEIGHT = $09
-	WIDTH = $0B
+	WIDTH = $0D
 
 .segment "RODATA"
 
@@ -50,13 +50,17 @@ color:
 
 .proc	_drawmap: near
 
-.segment	"CODE"
-
-	; for context, tmp2 is xViewport, tmp3 is x and tmp4 is y. ptr2 is i
-	; they've been moved to zeropage
+	; zeropage temporary variables
+	_x = _idx8
+	_y = _jdx8
+	_xViewport = _byte0
+	_yViewport = _byte1
+	_oldColor = _byte2
+	_xCursor = _byte3
+	_yCursor = _byte4
 
 	lda     #$01
-	sta     tmp2
+	sta     _xViewport
 	sta     _yViewport
 	ldx		CHARCOLOR
 	stx     _oldColor
@@ -65,14 +69,15 @@ color:
 	lda     CURS_Y
 	sta     _yCursor
 	lda     #$00
-	sta     tmp4				; init stuff
+	sta     _y					; init stuff
+	sei							; avoid interruptions that do weird stuff
 yloop:
-	lda     tmp4
+	lda     _y
 	cmp     #HEIGHT
 	jcs     L0010
 
 	ldx     #$00				; beginning of index calculation
-	lda     tmp4
+	lda     _y
 	clc
 	adc     _cameray
 	bcc     L000B
@@ -88,33 +93,27 @@ L000B:
 	bcc     L000C
 	inx
 L000C:
-	sta     ptr2
-	stx     ptr2+1
-	lda     #$00
-	sta     tmp3
-	sei							; avoid interruptions that do weird stuff
-L000E:
-	lda     tmp3				; for(x = 0; x < 11; x++)
-	cmp     #WIDTH
-	bcs     L000F
-
-	lda     tmp2
+	clc
+	adc	 	#<(_mapBuffer)
+	sta    	_ptr
+	txa
+	adc     #>(_mapBuffer)
+	sta     _ptr+1
+	
+	lda     #WIDTH
+	sta     _x
+xloop:
+	lda     _xViewport
 	sta     CURS_X
 	lda     _yViewport
 	jsr		_gotoy				; set the cursor position
 
-	lda     ptr2
-	sta     ptr1
-	lda     ptr2+1
-	clc
-	adc     #>(_mapBuffer)
-	sta     ptr1+1
-	ldy     #<(_mapBuffer)
-	lda     (ptr1),y			; get the tile
-	inc     ptr2
-	bne     L000A
-	inc     ptr2+1
-L000A:
+	ldy     #$00
+	lda     (_ptr),y        	; get the tile
+	inc     _ptr
+	bne     drawtile
+	inc     _ptr+1
+drawtile:
 	; handmade tile drawing function (drawtile)
 	tax                    		; move tile to x register
     lda     color,x        		; load color
@@ -131,20 +130,19 @@ L000A:
     lda     botleft_chr,x  		; load bottom left
     jsr     putchar        		; output character
 
-	lda     #$02
-	clc
-	adc     tmp2
-	sta     tmp2
-	inc     tmp3
-	jmp     L000E
+	inc     _xViewport
+	inc     _xViewport
+	
+	dec     _x
+	bne     xloop
 L000F:
 	lda     #$01
-	sta     tmp2
+	sta     _xViewport
 	lda     #$02
 	clc
 	adc     _yViewport
 	sta     _yViewport
-	inc     tmp4
+	inc     _y
 	jmp     yloop
 L0010:
 	cli							; restore interrupt
@@ -154,17 +152,6 @@ L0010:
 	sta     CURS_X
 	lda     _yCursor
 	jmp		_gotoy
-
-.segment	"BSS"
-
-_yViewport:
-	.res	1,$00
-_oldColor:
-	.res	1,$00
-_xCursor:
-	.res	1,$00
-_yCursor:
-	.res	1,$00
 
 .endproc
 

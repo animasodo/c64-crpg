@@ -9,12 +9,12 @@
 #define position uint0
 
 void setCameraSprite(void){
-    if(playerx > 5 && playerx < (mapWidth - 6)) {
-        camerax = playerx - 5;
-        setSpriteX(X_OFFSET + 88, 0);
-    }else if(playerx >= (mapWidth - 6)){
-        camerax = (mapHeight - 11);
-        setSpriteX((X_OFFSET + 8) + ((playerx - (mapWidth - 11)) << 4), 0);
+    if(playerx > 6 && playerx < (mapWidth - 7)) {
+        camerax = playerx - 6;
+        setSpriteX(X_OFFSET + 104, 0);
+    }else if(playerx >= (mapWidth - 7)){
+        camerax = (mapHeight - 13);
+        setSpriteX((X_OFFSET + 8) + ((playerx - (mapWidth - 13)) << 4), 0);
     }else{
         camerax = 0;
         setSpriteX((X_OFFSET + 8) + (playerx << 4), 0);
