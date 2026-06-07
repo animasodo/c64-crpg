@@ -9,6 +9,8 @@ SRC_DIR		:= src
 INC_DIR		:= include
 DATA_DIR	:= data
 MAP_DIR		:= $(DATA_DIR)/maps
+MAP_LIST	:= $(MAP_DIR)/maps.txt
+FILENAMES	:= $(BUILD_DIR)/maps/filenames.s
 OUT         := $(BUILD_DIR)/$(TARGET).prg
 DISK        := $(BUILD_DIR)/$(TARGET).d64
 LABELS      := $(BUILD_DIR)/$(TARGET).lbl
@@ -17,9 +19,10 @@ MAP         := $(BUILD_DIR)/$(TARGET).map
 # -------------------------------------------------
 # Tools
 # -------------------------------------------------
-CL65	:= cl65
-CC1541	:= cc1541
-MAPP	:= mapp
+CL65		:= cl65
+CC1541		:= cc1541
+MAPP		:= mapp
+MAPP-LISTER	:= mapp-lister
 
 # -------------------------------------------------
 # Flags
@@ -54,16 +57,20 @@ all: $(DISK)
 # -------------------------------------------------
 # Build
 # -------------------------------------------------
-$(OUT): $(SOURCES) | $(BUILD_DIR)
+$(FILENAMES): $(MAP_LIST) | $(BUILD_DIR)
+	@printf "MAPP-LISTER: creating %s\n" "$@"
+	$(MAPP-LISTER) $(MAP_LIST) $@
+
+$(OUT): $(FILENAMES) $(SOURCES) | $(BUILD_DIR)
 	@printf "CL65: building %s\n" "$@"
 	$(CL65) -C $(CONFIG) $(CFLAGS) $(ASFLAGS) $(LDFLAGS) -o $@ \
 	$(SOURCES)
 
 $(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json | $(PROC_MAP_DIR)
 	@printf "MAPP: processing %s\n" "$<"
-	$(MAPP) $< -j $(MAP_DIR)/$*.json -o $@
+	$(MAPP) $< -j $(MAP_DIR)/$*.json -l $(MAP_LIST) -o $@
 
-$(DISK): $(OUT) $(PROC_MAP_FILES)
+$(DISK): $(FILENAMES) $(OUT) $(PROC_MAP_FILES)
 	@printf "CC1541: creating %s\n" "$@"
 	$(CC1541) -n "$(TARGET)" -i "jay" \
 		-f "$(TARGET)" -w $(OUT) \

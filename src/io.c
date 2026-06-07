@@ -71,11 +71,11 @@ void readString (char* buffer, char size){
 void message(const char* format, ...){
     va_list args;
     char i, y = 20;
-    char out[8];
+    char out[7];
 
-    cclearxy(1, 20, 22); // clear screen
-    cclearxy(1, 21, 22);
-    cclearxy(1, 22, 22);
+    cclearxy(1, 20, 26); // clear screen
+    cclearxy(1, 21, 26);
+    cclearxy(1, 22, 26);
 
     va_start(args, format);
     gotoxy(1, y);
@@ -84,8 +84,7 @@ void message(const char* format, ...){
             if(format[i] == '%'){ // hrm? is this a data type?
                 switch(format[++i]){
                     case 'd': // why yes it is!
-                        itoa(va_arg(args, int), out, 10);
-                        cputs(out);
+                        cputs(itoa(va_arg(args, int), out, 10));
                         break;
                     case 'c':
                         cputc(va_arg(args, char));

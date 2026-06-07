@@ -35,17 +35,13 @@ void drawBox(char x, char y, char length, char height){
 }
 
 void drawStats(void){
-    cputsxy(29, 0, playerName);
-    cputsxy(29, 2, "Health:");
-    cputsxy(30, 3, itoa(playerHealth, (char*)byte0, 10));
-    cputsxy(29, 4, "Stamina:");
-    cputsxy(30, 5, itoa(playerStamina, (char*)byte0, 10));
-    cputsxy(29, 6, "Power:");
-    cputsxy(30, 7, itoa(playerPower, (char*)byte0, 10));
-    cputsxy(29, 8, "Exp:");
-    cputsxy(30, 9, itoa(playerExp, (char*)byte0, 10));
-    cputsxy(29, 10, "Gold:");
-    cputsxy(30, 11, itoa(gold, (char*)byte0, 10));
+    byte7 = textcolor(WHITE);
+    cputsxy(30, 3, utoa(playerHealth, (char*)byte0, 10));
+    cputsxy(30, 5, utoa(playerStamina, (char*)byte0, 10));
+    cputsxy(30, 7, utoa(playerPower, (char*)byte0, 10));
+    cputsxy(30, 9, utoa(playerExp, (char*)byte0, 10));
+    cputsxy(30, 11, utoa(gold, (char*)byte0, 10));
+    textcolor(byte7);
 }
 
 void drawMainUI(void){
@@ -60,6 +56,13 @@ void drawMainUI(void){
     cputcxy(27, 24, 0x9C);
     cputcxy(0, 19, 0x9C);
     cputcxy(27, 19, 0x9C);
+
+    cputsxy(29, 0, playerName);
+    cputsxy(29, 2, "Health:");
+    cputsxy(29, 4, "Stamina:");
+    cputsxy(29, 6, "Power:");
+    cputsxy(29, 8, "Exp:");
+    cputsxy(29, 10, "Gold:");
     
     drawStats();
     (*(char*)(COLOR_MEM + (SCREEN_WIDTH * 0) + 37)) = RED;

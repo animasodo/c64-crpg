@@ -23,7 +23,7 @@
 ;
 
 	.importzp	c_sp
-	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _ptr
+	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _ptr
 	.macpack	longbranch
 	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar
 	.export		_drawmap
@@ -53,28 +53,28 @@ color:
 	; zeropage temporary variables
 	_x = _idx8
 	_y = _jdx8
-	_xViewport = _byte0
-	_yViewport = _byte1
-	_oldColor = _byte2
-	_xCursor = _byte3
-	_yCursor = _byte4
+	_yViewport = _byte0
+	_oldColor = _byte1
+	_xCursor = _byte2
+	_yCursor = _byte3
 
-	lda     #$01
-	sta     _xViewport
-	sta     _yViewport
-	ldx		CHARCOLOR
-	stx     _oldColor
 	lda     CURS_X
 	sta     _xCursor
 	lda     CURS_Y
 	sta     _yCursor
+	
+	lda     #$01
+	sta     CURS_X
+	sta     _yViewport
+	lda		CHARCOLOR
+	sta     _oldColor
 	lda     #$00
 	sta     _y					; init stuff
 	sei							; avoid interruptions that do weird stuff
 yloop:
 	lda     _y
 	cmp     #HEIGHT
-	jcs     L0010
+	bcs     L0010
 
 	ldx     #$00				; beginning of index calculation
 	lda     _y
@@ -103,8 +103,6 @@ L000C:
 	lda     #WIDTH
 	sta     _x
 xloop:
-	lda     _xViewport
-	sta     CURS_X
 	lda     _yViewport
 	jsr		_gotoy				; set the cursor position
 
@@ -130,18 +128,16 @@ drawtile:
     lda     botleft_chr,x  		; load bottom left
     jsr     putchar        		; output character
 
-	inc     _xViewport
-	inc     _xViewport
+	inc     CURS_X
+	inc     CURS_X
 	
 	dec     _x
 	bne     xloop
 L000F:
 	lda     #$01
-	sta     _xViewport
-	lda     #$02
-	clc
-	adc     _yViewport
-	sta     _yViewport
+	sta     CURS_X
+	inc     _yViewport
+	inc     _yViewport
 	inc     _y
 	jmp     yloop
 L0010:
@@ -154,4 +150,3 @@ L0010:
 	jmp		_gotoy
 
 .endproc
-
