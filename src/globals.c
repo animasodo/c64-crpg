@@ -14,6 +14,7 @@ unsigned int playerExp;
 unsigned int gold;
 char species;
 
+char mapId;
 char mapWidth;
 char mapHeight;
 unsigned int mapLength;

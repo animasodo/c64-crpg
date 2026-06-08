@@ -104,7 +104,7 @@ void main(void){
     createPlayer();
     drawMainUI();
     
-    loadMapCompressed(get_filename(0));
+    loadMapCompressed(0);
 
     setSpritePointer(0xCC00, 0);
 	// the sprite pointer is located at (screen base + 1016)

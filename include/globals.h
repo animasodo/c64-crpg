@@ -4,7 +4,7 @@
 typedef enum {NORTH, EAST, SOUTH, WEST} dir;
 
 typedef struct {
-    char filename[12][8];
+    char id[8];
     char src_x[8];
     char src_y[8];
     char dst_x[8];
@@ -34,9 +34,9 @@ extern char playerStamina;
 extern char playerPower;
 extern unsigned int playerExp;
 extern unsigned int gold;
-
 extern char species;
 
+extern char mapId;
 extern char mapWidth;
 extern char mapHeight;
 extern char mapBuffer[1024];

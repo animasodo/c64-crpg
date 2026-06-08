@@ -8,6 +8,7 @@
 #include <c64.h>
 #include "io.h"
 #include "ui.h"
+#include "get_filename.h"
 #include "globals.h"
 
 #define ENTER 13
@@ -105,8 +106,8 @@ void message(const char* format, ...){
     va_end(args);
 }
 
-void loadMapCompressed(char *filename){
-    openFile(filename);
+void loadMapCompressed(char id){
+    openFile(get_filename(id));
     cbm_k_chkin(LFN); // set LFN 2 as active input channel
 
     if(cbm_k_basin() != 0x4D || cbm_k_basin() != 0x50){ // check header
@@ -115,6 +116,7 @@ void loadMapCompressed(char *filename){
         return;
     }
 
+    mapId = id;
     mapWidth = cbm_k_basin();
     mapHeight = cbm_k_basin();
 
@@ -134,6 +136,21 @@ void loadMapCompressed(char *filename){
         memset(&mapBuffer[idx16], byte1, byte2);
         idx16 += byte2;
         jdx16++;
+    }
+
+    byte1 = 0; // warp index
+
+    while((byte0 = cbm_k_basin()) != 'e'){
+        switch(byte0){
+            case 'w': // warps
+                warps.id[byte1] = cbm_k_basin();
+                warps.src_x[byte1] = cbm_k_basin();
+                warps.src_y[byte1] = cbm_k_basin();
+                warps.dst_x[byte1] = cbm_k_basin();
+                warps.dst_y[byte1] = cbm_k_basin();
+                byte1++;
+                break;
+        }
     }
     
     closeDevice();
