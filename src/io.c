@@ -139,6 +139,7 @@ void loadMapCompressed(char id){
     }
 
     byte1 = 0; // warp index
+    byte2 = 0; // door index
 
     while((byte0 = cbm_k_basin()) != 'e'){
         switch(byte0){
@@ -149,6 +150,11 @@ void loadMapCompressed(char id){
                 warps.dst_x[byte1] = cbm_k_basin();
                 warps.dst_y[byte1] = cbm_k_basin();
                 byte1++;
+                break;
+            case 'd': // doors
+                doors.x[byte2] = cbm_k_basin();
+                doors.y[byte2] = cbm_k_basin();
+                byte2++;
                 break;
         }
     }

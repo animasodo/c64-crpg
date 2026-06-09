@@ -11,6 +11,11 @@ typedef struct {
     char dst_y[8];
 } warp;
 
+typedef struct {
+    char x[8];
+    char y[8];
+} door;
+
 #define UP 145
 #define DOWN 17
 #define LEFT 157
@@ -41,6 +46,7 @@ extern char mapWidth;
 extern char mapHeight;
 extern char mapBuffer[1024];
 extern warp warps;
+extern door doors;
 
 extern char frameCount;
 extern char tempStack[STACK_SIZE];

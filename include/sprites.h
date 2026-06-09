@@ -19,4 +19,6 @@
 /*Lowest bit is sprite 0 and highest bit is sprite 7.*/
 #define setSpriteMulticolorProperties(value) POKE(0xD01C, value)
 
+extern const char door_sprite[];
+
 #endif

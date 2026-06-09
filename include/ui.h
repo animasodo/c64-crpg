@@ -11,7 +11,7 @@
 #define BG_COLOR 0xd021
 #define SCREEN_WIDTH 40
 #define SCREEN_HEIGHT 25
-#define VIEWPORT_WIDTH 11
+#define VIEWPORT_WIDTH 13
 #define VIEWPORT_HEIGHT 9
 
 #define BLACK 0x00

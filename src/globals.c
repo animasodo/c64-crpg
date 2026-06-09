@@ -20,6 +20,7 @@ char mapHeight;
 unsigned int mapLength;
 char mapBuffer[1024]; // just enough for 32x32 tiles
 warp warps;
+door doors;
 
 char frameCount;
 char tempStack[STACK_SIZE];

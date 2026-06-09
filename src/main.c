@@ -109,10 +109,20 @@ void main(void){
     setSpritePointer(0xCC00, 0);
 	// the sprite pointer is located at (screen base + 1016)
 
-	setSpriteMulticolorProperties(0b00000001);
+	setSpriteMulticolorProperties(0b01100001);
 	setSpriteColor(CYAN, 0);
 	setSpriteMulticolor(WHITE, 0, 0);
 	setSpriteMulticolor(BLUE, 1, 0);
+
+	setSpritePointer(0xCD00, 6);
+	setSpriteColor(YELLOW, 6);
+	setSpriteMulticolor(WHITE, 0, 6);
+	setSpriteMulticolor(BROWN, 1, 6);
+
+	setSpritePointer(0xCD00, 7);
+	setSpriteColor(YELLOW, 7);
+	setSpriteMulticolor(WHITE, 0, 7);
+	setSpriteMulticolor(BROWN, 1, 7);
 
 	setSpriteVisibility(0b00000001);
 	setSpriteX(X_OFFSET + 88, 0);
@@ -122,6 +132,7 @@ void main(void){
     loadSprite(0xCC40, lizard_sprite_1);
     loadSprite(0xCC80, lizard_sprite_0_walking);
     loadSprite(0xCCC0, lizard_sprite_1_walking);
+    loadSprite(0xCD00, door_sprite);
 
     playerx = 9;
     playery = 5;
@@ -142,6 +153,31 @@ void main(void){
         switch(lastKey){
             case 's':
                 message("Stats are not yet\nimplemented!");
+                break;
+            case 'o':
+                byte0 = playerx;
+                byte1 = playery;
+                switch(direction){
+                    case NORTH:
+                        byte1 -= 1;
+                        break;
+                    case EAST:
+                        byte0 += 1;
+                        break;
+                    case SOUTH:
+                        byte1 += 1;
+                        break;
+                    case WEST:
+                        byte0 -= 1;
+                        break;
+                }
+                if(findDoor(byte0, byte1) != 255){ // could replace this with a bmi if i rewrote it in assembly
+                    doors.x[byte2] = 0;
+                    doors.y[byte2] = 0;
+                    message(doorOpen);
+                }else{
+                    message(noDoor);
+                }
                 break;
             case 'q':
                 message("Save to (8,9)? ");

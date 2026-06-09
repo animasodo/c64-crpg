@@ -4,10 +4,16 @@
     "warps": [
         {
             "map": "overworld",
-            "src_x": 2,
+            "src_x": 1,
             "src_y": 4,
-            "dst_x": 7,
+            "dst_x": 6,
             "dst_y": 4
+        }
+    ],
+    "doors": [
+        {
+            "x": 10,
+            "y": 6
         }
     ]
 }

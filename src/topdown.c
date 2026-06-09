@@ -9,12 +9,25 @@
 
 #define position uint0
 
+char *doorOpen = "Door open!";
+char *doorUnlocked = "Door unlocked!";
+char *noDoor = "No door here!";
+
+char findDoor(char x, char y){
+    for(byte2 = 0; byte2 < 8; byte2++){
+        if(doors.x[byte2] == x && doors.y[byte2] == y){
+            return byte2;
+        }
+    }
+    return 255; // for now this will do
+}
+
 void setCameraSprite(void){
     if(playerx > 6 && playerx < (mapWidth - 7)) {
         camerax = playerx - 6;
         setSpriteX(X_OFFSET + 104, 0);
     }else if(playerx >= (mapWidth - 7)){
-        camerax = (mapHeight - 13);
+        camerax = (mapWidth - 13);
         setSpriteX((X_OFFSET + 8) + ((playerx - (mapWidth - 13)) << 4), 0);
     }else{
         camerax = 0;
@@ -35,32 +48,33 @@ void setCameraSprite(void){
 
 char walk(void){
     position = (playery * mapWidth) + playerx;
+
     switch(lastKey){
         case UP:
-            if(mapBuffer[position - mapWidth] < 8){
+            direction = NORTH;
+            if(mapBuffer[position - mapWidth] < 8 && findDoor(playerx, playery - 1) == 255){
                 playery--;
-                direction = NORTH;
                 byte0 = 1;
             }
             break;
         case DOWN:
-            if(mapBuffer[position + mapWidth] < 8){
+            direction = SOUTH;
+            if(mapBuffer[position + mapWidth] < 8 && findDoor(playerx, playery + 1) == 255){
                 playery++;
-                direction = SOUTH;
                 byte0 = 1;
             }
             break;
         case LEFT:
-            if(mapBuffer[position - 1] < 8){
+            direction = WEST;
+            if(mapBuffer[position - 1] < 8 && findDoor(playerx - 1, playery) == 255){
                 playerx--;
-                direction = WEST;
                 byte0 = 1;
             }
             break;
         case RIGHT:
-            if(mapBuffer[position + 1] < 8){
+            direction = EAST;
+            if(mapBuffer[position + 1] < 8 && findDoor(playerx + 1, playery) == 255){
                 playerx++;
-                direction = EAST;
                 byte0 = 1;
             }
             break;
@@ -89,6 +103,24 @@ char walk(void){
         setCameraSprite();
         printDirection();
         drawmap();
+        
+        byte3 = 0; // sprite visibility mask
+        byte4 = 0; // door sprite counter
+        for(byte2 = 0; byte2 < 8; byte2++){
+            if(doors.x[byte2] != 0 && doors.y[byte2] != 0 &&
+                (doors.x[byte2] >= camerax && doors.x[byte2] < camerax + VIEWPORT_WIDTH) &&
+                (doors.y[byte2] >= cameray && doors.y[byte2] < cameray + VIEWPORT_HEIGHT)){
+                if(byte4 < 2){
+                    // door is visible, display sprite
+                    byte5 = 6 + byte4; // use sprites 6 or 7
+                    setSpriteX((X_OFFSET + 8) + ((doors.x[byte2] - camerax) << 4), byte5);
+                    setSpriteY((Y_OFFSET + 8) + ((doors.y[byte2] - cameray) << 4), byte5);
+                    byte3 |= (1 << byte5); // set visibility bit for this sprite
+                    byte4++; // increment door counter
+                }
+            }
+        }
+        setSpriteVisibility(0b00000001 | byte3); // sprite 0 (player) + visible doors
 
         if(direction == NORTH || direction == EAST) { // set normal sprite
             setSpritePointer(0xCC40, 0);
