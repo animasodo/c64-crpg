@@ -175,6 +175,7 @@ void main(void){
                     doors.x[byte2] = 0;
                     doors.y[byte2] = 0;
                     message(doorOpen);
+                    drawmap();
                 }else{
                     message(noDoor);
                 }

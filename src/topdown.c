@@ -103,24 +103,6 @@ char walk(void){
         setCameraSprite();
         printDirection();
         drawmap();
-        
-        byte3 = 0; // sprite visibility mask
-        byte4 = 0; // door sprite counter
-        for(byte2 = 0; byte2 < 8; byte2++){
-            if(doors.x[byte2] != 0 && doors.y[byte2] != 0 &&
-                (doors.x[byte2] >= camerax && doors.x[byte2] < camerax + VIEWPORT_WIDTH) &&
-                (doors.y[byte2] >= cameray && doors.y[byte2] < cameray + VIEWPORT_HEIGHT)){
-                if(byte4 < 2){
-                    // door is visible, display sprite
-                    byte5 = 6 + byte4; // use sprites 6 or 7
-                    setSpriteX((X_OFFSET + 8) + ((doors.x[byte2] - camerax) << 4), byte5);
-                    setSpriteY((Y_OFFSET + 8) + ((doors.y[byte2] - cameray) << 4), byte5);
-                    byte3 |= (1 << byte5); // set visibility bit for this sprite
-                    byte4++; // increment door counter
-                }
-            }
-        }
-        setSpriteVisibility(0b00000001 | byte3); // sprite 0 (player) + visible doors
 
         if(direction == NORTH || direction == EAST) { // set normal sprite
             setSpritePointer(0xCC40, 0);

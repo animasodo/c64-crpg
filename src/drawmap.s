@@ -23,14 +23,15 @@
 ;
 
 	.importzp	c_sp
-	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _ptr
-	.macpack	longbranch
-	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar
+	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _ptr
+	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar, _doors
 	.export		_drawmap
 	.include    "c64.inc"
 
 	HEIGHT = $09
 	WIDTH = $0D
+	X_OFFSET = $18
+	Y_OFFSET = $32
 
 .segment "RODATA"
 
@@ -58,6 +59,12 @@ color:
 	_xCursor = _byte2
 	_yCursor = _byte3
 
+	_visibilityMask = _byte4
+	_doorSpriteCounter = _byte5
+	_doorIndex = _idx8
+	_doors_x = _doors
+	_doors_y = _doors+8
+
 	lda     CURS_X
 	sta     _xCursor
 	lda     CURS_Y
@@ -74,7 +81,7 @@ color:
 yloop:
 	lda     _y
 	cmp     #HEIGHT
-	bcs     L0010
+	bcs     sprite_section
 
 	ldx     #$00				; beginning of index calculation
 	lda     _y
@@ -140,7 +147,98 @@ L000F:
 	inc     _yViewport
 	inc     _y
 	jmp     yloop
-L0010:
+	
+sprite_section:
+	lda		#$00
+	sta		_visibilityMask
+	sta		_doorSpriteCounter
+	sta		_doorIndex
+door_check_loop:
+	lda     _doorIndex
+	cmp     #$08
+	bne		:+
+	jmp		door_loop_done
+	:
+
+	tay
+	lda		_doors_x,y
+	beq		door_loop_done		; end if doors.x[_doorIndex] == 0
+	lda		_doors_y,y
+	beq		door_loop_done		; end if doors.y[_doorIndex] == 0
+
+	lda		_doorSpriteCounter
+	cmp		#$02
+	bcs		door_loop_done		; end if no more sprites can be allocated
+	
+	lda		_cameray
+	clc
+	adc		#HEIGHT
+	sta		tmp1
+	lda		_doors_y,y
+	cmp		tmp1
+	bcs		door_loop_done
+	cmp		_cameray
+	bcc		door_loop_done
+
+	lda		_camerax
+	clc
+	adc		#WIDTH
+	sta		tmp1
+	lda		_doors_x,y
+	cmp		tmp1
+	bcs		door_loop_done
+	cmp		_camerax
+	bcc		door_loop_done
+
+	; set sprite x
+	lda     _doorSpriteCounter
+    asl     a
+	tax
+
+	lda		_doors_x,y
+	sec
+	sbc		_camerax
+	asl		a
+	asl		a
+	asl		a
+	asl		a
+	clc
+	adc		#X_OFFSET+8
+	sta		$D00C,x
+
+	; set sprite y
+	lda		_doors_y,y
+	sec
+	sbc		_cameray
+	asl		a
+	asl		a
+	asl		a
+	asl		a
+	clc
+	adc		#Y_OFFSET+8
+	sta		$D00D,x
+
+	; set temp visibility
+	lda		#%01000000
+	ldy		_doorSpriteCounter
+	beq     :+
+	asl     a					; %10000000 for sprite 7
+	:
+	ora     _visibilityMask
+	sta     _visibilityMask
+
+skip_visibility:
+	inc		_doorSpriteCounter
+	inc		_doorIndex
+	jmp		door_check_loop
+	
+door_loop_done:
+	lda		$D015
+	and		#%00111111
+	ora		_visibilityMask
+	sta		$D015
+
+end:
 	cli							; restore interrupt
 	lda     _oldColor			; set color and cursor to old values
 	sta		CHARCOLOR
