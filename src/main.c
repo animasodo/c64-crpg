@@ -109,20 +109,16 @@ void main(void){
     setSpritePointer(0xCC00, 0);
 	// the sprite pointer is located at (screen base + 1016)
 
-	setSpriteMulticolorProperties(0b01100001);
+	setSpriteMulticolorProperties(0b11111111);
 	setSpriteColor(CYAN, 0);
-	setSpriteMulticolor(WHITE, 0, 0);
-	setSpriteMulticolor(BLUE, 1, 0);
+	setSpriteMulticolor(WHITE, 0);
+	setSpriteMulticolor(BLUE, 1);
 
 	setSpritePointer(0xCD00, 6);
 	setSpriteColor(YELLOW, 6);
-	setSpriteMulticolor(WHITE, 0, 6);
-	setSpriteMulticolor(BROWN, 1, 6);
 
 	setSpritePointer(0xCD00, 7);
 	setSpriteColor(YELLOW, 7);
-	setSpriteMulticolor(WHITE, 0, 7);
-	setSpriteMulticolor(BROWN, 1, 7);
 
 	setSpriteVisibility(0b00000001);
 	setSpriteX(X_OFFSET + 88, 0);

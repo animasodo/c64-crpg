@@ -162,9 +162,9 @@ door_check_loop:
 
 	tay
 	lda		_doors_x,y
-	beq		door_loop_done		; end if doors.x[_doorIndex] == 0
+	beq		skip_door			; skip if doors.x[_doorIndex] == 0
 	lda		_doors_y,y
-	beq		door_loop_done		; end if doors.y[_doorIndex] == 0
+	beq		skip_door			; skip if doors.y[_doorIndex] == 0
 
 	lda		_doorSpriteCounter
 	cmp		#$02
@@ -176,9 +176,9 @@ door_check_loop:
 	sta		tmp1
 	lda		_doors_y,y
 	cmp		tmp1
-	bcs		door_loop_done
+	bcs		skip_door
 	cmp		_cameray
-	bcc		door_loop_done
+	bcc		skip_door
 
 	lda		_camerax
 	clc
@@ -186,9 +186,9 @@ door_check_loop:
 	sta		tmp1
 	lda		_doors_x,y
 	cmp		tmp1
-	bcs		door_loop_done
+	bcs		skip_door
 	cmp		_camerax
-	bcc		door_loop_done
+	bcc		skip_door
 
 	; set sprite x
 	lda     _doorSpriteCounter
@@ -227,8 +227,8 @@ door_check_loop:
 	ora     _visibilityMask
 	sta     _visibilityMask
 
-skip_visibility:
 	inc		_doorSpriteCounter
+skip_door:
 	inc		_doorIndex
 	jmp		door_check_loop
 	

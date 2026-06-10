@@ -11,8 +11,8 @@
 #define setSpriteY(y, index) POKE(0xD001 + (index * 2), y)
 
 #define setSpriteColor(color, index) POKE(0xD027 + index, color)
-/*Color is, well, the color. Multicolor is either 0 or 1. Index is the sprite index.*/
-#define setSpriteMulticolor(color, multicolor, index) POKE((0xD025 + multicolor) + (index * 2), color)
+/*Color is, well, the color. Multicolor is either 0 or 1.*/
+#define setSpriteMulticolor(color, multicolor) POKE((0xD025 + multicolor), color)
 
 /*Lowest bit is sprite 0 and highest bit is sprite 7.*/
 #define setSpriteVisibility(value) POKE(0xD015, value)
