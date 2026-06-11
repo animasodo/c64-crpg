@@ -8,7 +8,7 @@
 	.importzp	tmp1, tmp2, ptr1
 	.import		newline, putchar, gotoxy
 	.export		_simplewrite, _simplewritexy
-	.include    "c64.inc"
+	.include        "c64.inc"
 
 .segment "CODE"
 
@@ -32,9 +32,8 @@ _simplewrite:
 loop:   
         ldy     tmp2
         lda     (ptr1),y
-        cmp     #$00            ; stop
-        beq     done
-        cmp     #$0D            ; nl
+        beq     done            ; null
+        cmp     #$0D            ; new line
         bne     notnl
         jsr     newline
         lda     tmp1

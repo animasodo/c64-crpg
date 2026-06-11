@@ -9,15 +9,13 @@
 #include "io.h"
 #include "ui.h"
 #include "get_filename.h"
+#include "simplewrite.h"
 #include "globals.h"
 
 #define ENTER 13
 #define F1 133
 #define SCREEN_WIDTH 40
 #define SCREEN_HEIGHT 25
-
-#define MAP_DATA 0
-#define SAVE_DATA 1
 
 char lastKey, textIndex;
 char bufferPrompt[20];
@@ -104,62 +102,6 @@ void message(const char* format, ...){
         }
     }
     va_end(args);
-}
-
-void loadMapCompressed(char id){
-    openFile(get_filename(id));
-    cbm_k_chkin(LFN); // set LFN 2 as active input channel
-
-    if(cbm_k_basin() != 0x4D || cbm_k_basin() != 0x50){ // check header
-        message(mapErrorMessage);
-        closeDevice();
-        return;
-    }
-
-    mapId = id;
-    mapWidth = cbm_k_basin();
-    mapHeight = cbm_k_basin();
-
-    cbm_k_basin();
-    asm("sta _uint1");
-    cbm_k_basin();
-    asm("sta _uint1+1"); // get compressed length
-    
-    idx16 = 0; // uncompressed index
-    jdx16 = 0; // compressed index
-
-    while(jdx16 < uint1){ // get map data
-        byte0 = cbm_k_basin(); // byte0: byte
-
-        byte1 = byte0 & 0x0F; // byte1: tile
-        byte2 = ((byte0 & 0xF0) >> 4) + 1; // byte2: length
-        memset(&mapBuffer[idx16], byte1, byte2);
-        idx16 += byte2;
-        jdx16++;
-    }
-
-    byte1 = 0; // warp index
-    byte2 = 0; // door index
-
-    while((byte0 = cbm_k_basin()) != 'e'){
-        switch(byte0){
-            case 'w': // warps
-                warps.id[byte1] = cbm_k_basin();
-                warps.src_x[byte1] = cbm_k_basin();
-                warps.src_y[byte1] = cbm_k_basin();
-                warps.dst_x[byte1] = cbm_k_basin();
-                warps.dst_y[byte1] = cbm_k_basin();
-                byte1++;
-                break;
-            case 'd': // doors
-                doors.x[byte2] = cbm_k_basin();
-                doors.y[byte2] = cbm_k_basin();
-                byte2++;
-                break;
-        }
-    }
-    
-    closeDevice();
 }
 
 void saveData(char *filename){

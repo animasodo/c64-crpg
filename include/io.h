@@ -19,8 +19,6 @@ void readString (char* buffer, char size);
 
 void message(const char* format, ...);
 
-void loadMapCompressed(char id);
-
 void saveData(char *filename);
 
 void loadCharset(void);

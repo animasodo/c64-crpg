@@ -6,6 +6,7 @@
 #include "sprites.h"
 #include "io.h"
 #include "get_filename.h"
+#include "disk_operations.h"
 
 #define position uint0
 
@@ -92,7 +93,7 @@ char walk(void){
         for(byte1 = 0; byte1 < 8; byte1++){
             if(playerx == warps.src_x[byte1] && playery == warps.src_y[byte1]){
                 if(mapId != warps.id[byte1]){
-                    loadMapCompressed(warps.id[byte1]);
+                    load_map_compressed(warps.id[byte1]);
                 }
                 playerx = warps.dst_x[byte1];
                 playery = warps.dst_y[byte1];

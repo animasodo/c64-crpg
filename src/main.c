@@ -15,6 +15,7 @@
 #include "topdown.h"
 #include "interrupts.h"
 #include "get_filename.h"
+#include "disk_operations.h"
 #include "lizard_sprite.h"
 #include "globals.h"
 
@@ -104,7 +105,7 @@ void main(void){
     createPlayer();
     drawMainUI();
     
-    loadMapCompressed(0);
+    load_map_compressed(0);
 
     setSpritePointer(0xCC00, 0);
 	// the sprite pointer is located at (screen base + 1016)
