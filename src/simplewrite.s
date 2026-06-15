@@ -41,7 +41,12 @@ loop:
         inc     tmp2
         jmp     loop
 notnl:
-        jsr     putchar
+        cmp     #$80
+        bcc     lower
+        and     #$7F
+        jmp     :+
+lower:  and     #$3F
+:       jsr     putchar
         inc     CURS_X
         inc     tmp2
         jmp     loop

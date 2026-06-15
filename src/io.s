@@ -1,13 +1,14 @@
-; 
-; void load_map_compressed(char id)
-; 
 
     .importzp	c_sp
 	.importzp	_idx8, _idx16, _byte0, _byte1, _byte2, _uint0, _ptr
-	.import		_message, _mapBuffer, _cbm_k_clrch, _cbm_k_chkin, _cbm_k_basin, _cbm_open, _cbm_close, _get_filename, _mapHeight, _mapWidth, _mapId, _warps, _doors
+	.import		_mapBuffer, _cbm_k_clrch, _cbm_k_chkin, _cbm_k_basin, _cbm_open, _cbm_close, _mapHeight, _mapWidth, _mapId, _warps, _doors, _waitvsync, _simplewrite, _gotoy, _cclearxy
     .import     _diskErrorMessage, _mapErrorMessage, pusha, pushax
-	.export		_load_map_compressed
+	.export		_load_map_compressed, _delayFrames, _get_filename, _message
 	.include    "c64.inc"
+
+; ---------------------------------------------------------------
+; void load_map_compressed(char id)
+; ---------------------------------------------------------------
 
 	LFN = $02
 	FLOPPY = $08
@@ -180,5 +181,85 @@ done:
 	jsr		_cbm_k_clrch
 	lda		#LFN
 	jmp		_cbm_close
+
+.endproc
+
+; ---------------------------------------------------------------
+; void delayFrames(char count)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_delayFrames: near
+
+	tay
+loop:
+	beq		exit_loop
+	jsr		_waitvsync
+	dey
+	jmp		loop
+exit_loop:
+	rts
+
+.endproc
+
+; ---------------------------------------------------------------
+; char *get_filename(char id);
+; ---------------------------------------------------------------
+
+	.export		_get_filename
+
+.include    "../build/maps/filenames.s"
+
+.segment	"CODE"
+
+.proc	_get_filename: near
+
+    tay
+    lda ptr_hi,y
+    tax
+    lda ptr_lo,y
+    rts
+
+.endproc
+
+; ---------------------------------------------------------------
+; void message(const char *message)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_message: near
+
+.segment	"CODE"
+
+	sta		_ptr
+	stx		_ptr+1
+	lda     #$01
+	sta		CHARCOLOR
+	jsr     pusha
+	lda     #$14
+	jsr     pusha
+	lda     #$1A
+	jsr     _cclearxy
+	lda     #$01
+	jsr     pusha
+	lda     #$15
+	jsr     pusha
+	lda     #$1A
+	jsr     _cclearxy
+	lda     #$01
+	jsr     pusha
+	lda     #$16
+	jsr     pusha
+	lda     #$1A
+	jsr     _cclearxy
+	lda     #$01
+	sta		CURS_X
+	lda     #$14
+	jsr     _gotoy
+	lda		_ptr
+	ldx		_ptr+1
+	jmp     _simplewrite
 
 .endproc

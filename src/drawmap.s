@@ -23,7 +23,7 @@
 ;
 
 	.importzp	c_sp
-	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _ptr
+	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
 	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar, _doors
 	.export		_drawmap
 	.include    "c64.inc"

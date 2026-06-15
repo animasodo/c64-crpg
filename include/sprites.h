@@ -20,5 +20,9 @@
 #define setSpriteMulticolorProperties(value) POKE(0xD01C, value)
 
 extern const char door_sprite[];
+extern const char lizard_sprite_0[];
+extern const char lizard_sprite_0_walking[];
+extern const char lizard_sprite_1[];
+extern const char lizard_sprite_1_walking[];
 
 #endif

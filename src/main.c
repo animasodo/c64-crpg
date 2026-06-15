@@ -14,23 +14,21 @@
 #include "sprites.h"
 #include "topdown.h"
 #include "interrupts.h"
-#include "get_filename.h"
-#include "disk_operations.h"
-#include "lizard_sprite.h"
+#include "simplewrite.h"
 #include "globals.h"
 
 void createPlayer(void){
     drawBox(0, 0, 40, 25);
     textcolor(YELLOW);
-    cputsxy(2, 2, "Welcome to the CRPG demo!");
-    cputsxy(2, 4, "(N)ew game or (L)oad game? ");
+    simplewritexy(2, 2, "Welcome to the CRPG demo!");
+    simplewritexy(2, 4, "(N)ew game or (L)oad game? ");
     textcolor(WHITE);
     while(lastKey != 'n' && lastKey != 'l'){ // loading hasn't been implemented yet lolololol
         lastKey = cgetc();
     }
     cputc(lastKey);
     textcolor(YELLOW);
-    cputsxy(2, 6, "Name of the player: ");
+    simplewritexy(2, 6, "Name of the player: ");
     textcolor(WHITE);
     readString(playerName, 10);
 }
@@ -183,7 +181,7 @@ void main(void){
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
                     message("Not a valid\ndevice number.");
                 }else{
-                    message("Save in %c as?\n", bufferPrompt[0]);
+                    messagef("Save in %c as?\n", bufferPrompt[0]);
                     readString(bufferPrompt, 14);
                     saveData(strlower(bufferPrompt)); // not working correctly yet, just a test for now
                 }
@@ -194,7 +192,7 @@ void main(void){
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
                     message("Not a valid\ndevice number.");
                 }else{
-                    message("Load from %c as?\n", bufferPrompt[0]);
+                    messagef("Load from %c as?\n", bufferPrompt[0]);
                     readString(bufferPrompt, 14);
                     // loadData(strlower(bufferPrompt)); // to be added
                 }

@@ -8,7 +8,6 @@
 #include <c64.h>
 #include "io.h"
 #include "ui.h"
-#include "get_filename.h"
 #include "simplewrite.h"
 #include "globals.h"
 
@@ -17,73 +16,63 @@
 #define SCREEN_WIDTH 40
 #define SCREEN_HEIGHT 25
 
-char lastKey, textIndex;
+char lastKey;
 char bufferPrompt[20];
 
 char *diskErrorMessage = "Disk error.";
 char *mapErrorMessage = "Not a map.";
 
-void delayFrames(char count) {
-    while (count--) {
-        waitvsync();
-    }
-}
-
 void readString (char* buffer, char size){
-    char i = 0;
-    unsigned char w, x, y;
-    char c;
+    idx8 = 0;
 
     if (buffer && size > 1) {   // if buffer is not null and size is bigger than 1
-        screensize (&w, &y);
-        --w;
         cursor (1);
-        for (buffer[i] = '\0', --size; i < size; ) {
-            c = cgetc ();
-            if(c == ENTER && i){    // if enter pressed and i not null
+        for (buffer[idx8] = '\0', --size; idx8 < size; ) {
+            byte0 = cgetc ();
+            if(byte0 == ENTER && idx8){    // if enter pressed and idx8 not null
                 asm("jsr $E87C"); // do new line
                 cputs ("\r");
                 break;
             }
-            if(c == '\b' && i) {    // if backspace pressed and i not null
+            if(byte0 == '\b' && idx8) {    // if backspace pressed and idx8 not null
                 /* Remove the character */
-                buffer[--i] = '\0';
+                buffer[--idx8] = '\0';
                 /* Logic to account for line wrapping */
-                y = wherey ();
-                x = wherex ();
-                y = x? y: y - 1;    // account for cursor being at 0
-                x = x? x - 1: w;
+                byte3 = wherey ();
+                byte2 = wherex ();
+                byte3 = byte2? byte3: byte3 - 1;    // account for cursor being at 0
+                byte2 = byte2? byte2 - 1: (SCREEN_WIDTH - 1);
                 /* Clear the character */
-                gotoxy (x, y);
+                gotoxy (byte2, byte3);
                 cputc (' ');
-                gotoxy (x, y);
+                gotoxy (byte2, byte3);
             // Handle regular characters
-            } else if ((char)isprint (c) && i < (size - 1)) {   // if character printable
-                cputc (c);              // type character
-                buffer[i] = c;          // set i in string to character
-                buffer[++i] = '\0';
+            } else if ((char)isprint (byte0) && idx8 < (size - 1)) {   // if character printable
+                cputc (byte0);              // type character
+                buffer[idx8] = byte0;          // set idx8 in string to character
+                buffer[++idx8] = '\0';
             }
         }
     }
 }
 
-void message(const char* format, ...){
+void messagef(const char* format, ...){
     va_list args;
-    char i, y = 20;
-    char out[7];
+    jdx8 = 20;
 
+    textcolor(WHITE);
     cclearxy(1, 20, 26); // clear screen
     cclearxy(1, 21, 26);
     cclearxy(1, 22, 26);
 
     va_start(args, format);
-    gotoxy(1, y);
-    for(i = 0; ; i++){
-        if(isprint(format[i])){
-            if(format[i] == '%'){ // hrm? is this a data type?
-                switch(format[++i]){
+    gotoxy(1, jdx8);
+    for(idx8 = 0; ; idx8++){
+        if(isprint(format[idx8])){
+            if(format[idx8] == '%'){ // hrm? is this a data type?
+                switch(format[++idx8]){
                     case 'd': // why yes it is!
-                        cputs(itoa(va_arg(args, int), out, 10));
+                        cputs(itoa(va_arg(args, int), (char*)byte0, 10));
                         break;
                     case 'c':
                         cputc(va_arg(args, char));
@@ -93,11 +82,11 @@ void message(const char* format, ...){
                         break;
                 }
             }else{
-                cputc(format[i]);
+                cputc(format[idx8]);
             }
-        }else if(format[i] == '\n'){
-            gotoxy(1, ++y);
-        }else if(format[i] == 0){ // null detected. abort! abort!
+        }else if(format[idx8] == '\n'){
+            gotoxy(1, ++jdx8);
+        }else if(format[idx8] == 0){ // null detected. abort! abort!
             break;
         }
     }

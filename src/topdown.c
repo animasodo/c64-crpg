@@ -5,8 +5,6 @@
 #include "ui.h"
 #include "sprites.h"
 #include "io.h"
-#include "get_filename.h"
-#include "disk_operations.h"
 
 #define position uint0
 
