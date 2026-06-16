@@ -1,30 +1,11 @@
 ;
-; this was originally a function compiled by cc65, but it's been further optimized by hand
-; it takes about three to four frames to update the map
-;
-; void drawMap(void){
-;     char x, y;
-;     char xViewport = 1, yViewport = 1;
-;     char oldColor = textcolor(WHITE);
-;     char xCursor = wherex(), yCursor = wherey();
-;     for(y = 0; y < HEIGHT; y++){
-;         unsigned int i = ((y + cameray) << 5) + camerax;
-;         for(x = WIDTH; x != 0; x--){ // bit faster due to architecture
-;			  gotoxy(xViewport, yViewport);
-;             drawtile(mapBuffer[i++]);
-;             xViewport += 2;
-;         }
-;         xViewport = 1;
-;         yViewport += 2;
-;     }
-;     textcolor(oldColor);
-;     gotoxy(xCursor, yCursor);
-; }
+; void drawmap(void);
+; takes about three frames to update the map
 ;
 
 	.importzp	c_sp
 	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
-	.import		_camerax, _cameray, _mapBuffer, _gotoy, aslax4, newline, putchar, _doors
+	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _gotoy, aslax4, newline, putchar, _doors
 	.export		_drawmap
 	.include    "c64.inc"
 
@@ -78,18 +59,10 @@ color:
 	lda     #$00
 	sta     _y					; init stuff
 	sei							; avoid interruptions that do weird stuff
-yloop:
-	lda     _y
-	cmp     #HEIGHT
-	bcs     sprite_section
 
-	ldx     #$00				; beginning of index calculation
-	lda     _y
-	clc
-	adc     _cameray
-	bcc     L000B
-	inx
-L000B:
+	; calculate pointer
+	ldx     #$00
+	lda     _cameray
 	jsr     aslax4
 	stx     tmp1
 	asl     a
@@ -97,15 +70,22 @@ L000B:
 	ldx     tmp1
 	clc
 	adc     _camerax
-	bcc     L000C
+	bcc     :+
 	inx
-L000C:
+	:
 	clc
 	adc	 	#<(_mapBuffer)
 	sta    	_ptr
 	txa
 	adc     #>(_mapBuffer)
 	sta     _ptr+1
+
+yloop:
+	lda     _y
+	cmp     #HEIGHT
+	bcc     :+
+	jmp		sprite_section
+	:
 	
 	lda     #WIDTH
 	sta     _x
@@ -116,36 +96,69 @@ xloop:
 	ldy     #$00
 	lda     (_ptr),y        	; get the tile
 	inc     _ptr
-	bne     drawtile
+	bne     draw_tile
 	inc     _ptr+1
-drawtile:
-	; handmade tile drawing function (drawtile)
-	tax                    		; move tile to x register
-    lda     color,x        		; load color
-    sta     CHARCOLOR      		; change color
-    lda     topleft_chr,x  		; load top left
-    jsr     putchar        		; output character
+draw_tile:
+	tax                    		; move tile to x
+    lda     color,x
+    sta     CHARCOLOR
+    lda     topleft_chr,x
+	; print
+    ldy     CURS_X
+    sta     (SCREEN_PTR),y
+	lda		CHARCOLOR
+	sta     (CRAM_PTR),y
+
+	iny
     inc     CURS_X         		; move cursor to right
     lda     topright_chr,x 		; load top right
-    jsr     putchar        		; output character
-    jsr     newline        		; move to next line
+	; print
+    sta     (SCREEN_PTR),y
+	lda		CHARCOLOR
+	sta     (CRAM_PTR),y
+
+    tya
+	clc
+	adc		#XSIZE
+	tay
     lda     botright_chr,x 		; load bottom right
-    jsr     putchar        		; output character
+	; print
+    sta     (SCREEN_PTR),y
+	lda		CHARCOLOR
+	sta     (CRAM_PTR),y
+	
+	dey
     dec     CURS_X         		; move cursor to left
     lda     botleft_chr,x  		; load bottom left
-    jsr     putchar        		; output character
+	; print
+	sta     (SCREEN_PTR),y
+	lda		CHARCOLOR
+	sta     (CRAM_PTR),y
 
 	inc     CURS_X
 	inc     CURS_X
 	
 	dec     _x
 	bne     xloop
-L000F:
+
 	lda     #$01
 	sta     CURS_X
 	inc     _yViewport
 	inc     _yViewport
 	inc     _y
+
+	lda		#WIDTH
+	sta		tmp1
+	lda		_mapWidth
+	sec
+	sbc		tmp1
+	clc
+	adc		_ptr
+	sta		_ptr
+	bcc		:+
+	inc		_ptr+1
+	:
+
 	jmp     yloop
 	
 sprite_section:
