@@ -5,7 +5,7 @@
 
 	.importzp	c_sp
 	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
-	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _gotoy, aslax4, newline, putchar, _doors, tosmula0
+	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _gotoy, aslax4, newline, putchar, _doors, tosumula0, pushax, _waitvsync
 	.export		_drawmap
 	.include    "c64.inc"
 
@@ -65,12 +65,10 @@ color:
 
 	; calculate main pointer
 	ldx     #$00
-	lda     _cameray
-	jsr     aslax4
-	stx     tmp1
-	asl     a
-	rol     tmp1
-	ldx     tmp1
+	lda		_mapWidth
+	jsr		pushax
+	lda		_cameray
+	jsr		tosumula0			; multiplication to allow any width
 	clc
 	adc     _camerax
 	bcc     :+

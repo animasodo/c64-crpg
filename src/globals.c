@@ -18,7 +18,7 @@ char mapId;
 char mapWidth;
 char mapHeight;
 unsigned int mapLength;
-char mapBuffer[1024]; // just enough for 32x32 tiles
+char mapBuffer[4096]; // 4 kilobytes oughta be enough for anybody!
 warp warps;
 door doors;
 

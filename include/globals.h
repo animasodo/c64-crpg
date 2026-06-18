@@ -44,7 +44,7 @@ extern char species;
 extern char mapId;
 extern char mapWidth;
 extern char mapHeight;
-extern char mapBuffer[1024];
+extern char mapBuffer[4096];
 extern warp warps;
 extern door doors;
 
