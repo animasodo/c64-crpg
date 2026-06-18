@@ -8,9 +8,9 @@
 
 #define position uint0
 
-char *doorOpen = "Door open!";
-char *doorUnlocked = "Door unlocked!";
-char *noDoor = "No door here!";
+const char *doorOpen = "Door open!";
+const char *doorUnlocked = "Door unlocked!";
+const char *noDoor = "No door here!";
 
 char findDoor(char x, char y){
     for(byte2 = 0; byte2 < 8; byte2++){
@@ -86,7 +86,7 @@ char walk(void){
             setSpritePointer(0xCC80, 0);
         }
 
-        delayFrames(3);
+        delayFrames(5);
 
         for(byte1 = 0; byte1 < 8; byte1++){
             if(playerx == warps.src_x[byte1] && playery == warps.src_y[byte1]){

@@ -1,11 +1,11 @@
 ;
 ; void drawmap(void);
-; takes about three frames to update the map
+; takes about two frames to update the map
 ;
 
 	.importzp	c_sp
 	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
-	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _gotoy, aslax4, newline, putchar, _doors
+	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _gotoy, aslax4, newline, putchar, _doors, tosmula0
 	.export		_drawmap
 	.include    "c64.inc"
 
@@ -35,10 +35,11 @@ color:
 	; zeropage temporary variables
 	_x = _idx8
 	_y = _jdx8
-	_yViewport = _byte0
-	_oldColor = _byte1
-	_xCursor = _byte2
-	_yCursor = _byte3
+	_oldColor = _byte0
+	_xCursor = _byte1
+	_yCursor = _byte2
+
+	_rowSkip = _byte3
 
 	_visibilityMask = _byte4
 	_doorSpriteCounter = _byte5
@@ -46,6 +47,7 @@ color:
 	_doors_x = _doors
 	_doors_y = _doors+8
 
+	; init stuff
 	lda     CURS_X
 	sta     _xCursor
 	lda     CURS_Y
@@ -53,14 +55,15 @@ color:
 	
 	lda     #$01
 	sta     CURS_X
-	sta     _yViewport
+	jsr		_gotoy				; set initial cursor position
 	lda		CHARCOLOR
 	sta     _oldColor
 	lda     #$00
-	sta     _y					; init stuff
-	sei							; avoid interruptions that do weird stuff
+	sta     _y
 
-	; calculate pointer
+	sei							; avoid weird behavior from irq
+
+	; calculate main pointer
 	ldx     #$00
 	lda     _cameray
 	jsr     aslax4
@@ -89,48 +92,41 @@ yloop:
 	
 	lda     #WIDTH
 	sta     _x
-xloop:
-	lda     _yViewport
-	jsr		_gotoy				; set the cursor position
 
-	ldy     #$00
+	lda		#$00
+	sta		tmp1
+xloop:
+	ldy     tmp1
 	lda     (_ptr),y        	; get the tile
-	inc     _ptr
-	bne     draw_tile
-	inc     _ptr+1
 draw_tile:
-	tax                    		; move tile to x
+	tax
     lda     color,x
     sta     CHARCOLOR
     lda     topleft_chr,x
-	; print
     ldy     CURS_X
     sta     (SCREEN_PTR),y
 	lda		CHARCOLOR
 	sta     (CRAM_PTR),y
 
 	iny
-    inc     CURS_X         		; move cursor to right
     lda     topright_chr,x 		; load top right
-	; print
     sta     (SCREEN_PTR),y
 	lda		CHARCOLOR
 	sta     (CRAM_PTR),y
 
+	; next line
     tya
 	clc
 	adc		#XSIZE
 	tay
+
     lda     botright_chr,x 		; load bottom right
-	; print
     sta     (SCREEN_PTR),y
 	lda		CHARCOLOR
 	sta     (CRAM_PTR),y
 	
 	dey
-    dec     CURS_X         		; move cursor to left
     lda     botleft_chr,x  		; load bottom left
-	; print
 	sta     (SCREEN_PTR),y
 	lda		CHARCOLOR
 	sta     (CRAM_PTR),y
@@ -138,25 +134,38 @@ draw_tile:
 	inc     CURS_X
 	inc     CURS_X
 	
+	inc		tmp1
 	dec     _x
 	bne     xloop
-
+xloop_done:
 	lda     #$01
 	sta     CURS_X
-	inc     _yViewport
-	inc     _yViewport
 	inc     _y
 
-	lda		#WIDTH
-	sta		tmp1
-	lda		_mapWidth
-	sec
-	sbc		tmp1
+	; go to the next row
 	clc
-	adc		_ptr
+	lda		_ptr
+	adc		_mapWidth
 	sta		_ptr
 	bcc		:+
 	inc		_ptr+1
+	:
+
+	; this might be faster than a goto????
+	lda		#XSIZE*2 ;80
+	clc
+	adc		SCREEN_PTR
+	sta		SCREEN_PTR
+	bcc		:+
+	inc		SCREEN_PTR+1
+	:
+
+	lda		#XSIZE*2 ;80
+	clc
+	adc		CRAM_PTR 
+	sta		CRAM_PTR 
+	bcc		:+
+	inc		CRAM_PTR+1
 	:
 
 	jmp     yloop

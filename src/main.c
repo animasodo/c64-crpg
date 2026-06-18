@@ -17,6 +17,8 @@
 #include "simplewrite.h"
 #include "globals.h"
 
+const char *deviceNotValid = "Not a valid\ndevice number.";
+
 void createPlayer(void){
     drawBox(0, 0, 40, 25);
     textcolor(YELLOW);
@@ -179,7 +181,7 @@ void main(void){
                 message("Save to (8,9)? ");
                 readString(bufferPrompt, 3);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
-                    message("Not a valid\ndevice number.");
+                    message(deviceNotValid);
                 }else{
                     messagef("Save in %c as?\n", bufferPrompt[0]);
                     readString(bufferPrompt, 14);
@@ -190,7 +192,7 @@ void main(void){
                 message("Load from (8,9)? ");
                 readString(bufferPrompt, 3);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
-                    message("Not a valid\ndevice number.");
+                    message(deviceNotValid);
                 }else{
                     messagef("Load from %c as?\n", bufferPrompt[0]);
                     readString(bufferPrompt, 14);

@@ -3,6 +3,4 @@
 
 void initIrq(void);
 
-unsigned char irqRoutine(void);
-
 #endif
