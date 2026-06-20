@@ -168,7 +168,7 @@ void main(void){
                         byte0 -= 1;
                         break;
                 }
-                if(findDoor(byte0, byte1) != 255){ // could replace this with a bmi if i rewrote it in assembly
+                if((byte2 = findDoor(byte0, byte1)) != 255){ // could replace this with a bmi if i rewrote it in assembly
                     doors.x[byte2] = 0;
                     doors.y[byte2] = 0;
                     message(doorOpen);

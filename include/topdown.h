@@ -1,9 +1,9 @@
 #ifndef _TOPDOWN_H
 #define _TOPDOWN_H
 
-extern char *doorOpen;
-extern char *doorUnlocked;
-extern char *noDoor;
+extern const char *doorOpen;
+extern const char *doorUnlocked;
+extern const char *noDoor;
 
 char findDoor(char x, char y);
 
