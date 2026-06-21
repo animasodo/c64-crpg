@@ -99,7 +99,7 @@ skip:
 	sbc		#$00
 	sta		_ptr+1
 	lda		(_ptr),y
-	cmp		#$08
+	cmp		#$10
 	bcs		end_up
 
 	lda		_playerx
@@ -130,7 +130,7 @@ skip_up:
 	adc		#$00
 	sta		_ptr+1
 	lda		(_ptr),y
-	cmp		#$08
+	cmp		#$10
 	bcs		end_down
 
 	lda		_playerx
@@ -161,7 +161,7 @@ skip_down:
 	sbc		#$00
 	sta		_ptr+1
 	lda		(_ptr),y
-	cmp		#$08
+	cmp		#$10
 	bcs		end_left
 
 	ldy		_playerx
@@ -192,7 +192,7 @@ skip_left:
 	adc		#$00
 	sta		_ptr+1
 	lda		(_ptr),y
-	cmp		#$08
+	cmp		#$10
 	bcs		end_right
 
 	ldy		_playerx

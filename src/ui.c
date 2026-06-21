@@ -17,7 +17,7 @@
 #define BLOCK_TILE_CHR 0x7A
 #define BLOCK_TILE_SCR 0xBA
 
-const char dirChar[4] = {'N', 'E', 'S', 'W'};
+const char dirChar[4] = {0x61, 0x62, 0x63, 0x64};
 
 void drawBox(char x, char y, char length, char height){
     byte0 = (x + length) - 1, byte1 = (y + height) - 1, byte2 = textcolor(LIGHT_PURPLE);

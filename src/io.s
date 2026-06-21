@@ -104,19 +104,10 @@ while_loop:
 	bcs		done_while
 	:
 	jsr		_cbm_k_basin
-	tay
-	and		#$0F
+	sta		_length
+	jsr		_cbm_k_basin
 	sta		_tile
-	tya
-	lsr		a
-	lsr		a
-	lsr		a
-	lsr		a
-	tay
-	iny
-	sty		_length
 	ldy		#$00
-	lda		_tile
 
 write_loop:
 	cpy		_length
@@ -133,6 +124,7 @@ done_write:
 	bcc		:+
 	inc		_ptr+1
 	:
+	inc		_compressed_index
 	inc		_compressed_index
 	bne		:+
 	inc		_compressed_index+1

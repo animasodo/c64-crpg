@@ -18,15 +18,20 @@
 
 ; graphics data
 topleft_chr:
-        .byte $E0, $E8, $E5, $E4, $E7, $E9, $E8, $E2, $E2, $E1
+        .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B2, $B2, $B1, $B1, $B1, $B1, $B9, $B9, $BC
+		.byte $B2, $B1
 topright_chr:
-        .byte $E0, $E8, $E5, $E4, $E7, $E9, $E8, $E3, $E3, $E1
+        .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B3, $B3, $B1, $B1, $B1, $B1, $B9, $B9, $BD
+		.byte $B3, $B1
 botleft_chr:
-        .byte $E0, $E8, $E6, $E4, $E7, $EA, $E8, $E2, $E3, $E1
+        .byte $B0, $B8, $B6, $B4, $B7, $BA, $B8, $B2, $B3, $B1, $B1, $B1, $B1, $BA, $BA, $BE
+		.byte $B3, $B1
 botright_chr:
-        .byte $E0, $E8, $E6, $E4, $E7, $EB, $E8, $E3, $E2, $E1
+        .byte $B0, $B8, $B6, $B4, $B7, $BB, $B8, $B3, $B2, $B1, $B1, $B1, $B1, $BB, $BB, $BF
+		.byte $B2, $B1
 color:
-        .byte $0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02
+        .byte $0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02, $02, $02, $02, $03, $03, $03
+		.byte $0E, $02
 
 .segment	"CODE"
 
