@@ -9,8 +9,6 @@
 #include "io.h"
 #include "ui.h"
 #include "drawmap.h"
-#include "maze.h"
-#include "maze_data.h"
 #include "sprites.h"
 #include "topdown.h"
 #include "interrupts.h"
@@ -33,58 +31,6 @@ void createPlayer(void){
     simplewritexy(2, 6, "Name of the player: ");
     textcolor(WHITE);
     readString(playerName, 10);
-}
-
-void dungeon(){
-    char o, update;
-
-    setSpriteVisibility(0b00000000);
-
-    direction = NORTH;
-    playerx = 1;
-    playery = 3;
-
-    while(1){
-        printDirection();
-        if(!update || o) { // some stuff to see how many cycles rewritten functions take
-            drawView();
-        }
-        update = 1;
-
-        cbm_k_scnkey();
-        lastKey = cbm_k_getin();
-        
-        switch(lastKey){
-            case 's':
-                message("Stats are not yet\nimplemented!");
-                break;
-        }
-
-        switch(lastKey){
-            case UP:
-                update = advance();
-                delayFrames(7);
-                break;
-            case DOWN:
-                update = retreat();
-                delayFrames(7);
-                break;
-            case LEFT:
-                update = 0;
-                if((direction - 1) < 0){
-                    direction = 3;
-                }else{ direction--; }
-                delayFrames(10);
-                break;
-            case RIGHT:
-                update = 0;
-                if((direction + 1) > 3){
-                    direction = 0;
-                }else{ direction++; }
-                delayFrames(10);
-                break;
-        }
-    }
 }
 
 void main(void){
