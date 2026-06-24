@@ -50,6 +50,7 @@ extern door doors;
 
 extern char frameCount;
 extern char tempStack[STACK_SIZE];
+extern char playerInput;
 
 extern char byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, idx8, jdx8;
 extern unsigned int uint0, uint1, uint2, uint3, idx16, jdx16, ptr;

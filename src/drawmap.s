@@ -24,13 +24,13 @@ topright_chr:
         .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B3, $B3, $B1, $B1, $B1, $B1, $B9, $B9, $BD
 		.byte $B3, $B1
 botleft_chr:
-        .byte $B0, $B8, $B6, $B4, $B7, $BA, $B8, $B2, $B3, $B1, $B1, $B1, $B1, $BA, $BA, $BE
+        .byte $B0, $B8, $B6, $B4, $B7, $BA, $B8, $B2, $B3, $B1, $B1, $B1, $B1, $B9, $BA, $BE
 		.byte $B3, $B1
 botright_chr:
-        .byte $B0, $B8, $B6, $B4, $B7, $BB, $B8, $B3, $B2, $B1, $B1, $B1, $B1, $BB, $BB, $BF
+        .byte $B0, $B8, $B6, $B4, $B7, $BB, $B8, $B3, $B2, $B1, $B1, $B1, $B1, $B9, $BB, $BF
 		.byte $B2, $B1
 color:
-        .byte $0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02, $02, $02, $02, $03, $03, $03
+        .byte $0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02, $02, $02, $02, $00, $03, $03
 		.byte $0E, $02
 
 .segment	"CODE"
