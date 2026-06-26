@@ -32,7 +32,7 @@
 
     _ptr:       .res 2
 
-    ; ONLY FOR IRQ ROUTINE PURPOSE
+    ; ONLY FOR IRQ ROUTINE PURPOSES
     irqbyte0:   .res 1
     irqbyte1:   .res 1
     irqbyte2:   .res 1

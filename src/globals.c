@@ -23,5 +23,4 @@ warp warps;
 door doors;
 
 char frameCount;
-char tempStack[STACK_SIZE];
 char playerInput;

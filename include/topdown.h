@@ -9,6 +9,6 @@ char findDoor(char x, char y);
 
 void setCameraSprite(void);
 
-char walk(void);
+void walk(void);
 
 #endif

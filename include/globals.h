@@ -26,8 +26,6 @@ typedef struct {
 #define LFN 2
 #define FLOPPY 8
 
-#define STACK_SIZE 64 // since we got the global setting on, maybe we don't need as much stack space?
-
 extern char playerName[10];
 extern char playerx;
 extern char playery;
@@ -49,12 +47,11 @@ extern warp warps;
 extern door doors;
 
 extern char frameCount;
-extern char tempStack[STACK_SIZE];
 extern char playerInput;
 
 extern char byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7, idx8, jdx8;
 extern unsigned int uint0, uint1, uint2, uint3, idx16, jdx16, ptr;
-extern int int0, int1, int2, int3;
+extern int int0, int1;
 
 #pragma zpsym("byte0");
 #pragma zpsym("byte1");
@@ -70,8 +67,6 @@ extern int int0, int1, int2, int3;
 #pragma zpsym("uint3");
 #pragma zpsym("int0");
 #pragma zpsym("int1");
-#pragma zpsym("int2");
-#pragma zpsym("int3");
 #pragma zpsym("idx8");
 #pragma zpsym("jdx8");
 #pragma zpsym("idx16");

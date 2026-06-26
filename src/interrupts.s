@@ -5,7 +5,6 @@
 	.include    "c64.inc"
 
     FPS = 50
-	IRQ_NOT_HANDLED = $00
 
 ; ---------------------------------------------------------------
 ; void __near__ initIrq (void)
@@ -18,21 +17,28 @@
 .segment	"CODE"
 
 	sei
+
+	lda		#$7F
+    sta		CIA1_ICR			; kill timer interrupt
+	lda		CIA1_ICR			; clear flags or something idk
+
+	lda		#$FF
+    sta		VIC_IRR				; clear interrupts by writing 1 to all bits ($D019)
+
 	lda     #$00
 	sta     _frameCount
-	sta     VIC_HLINE			; set interrupt scanline to 0
+	sta     VIC_HLINE			; set interrupt scanline to 0 ($D012)
+	; if we want to do a line after 255, we have to write to bit 7 of $D011
+
 	lda     VIC_IMR
 	ora     #$01
-	sta     VIC_IMR				; enable raster interrupt from VIC
+	sta     VIC_IMR				; enable raster interrupt from VIC ($D01A)
+
 	lda     #<(_irq)
-	ldx     #>(_irq)
-	jsr     pushax
-	lda     #<(_tempStack)
-	ldx     #>(_tempStack)
-	jsr     pushax
-	ldx     #$00
-	lda     #$40				; might need or not need a stack, depends on what i do with the irq routine, idk we'll see
-	jsr     _set_irq
+	sta		IRQVec
+	lda     #>(_irq)
+	sta		IRQVec+1			; set vector to irq routine
+
 	cli
 	rts
 
@@ -134,7 +140,7 @@
 
 	lda		#$01
     sta     VIC_IRR				; "acknowledge" interrupt to exit
-	lda     #IRQ_NOT_HANDLED
-    rts
+
+	jmp		$EA81				; jump to kernel irq routine
 
 .endproc

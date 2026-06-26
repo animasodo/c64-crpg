@@ -89,7 +89,7 @@ void main(void){
         cbm_k_scnkey();
         lastKey = cbm_k_getin();
         
-        if(lastKey == UP || lastKey == DOWN || lastKey == LEFT || lastKey == RIGHT) {
+        if((playerInput & 0x0F) != 0) {
             walk();
         }
 

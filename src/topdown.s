@@ -2,14 +2,14 @@
     .importzp	c_sp
 	.importzp	_idx8, _idx16, _byte0, _byte1, _ptr, tmp1, tmp2
 	.import		popa, pusha, tosumula0, pushax
-    .import     _doors, _playerx, _playery, _lastKey, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _setCameraSprite, _load_map_compressed, _mapId, _delayFrames
+    .import     _doors, _playerx, _playery, _lastKey, _playerInput, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _setCameraSprite, _load_map_compressed, _mapId, _delayFrames
 	.export		_findDoor, _walk
 	.include    "c64.inc"
 
-	UP = 145
-	DOWN = 17
-	LEFT = 157
-	RIGHT = 29
+	UP = 1
+	DOWN = 2
+	LEFT = 4
+	RIGHT = 8
 
 	NORTH = 0
 	EAST = 1
@@ -51,7 +51,7 @@ skip:
 .endproc
 
 ; ---------------------------------------------------------------
-; char walk(void);
+; void walk(void);
 ; ---------------------------------------------------------------
 
 .segment	"CODE"
@@ -83,11 +83,9 @@ skip:
 	sta     _ptr+1
 
     ; check key
-	ldy		#$00
-    lda     _lastKey
-
-    cmp     #UP
-	bne		skip_up
+	lda     _playerInput
+    and     #UP
+	beq		skip_up
 	ldx		#NORTH
 	stx		_direction
 
@@ -116,9 +114,9 @@ skip:
 end_up:
 	jmp		end_key
 skip_up:
-
-    cmp     #DOWN
-	bne		skip_down
+	lda     _playerInput
+    and     #DOWN
+	beq		skip_down
 	ldx		#SOUTH
 	stx		_direction
 
@@ -147,9 +145,9 @@ skip_up:
 end_down:
 	jmp		end_key
 skip_down:
-
-    cmp     #LEFT
-	bne		skip_left
+	lda     _playerInput
+    and     #LEFT
+	beq		skip_left
 	ldx		#WEST
 	stx		_direction
 
@@ -178,9 +176,9 @@ skip_down:
 end_left:
 	jmp		end_key
 skip_left:
-
-    cmp     #RIGHT
-	bne		skip_right
+	lda     _playerInput
+    and     #RIGHT
+	beq		skip_right
 	ldx		#EAST
 	stx		_direction
 
@@ -209,11 +207,7 @@ skip_left:
 end_right:
 skip_right:
 end_key:
-	lda		_dirChar,x
-	sta		$C800 + (40 * 0) + 37
-
-	lda		#$01			; failure
-	rts
+	jmp		end_warp
 
 continue:
 
@@ -290,7 +284,6 @@ end_warp:
 	sta		$CBF8 + 0
 skip_sprite_2:
 
-	lda		#$00			; success
 	rts
 
 .endproc
