@@ -13,6 +13,7 @@ char playerPower;
 unsigned int playerExp;
 unsigned int gold;
 char species;
+char keys;
 
 char mapId;
 char mapWidth;

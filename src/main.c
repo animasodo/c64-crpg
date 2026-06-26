@@ -61,12 +61,6 @@ void main(void){
 	setSpriteMulticolor(WHITE, 0);
 	setSpriteMulticolor(BLUE, 1);
 
-	setSpritePointer(0xCD00, 6);
-	setSpriteColor(YELLOW, 6);
-
-	setSpritePointer(0xCD00, 7);
-	setSpriteColor(YELLOW, 7);
-
 	setSpriteVisibility(0b00000001);
 	setSpriteX(X_OFFSET + 88, 0);
 	setSpriteY(Y_OFFSET + 72, 0);
@@ -75,7 +69,6 @@ void main(void){
     loadSprite(0xCC40, lizard_sprite_1);
     loadSprite(0xCC80, lizard_sprite_0_walking);
     loadSprite(0xCCC0, lizard_sprite_1_walking);
-    loadSprite(0xCD00, door_sprite);
 
     playerx = 9;
     playery = 5;
@@ -114,9 +107,13 @@ void main(void){
                         byte0 -= 1;
                         break;
                 }
-                if((byte2 = findDoor(byte0, byte1)) != 255){ // could replace this with a bmi if i rewrote it in assembly
-                    doors.x[byte2] = 0;
-                    doors.y[byte2] = 0;
+                ptr = ((mapWidth * byte1) + byte0) + (unsigned int)((char*)mapBuffer);
+                asm("ldy #$00");
+                asm("lda (_ptr),y");
+                asm("sta _byte0");
+                if(byte0 == 0x1F){
+                    asm("lda #$03");
+                    asm("sta (_ptr),y");
                     message(doorOpen);
                     drawmap();
                 }else{

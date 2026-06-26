@@ -19,19 +19,19 @@
 ; graphics data
 topleft_chr:
         .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B2, $B2, $B1, $B1, $B1, $B1, $B9, $B9, $BC
-		.byte $B2, $B1
+		.byte $B2, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D0
 topright_chr:
         .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B3, $B3, $B1, $B1, $B1, $B1, $B9, $B9, $BD
-		.byte $B3, $B1
+		.byte $B3, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D1
 botleft_chr:
         .byte $B0, $B8, $B6, $B4, $B7, $BA, $B8, $B2, $B3, $B1, $B1, $B1, $B1, $B9, $BA, $BE
-		.byte $B3, $B1
+		.byte $B3, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D2
 botright_chr:
         .byte $B0, $B8, $B6, $B4, $B7, $BB, $B8, $B3, $B2, $B1, $B1, $B1, $B1, $B9, $BB, $BF
-		.byte $B2, $B1
+		.byte $B2, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D3
 color:
         .byte $0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02, $02, $02, $02, $00, $03, $03
-		.byte $0E, $02
+		.byte $0E, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $0F
 
 .segment	"CODE"
 
@@ -90,7 +90,7 @@ yloop:
 	lda     _y
 	cmp     #HEIGHT
 	bcc     :+
-	jmp		sprite_section
+	jmp		yloop_done
 	:
 	
 	lda     #WIDTH
@@ -173,95 +173,95 @@ xloop_done:
 
 	jmp     yloop
 	
-sprite_section:
-	lda		#$00
-	sta		_visibilityMask
-	sta		_doorSpriteCounter
-	sta		_doorIndex
-door_check_loop:
-	lda     _doorIndex
-	cmp     #$08
-	bne		:+
-	jmp		door_loop_done
-	:
-
-	tay
-	lda		_doors_x,y
-	beq		skip_door			; skip if doors.x[_doorIndex] == 0
-	lda		_doors_y,y
-	beq		skip_door			; skip if doors.y[_doorIndex] == 0
-
-	lda		_doorSpriteCounter
-	cmp		#$02
-	bcs		door_loop_done		; end if no more sprites can be allocated
-	
-	lda		_cameray
-	clc
-	adc		#HEIGHT
-	sta		tmp1
-	lda		_doors_y,y
-	cmp		tmp1
-	bcs		skip_door
-	cmp		_cameray
-	bcc		skip_door
-
-	lda		_camerax
-	clc
-	adc		#WIDTH
-	sta		tmp1
-	lda		_doors_x,y
-	cmp		tmp1
-	bcs		skip_door
-	cmp		_camerax
-	bcc		skip_door
-
-	; set sprite x
-	lda     _doorSpriteCounter
-    asl     a
-	tax
-
-	lda		_doors_x,y
-	sec
-	sbc		_camerax
-	asl		a
-	asl		a
-	asl		a
-	asl		a
-	clc
-	adc		#X_OFFSET+8
-	sta		$D00C,x
-
-	; set sprite y
-	lda		_doors_y,y
-	sec
-	sbc		_cameray
-	asl		a
-	asl		a
-	asl		a
-	asl		a
-	clc
-	adc		#Y_OFFSET+8
-	sta		$D00D,x
-
-	; set temp visibility
-	lda		#%01000000
-	ldy		_doorSpriteCounter
-	beq     :+
-	asl     a					; %10000000 for sprite 7
-	:
-	ora     _visibilityMask
-	sta     _visibilityMask
-
-	inc		_doorSpriteCounter
-skip_door:
-	inc		_doorIndex
-	jmp		door_check_loop
-	
-door_loop_done:
-	lda		$D015
-	and		#%00111111
-	ora		_visibilityMask
-	sta		$D015
+yloop_done:
+; 	lda		#$00
+; 	sta		_visibilityMask
+; 	sta		_doorSpriteCounter
+; 	sta		_doorIndex
+; door_check_loop:
+; 	lda     _doorIndex
+; 	cmp     #$08
+; 	bne		:+
+; 	jmp		door_loop_done
+; 	:
+; 
+; 	tay
+; 	lda		_doors_x,y
+; 	beq		skip_door			; skip if doors.x[_doorIndex] == 0
+; 	lda		_doors_y,y
+; 	beq		skip_door			; skip if doors.y[_doorIndex] == 0
+; 
+; 	lda		_doorSpriteCounter
+; 	cmp		#$02
+; 	bcs		door_loop_done		; end if no more sprites can be allocated
+; 	
+; 	lda		_cameray
+; 	clc
+; 	adc		#HEIGHT
+; 	sta		tmp1
+; 	lda		_doors_y,y
+; 	cmp		tmp1
+; 	bcs		skip_door
+; 	cmp		_cameray
+; 	bcc		skip_door
+; 
+; 	lda		_camerax
+; 	clc
+; 	adc		#WIDTH
+; 	sta		tmp1
+; 	lda		_doors_x,y
+; 	cmp		tmp1
+; 	bcs		skip_door
+; 	cmp		_camerax
+; 	bcc		skip_door
+; 
+; 	; set sprite x
+; 	lda     _doorSpriteCounter
+;     asl     a
+; 	tax
+; 
+; 	lda		_doors_x,y
+; 	sec
+; 	sbc		_camerax
+; 	asl		a
+; 	asl		a
+; 	asl		a
+; 	asl		a
+; 	clc
+; 	adc		#X_OFFSET+8
+; 	sta		$D00C,x
+; 
+; 	; set sprite y
+; 	lda		_doors_y,y
+; 	sec
+; 	sbc		_cameray
+; 	asl		a
+; 	asl		a
+; 	asl		a
+; 	asl		a
+; 	clc
+; 	adc		#Y_OFFSET+8
+; 	sta		$D00D,x
+; 
+; 	; set temp visibility
+; 	lda		#%01000000
+; 	ldy		_doorSpriteCounter
+; 	beq     :+
+; 	asl     a					; %10000000 for sprite 7
+; 	:
+; 	ora     _visibilityMask
+; 	sta     _visibilityMask
+; 
+; 	inc		_doorSpriteCounter
+; skip_door:
+; 	inc		_doorIndex
+; 	jmp		door_check_loop
+; 	
+; door_loop_done:
+; 	lda		$D015
+; 	and		#%00111111
+; 	ora		_visibilityMask
+; 	sta		$D015
 
 end:
 	cli							; restore interrupt

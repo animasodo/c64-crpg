@@ -38,6 +38,7 @@ extern char playerPower;
 extern unsigned int playerExp;
 extern unsigned int gold;
 extern char species;
+extern char keys;
 
 extern char mapId;
 extern char mapWidth;
