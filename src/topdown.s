@@ -2,8 +2,8 @@
     .importzp	c_sp
 	.importzp	_idx8, _idx16, _byte0, _byte1, _ptr, tmp1, tmp2
 	.import		popa, pusha, tosumula0, pushax
-    .import     _doors, _playerx, _playery, _lastKey, _playerInput, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _setCameraSprite, _load_map_compressed, _mapId, _delayFrames
-	.export		_findDoor, _walk
+    .import     _doors, _playerx, _playery, _lastKey, _playerInput, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _load_map_compressed, _mapId, _delayFrames, _camerax, _cameray
+	.export		_findDoor, _setCameraSprite, _walk
 	.include    "c64.inc"
 
 	UP = 1
@@ -16,6 +16,9 @@
 	SOUTH = 2
 	WEST = 3
 
+	X_OFFSET = 24
+	Y_OFFSET = 50
+
 ; ---------------------------------------------------------------
 ; char findDoor(char x, char y);
 ; ---------------------------------------------------------------
@@ -27,6 +30,7 @@
     _doors_x = _doors
     _doors_y = _doors+8
 	
+	; i can probably repurpose this code for something like npcs
     sta     tmp1
     jsr     popa
     sta     tmp2
@@ -47,6 +51,35 @@ skip:
     bne     loop
     lda     #$FF
     rts
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ setCameraSprite (void)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_setCameraSprite: near
+
+	lda     _playerx
+	sec
+	sbc		#$06
+	sta		_camerax
+
+	; set sprite 0 x to X_OFFSET + 104
+	lda     #X_OFFSET + 104
+	sta     VIC_SPR0_X
+
+	lda     _playery
+	sec
+	sbc		#$04
+	sta		_cameray
+
+	; set sprite 0 y to Y_OFFSET + 72
+	lda     #Y_OFFSET + 72
+	sta     VIC_SPR0_Y
+	rts
 
 .endproc
 
@@ -100,13 +133,13 @@ skip:
 	cmp		#$10
 	bcs		end_up
 
-	lda		_playerx
-	jsr		pusha
-	ldy		_playery
-	dey
-	tya
-	jsr		_findDoor
-	bpl		end_up
+; 	lda		_playerx
+; 	jsr		pusha
+; 	ldy		_playery
+; 	dey
+; 	tya
+; 	jsr		_findDoor
+; 	bpl		end_up
 
 	dec		_playery
 	jmp		continue
@@ -131,13 +164,13 @@ skip_up:
 	cmp		#$10
 	bcs		end_down
 
-	lda		_playerx
-	jsr		pusha
-	ldy		_playery
-	iny
-	tya
-	jsr		_findDoor
-	bpl		end_down
+; 	lda		_playerx
+; 	jsr		pusha
+; 	ldy		_playery
+; 	iny
+; 	tya
+; 	jsr		_findDoor
+; 	bpl		end_down
 
 	inc		_playery
 	jmp		continue
@@ -162,13 +195,13 @@ skip_down:
 	cmp		#$10
 	bcs		end_left
 
-	ldy		_playerx
-	dey
-	tya
-	jsr		pusha
-	lda		_playery
-	jsr		_findDoor
-	bpl		end_left
+; 	ldy		_playerx
+; 	dey
+; 	tya
+; 	jsr		pusha
+; 	lda		_playery
+; 	jsr		_findDoor
+; 	bpl		end_left
 
 	dec		_playerx
 	jmp		continue
@@ -193,13 +226,13 @@ skip_left:
 	cmp		#$10
 	bcs		end_right
 
-	ldy		_playerx
-	iny
-	tya
-	jsr		pusha
-	lda		_playery
-	jsr		_findDoor
-	bpl		end_right
+; 	ldy		_playerx
+; 	iny
+; 	tya
+; 	jsr		pusha
+; 	lda		_playery
+; 	jsr		_findDoor
+; 	bpl		end_right
 
 	inc		_playerx
 	jmp		continue

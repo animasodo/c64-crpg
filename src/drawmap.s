@@ -5,7 +5,7 @@
 
 	.importzp	c_sp
 	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
-	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _gotoy, aslax4, newline, putchar, _doors, tosumula0, pushax, _waitvsync
+	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _mapHeight, _gotoy, aslax4, newline, putchar, _doors, tosumula0, pushax, _waitvsync
 	.export		_drawmap
 	.include    "c64.inc"
 
@@ -44,7 +44,7 @@ color:
 	_xCursor = _byte1
 	_yCursor = _byte2
 
-	_rowSkip = _byte3
+	_rowOOB = _byte3
 
 	_visibilityMask = _byte4
 	_doorSpriteCounter = _byte5
@@ -69,16 +69,18 @@ color:
 	sei							; avoid weird behavior from irq
 
 	; calculate main pointer
+	; ptr = _mapBuffer + (max(_cameray, 0) * _mapWidth)
+	lda		_cameray
+	bpl		:+
+	lda		#$00
+	:
+	sta		_byte3				; the pointer gets corrupted if the camera y is under 0, so we clamp it
+
 	ldx     #$00
 	lda		_mapWidth
 	jsr		pushax
-	lda		_cameray
+	lda		_byte3
 	jsr		tosumula0			; multiplication to allow any width
-	clc
-	adc     _camerax
-	bcc     :+
-	inx
-	:
 	clc
 	adc	 	#<(_mapBuffer)
 	sta    	_ptr
@@ -92,15 +94,44 @@ yloop:
 	bcc     :+
 	jmp		yloop_done
 	:
+
+	; check if row is out of bounds
+	lda     _cameray
+	clc
+	adc     _y				; abs_y = cameray + y (signed)
+	bmi     row_oob			; abs_y < 0
+	cmp     _mapHeight		; abs_y >= mapHeight
+	bcs     row_oob
+	lda     #$00
+	jmp     row_bounds_done
+row_oob:
+	lda     #$01
+row_bounds_done:
+	sta     _rowOOB
 	
 	lda     #WIDTH
 	sta     _x
 
-	lda		#$00
-	sta		tmp1
+	lda     #$00
+	sta     tmp1
 xloop:
-	ldy     tmp1
-	lda     (_ptr),y        	; get the tile
+	; if row out of bounds
+	lda		_rowOOB
+	bne		use_border
+
+	; check if column is out of bounds
+	lda     _camerax
+	clc
+	adc     tmp1			; abs_x = camerax + x (signed)
+	bmi     use_border		; abs_x < 0
+	cmp     _mapWidth		; abs_y >= mapWidth
+	bcs     use_border
+	tay                     ; we use abs_x as the index
+	lda     (_ptr),y
+	jmp     draw_tile
+use_border:					; out of bounds
+	lda     _mapBuffer		; take the first tile of the map
+
 draw_tile:
 	tax
     lda     color,x
@@ -138,20 +169,21 @@ draw_tile:
 	inc     CURS_X
 	
 	inc		tmp1
-	dec     _x
+	dec		_x
 	bne     xloop
 xloop_done:
 	lda     #$01
 	sta     CURS_X
 	inc     _y
 
-	; go to the next row
+	lda     _rowOOB
+	bne     :+
+	lda     _ptr			; advance pointer when no longer out of bounds
 	clc
-	lda		_ptr
-	adc		_mapWidth
-	sta		_ptr
-	bcc		:+
-	inc		_ptr+1
+	adc     _mapWidth
+	sta     _ptr
+	bcc     :+
+	inc     _ptr+1
 	:
 
 	; this might be faster than a goto????
@@ -174,6 +206,9 @@ xloop_done:
 	jmp     yloop
 	
 yloop_done:
+
+	; i will likely repurpose all this code for npcs in the future
+
 ; 	lda		#$00
 ; 	sta		_visibilityMask
 ; 	sta		_doorSpriteCounter
