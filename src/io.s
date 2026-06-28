@@ -150,6 +150,21 @@ done_write:
 
 done_while:
 	lda		#$00
+
+	; clear warps
+	ldy		#$00
+l0:	sta		_warps,y
+	iny
+	cpy		#8*5
+	bne		l0
+
+	; clear doors
+	ldy		#$00
+l1:	sta		_doors,y
+	iny
+	cpy		#8*2
+	bne		l1
+
 	sta		_warp_index
 	sta		_door_index
 

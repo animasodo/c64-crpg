@@ -1,2 +1,2 @@
 overworld,0
-tstgnd,1
+castle,1

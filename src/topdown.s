@@ -1,6 +1,6 @@
 
     .importzp	c_sp
-	.importzp	_idx8, _idx16, _byte0, _byte1, _ptr, tmp1, tmp2
+	.importzp	_idx8, _idx16, _byte0, _byte1, _byte2, _byte3, _byte4, _ptr, tmp1, tmp2
 	.import		popa, pusha, tosumula0, pushax
     .import     _doors, _playerx, _playery, _lastKey, _playerInput, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _load_map_compressed, _mapId, _delayFrames, _camerax, _cameray
 	.export		_findDoor, _setCameraSprite, _walk
@@ -274,18 +274,17 @@ warp_check:
 	cmp		_warps_src_y,y
 	bne		skip_warp
 
-	lda		_mapId
-	cmp		_warps_id,y
-	beq		:+
-	sty		_byte0
-	jsr		_load_map_compressed
-	ldy		_byte0
-	:
-
 	lda		_warps_dst_x,y
 	sta		_playerx
 	lda		_warps_dst_y,y
 	sta		_playery
+
+	lda		_warps_id,y
+	cmp		_mapId
+	beq		:+
+	jsr		_load_map_compressed
+	:
+
 	jmp		end_warp
 skip_warp:
 	iny
