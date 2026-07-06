@@ -1,8 +1,8 @@
 
     .importzp	c_sp
 	.importzp	_idx8, _idx16, _byte0, _byte1, _byte2, _byte3, _byte4, _ptr, tmp1, tmp2
-	.import		popa, pusha, tosumula0, pushax
-    .import     _doors, _playerx, _playery, _lastKey, _playerInput, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _load_map_compressed, _mapId, _delayFrames, _camerax, _cameray
+	.import		popa, pusha, pushax
+    .import     _doors, _playerx, _playery, _lastKey, _playerInput, _direction, _mapBuffer, _mapWidth, _warps, _drawmap, _dirChar, _load_map_compressed, _mapId, _delayFrames, _camerax, _cameray, mul8x8
 	.export		_findDoor, _setCameraSprite, _walk
 	.include    "c64.inc"
 
@@ -98,11 +98,9 @@ skip:
 	_warps_dst_y = _warps+32
 
     ; calculate position pointer
-    ldx     #$00
 	lda		_mapWidth
-	jsr		pushax
-	lda		_playery
-	jsr		tosumula0
+	ldx		_playery
+	jsr		mul8x8
 	clc
 	adc     _playerx
 	bcc     :+
@@ -114,6 +112,8 @@ skip:
 	txa
 	adc     #>(_mapBuffer)
 	sta     _ptr+1
+
+	ldy		#$00
 
     ; check key
 	lda     _playerInput

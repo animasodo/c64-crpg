@@ -5,9 +5,10 @@
 
 	.importzp	c_sp
 	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
-	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _mapHeight, _gotoy, aslax4, newline, putchar, _doors, tosumula0, pushax, _waitvsync
+	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _mapHeight, _gotoy, aslax4, newline, putchar, _doors, pushax, _waitvsync, mul8x8
 	.export		_drawmap
 	.include    "c64.inc"
+	.include    "cbm_kernal.inc"
 
 	HEIGHT = $09
 	WIDTH = $0D
@@ -40,10 +41,10 @@ color:
 	; zeropage temporary variables
 	_x = _idx8
 	_y = _jdx8
-	_oldColor = _byte0
 	_xCursor = _byte1
 	_yCursor = _byte2
 
+	_temp_color = _byte2
 	_rowOOB = _byte3
 
 	_visibilityMask = _byte4
@@ -58,11 +59,12 @@ color:
 	lda     CURS_Y
 	sta     _yCursor
 	
-	lda     #$01
-	sta     CURS_X
-	jsr		_gotoy				; set initial cursor position
-	lda		CHARCOLOR
-	sta     _oldColor
+	ldx		#$01
+	ldy		#$01
+	clc
+	jsr		PLOT				; trying the plot kernal routine, having so many wrappers is kinda silly
+	jsr		UPDCRAMPTR			; needed for older versions of the kernal
+
 	lda     #$00
 	sta     _y
 
@@ -76,11 +78,9 @@ color:
 	:
 	sta		_byte3				; the pointer gets corrupted if the camera y is under 0, so we clamp it
 
-	ldx     #$00
 	lda		_mapWidth
-	jsr		pushax
-	lda		_byte3
-	jsr		tosumula0			; multiplication to allow any width
+	ldx		_byte3
+	jsr		mul8x8				; multiplication to allow any width
 	clc
 	adc	 	#<(_mapBuffer)
 	sta    	_ptr
@@ -135,17 +135,17 @@ use_border:					; out of bounds
 draw_tile:
 	tax
     lda     color,x
-    sta     CHARCOLOR
+    sta     _temp_color
     lda     topleft_chr,x
     ldy     CURS_X
     sta     (SCREEN_PTR),y
-	lda		CHARCOLOR
+	lda		_temp_color
 	sta     (CRAM_PTR),y
 
 	iny
     lda     topright_chr,x 		; load top right
     sta     (SCREEN_PTR),y
-	lda		CHARCOLOR
+	lda		_temp_color
 	sta     (CRAM_PTR),y
 
 	; next line
@@ -156,13 +156,13 @@ draw_tile:
 
     lda     botright_chr,x 		; load bottom right
     sta     (SCREEN_PTR),y
-	lda		CHARCOLOR
+	lda		_temp_color
 	sta     (CRAM_PTR),y
 	
 	dey
     lda     botleft_chr,x  		; load bottom left
 	sta     (SCREEN_PTR),y
-	lda		CHARCOLOR
+	lda		_temp_color
 	sta     (CRAM_PTR),y
 
 	inc     CURS_X
@@ -300,11 +300,10 @@ yloop_done:
 
 end:
 	cli							; restore interrupt
-	lda     _oldColor			; set color and cursor to old values
-	sta		CHARCOLOR
-	lda     _xCursor
-	sta     CURS_X
-	lda     _yCursor
-	jmp		_gotoy
+	ldx		_xCursor
+	ldy		_yCursor
+	clc
+	jsr		PLOT
+	jmp		UPDCRAMPTR
 
 .endproc
