@@ -23,5 +23,7 @@ char mapBuffer[4096]; // 4 kilobytes oughta be enough for anybody!
 warp warps;
 door doors;
 
+char itoa_buffer[7]; // 6 digits + null
+
 char frameCount;
 char playerInput;

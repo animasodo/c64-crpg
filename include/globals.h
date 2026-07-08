@@ -16,11 +16,6 @@ typedef struct {
     char y[8];
 } door;
 
-#define UP 145
-#define DOWN 17
-#define LEFT 157
-#define RIGHT 29
-
 #define FPS 50
 
 #define LFN 2
@@ -46,6 +41,8 @@ extern char mapHeight;
 extern char mapBuffer[4096];
 extern warp warps;
 extern door doors;
+
+extern char itoa_buffer[7];
 
 extern char frameCount;
 extern char playerInput;

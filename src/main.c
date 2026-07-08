@@ -13,6 +13,7 @@
 #include "topdown.h"
 #include "interrupts.h"
 #include "simplewrite.h"
+#include "strings.h"
 #include "globals.h"
 
 const char *deviceNotValid = "Not a valid\ndevice number.";
@@ -142,6 +143,9 @@ void main(void){
                     // loadData(strlower(bufferPrompt)); // to be added
                 }
                 break;
+            // case 't':
+            //     message(test_string0);
+            //     break;
         }
     }
 }
