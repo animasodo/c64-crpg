@@ -122,30 +122,27 @@ void main(void){
                 }
                 break;
             case 'q':
-                message("Save to (8,9)? ");
+                message(save_to);
                 readString(bufferPrompt, 3);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
                     message(deviceNotValid);
                 }else{
-                    messagef("Save in %c as?\n", bufferPrompt[0]);
+                    message(save_to_as);
                     readString(bufferPrompt, 14);
                     saveData(strlower(bufferPrompt)); // not working correctly yet, just a test for now
                 }
                 break;
             case 'w':
-                message("Load from (8,9)? ");
+                message(load_from);
                 readString(bufferPrompt, 3);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
                     message(deviceNotValid);
                 }else{
-                    messagef("Load from %c as?\n", bufferPrompt[0]);
+                    message(load_from_as);
                     readString(bufferPrompt, 14);
                     // loadData(strlower(bufferPrompt)); // to be added
                 }
                 break;
-            // case 't':
-            //     message(test_string0);
-            //     break;
         }
     }
 }

@@ -30,22 +30,23 @@ void readString (char* buffer, char size){
         for (buffer[idx8] = '\0', --size; idx8 < size; ) {
             byte0 = cgetc ();
             if(byte0 == ENTER && idx8){    // if enter pressed and idx8 not null
-                asm("jsr $E87C"); // do new line
-                cputs ("\r");
+                // asm("jsr $E87C"); // do new line
+                // cputs ("\r");
+                // cputc(0x00);
                 break;
             }
             if(byte0 == '\b' && idx8) {    // if backspace pressed and idx8 not null
                 /* Remove the character */
                 buffer[--idx8] = '\0';
                 /* Logic to account for line wrapping */
-                byte3 = wherey ();
-                byte2 = wherex ();
-                byte3 = byte2? byte3: byte3 - 1;    // account for cursor being at 0
-                byte2 = byte2? byte2 - 1: (SCREEN_WIDTH - 1);
+                byte2 = (*(char*)0xD6); // y cursor
+                byte1 = (*(char*)0xD3); // x cursor
+                byte2 = byte1? byte2: byte2 - 1;    // account for cursor being at 0
+                byte1 = byte1? byte1 - 1: (SCREEN_WIDTH - 1);
                 /* Clear the character */
-                gotoxy (byte2, byte3);
+                gotoxy (byte1, byte2);
                 cputc (' ');
-                gotoxy (byte2, byte3);
+                gotoxy (byte1, byte2);
             // Handle regular characters
             } else if ((char)isprint (byte0) && idx8 < (size - 1)) {   // if character printable
                 cputc (byte0);              // type character

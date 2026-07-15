@@ -63,7 +63,7 @@ $(FILENAMES): $(MAP_LIST) | $(BUILD_DIR)
 
 $(OUT): $(FILENAMES) $(SOURCES) | $(BUILD_DIR)
 	@printf "CL65: building %s\n" "$@"
-	$(CL65) -C $(CONFIG) $(CFLAGS) $(ASFLAGS) $(LDFLAGS) -o $@ \
+	$(CL65) -C $(CONFIG) $(CFLAGS) $(LDFLAGS) -o $@ \
 	$(SOURCES)
 
 $(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json | $(PROC_MAP_DIR)

@@ -141,6 +141,7 @@
 	lda		#$01
     sta     VIC_IRR				; "acknowledge" interrupt to exit
 
-	jmp		$EA81				; jump to kernel irq routine
+	jmp		$EA31				; jump to kernel irq routine
+	; EA81 was the WRONG kernal pointer, dummy
 
 .endproc
