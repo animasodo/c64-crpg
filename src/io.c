@@ -9,6 +9,7 @@
 #include "io.h"
 #include "ui.h"
 #include "simplewrite.h"
+#include "strings.h"
 #include "globals.h"
 
 #define ENTER 13
@@ -18,9 +19,6 @@
 
 char lastKey;
 char bufferPrompt[20];
-
-char *diskErrorMessage = "Disk error.";
-char *mapErrorMessage = "Not a map.";
 
 void readString (char* buffer, char size){
     idx8 = 0;
@@ -55,43 +53,6 @@ void readString (char* buffer, char size){
             }
         }
     }
-}
-
-void messagef(const char* format, ...){
-    va_list args;
-    jdx8 = 20;
-
-    textcolor(WHITE);
-    cclearxy(1, 20, 26); // clear screen
-    cclearxy(1, 21, 26);
-    cclearxy(1, 22, 26);
-
-    va_start(args, format);
-    gotoxy(1, jdx8);
-    for(idx8 = 0; ; idx8++){
-        if(isprint(format[idx8])){
-            if(format[idx8] == '%'){ // hrm? is this a data type?
-                switch(format[++idx8]){
-                    case 'd': // why yes it is!
-                        cputs(itoa(va_arg(args, int), (char*)byte0, 10));
-                        break;
-                    case 'c':
-                        cputc(va_arg(args, char));
-                        break;
-                    case '%':
-                        cputc('%');
-                        break;
-                }
-            }else{
-                cputc(format[idx8]);
-            }
-        }else if(format[idx8] == '\n'){
-            gotoxy(1, ++jdx8);
-        }else if(format[idx8] == 0){ // null detected. abort! abort!
-            break;
-        }
-    }
-    va_end(args);
 }
 
 void saveData(char *filename){

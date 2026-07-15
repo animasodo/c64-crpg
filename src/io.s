@@ -2,7 +2,7 @@
     .importzp	c_sp
 	.importzp	_idx8, _idx16, _byte0, _byte1, _byte2, _uint0, _ptr
 	.import		_mapBuffer, _cbm_k_clrch, _cbm_k_chkin, _cbm_k_basin, _cbm_open, _cbm_close, _mapHeight, _mapWidth, _mapId, _warps, _doors, _waitvsync, _simplewrite, _gotoy, _cclearxy
-    .import     _diskErrorMessage, _mapErrorMessage, pusha, pushax
+    .import     _disk_error, _map_error, pusha, pushax
 	.export		_load_map_compressed, _delayFrames, _get_filename, _message
 	.include    "c64.inc"
 
@@ -46,8 +46,8 @@
 	jsr     _cbm_open
 	bcc     disk_open
 
-	lda     _diskErrorMessage
-	ldx     _diskErrorMessage+1
+	lda     _disk_error
+	ldx     _disk_error+1
 	jsr     pushax
 	ldy     #$02
     jsr     _message
@@ -66,8 +66,8 @@ disk_open:
     jmp     map_header_successful
 
 map_header_unsuccessful:
-    lda     _mapErrorMessage
-	ldx     _mapErrorMessage+1
+    lda     _map_error
+	ldx     _map_error+1
 	jsr     pushax
 	ldy     #$02
     jsr     _message

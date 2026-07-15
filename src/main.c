@@ -16,8 +16,6 @@
 #include "strings.h"
 #include "globals.h"
 
-const char *deviceNotValid = "Not a valid\ndevice number.";
-
 void createPlayer(void){
     drawBox(0, 0, 40, 25);
     textcolor(YELLOW);
@@ -125,7 +123,7 @@ void main(void){
                 message(save_to);
                 readString(bufferPrompt, 3);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
-                    message(deviceNotValid);
+                    message(device_number_error);
                 }else{
                     message(save_to_as);
                     readString(bufferPrompt, 14);
@@ -136,7 +134,7 @@ void main(void){
                 message(load_from);
                 readString(bufferPrompt, 3);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
-                    message(deviceNotValid);
+                    message(device_number_error);
                 }else{
                     message(load_from_as);
                     readString(bufferPrompt, 14);

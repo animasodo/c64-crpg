@@ -1,5 +1,5 @@
 ;
-; writes string to the screen in an extremely basic way
+; writes string to the screen. supports color highlighting, integers, strings and characters
 ; void simplewritexy(char x, char y, const char *in);
 ; void simplewrite(const char *in);
 ;
@@ -34,7 +34,10 @@ loop:
 	lda     (ptr1),y
 	bne     :+
 	jmp     done			; null
-:	cmp     #$0D			; new line
+	; all the way over here because it's closer so we can do a direct branch
+:	cmp     #$05			; if $05 then next two bytes are pointer to character
+	beq		char
+	cmp     #$0D			; new line
 	beq     :+
 	jmp		notnl
 :	jsr     newline
@@ -131,9 +134,6 @@ notnl:
 	beq		string
 	cmp     #$03			; if $03 then next two bytes are pointer to integer
 	beq		integer
-	cmp     #$05			; if $05 then next two bytes are pointer to character
-	bne		j0
-	jmp		char
 j0:	cmp     #$80
 	bcc     lw
 	and     #$7F
