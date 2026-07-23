@@ -4,9 +4,10 @@
 .segment "GPZP" : zeropage
 
     .exportzp _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7
-    .exportzp _uint0, _uint1, _uint0, _uint3, _int0, _int1
+    .exportzp _uint0, _uint1, _int0, _int1
     .exportzp _idx8, _jdx8, _idx16, _jdx16
     .exportzp _ptr
+    .exportzp arg0, arg1, arg2, arg3
     .exportzp irqbyte0, irqbyte1, irqbyte2, irqbyte3
 
     _byte0:     .res 1
@@ -20,8 +21,6 @@
 
     _uint0:     .res 2
     _uint1:     .res 2
-    _uint2:     .res 2
-    _uint3:     .res 2
     _int0:      .res 2
     _int1:      .res 2
 
@@ -31,6 +30,12 @@
     _jdx16:     .res 2
 
     _ptr:       .res 2
+
+    ; for argument passing purposes, when there aren't enough registers
+    arg0:       .res 1
+    arg1:       .res 1
+    arg2:       .res 1
+    arg3:       .res 1
 
     ; ONLY FOR IRQ ROUTINE PURPOSES
     irqbyte0:   .res 1

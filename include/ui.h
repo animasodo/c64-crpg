@@ -43,4 +43,10 @@ void drawMainUI(void);
 
 void plotLine(char startx, char starty, char finalx, char finaly);
 
+void clear_viewport(void);
+
+char *utoa_8(char *ref);
+char *utoa_16(unsigned int *ref);
+char *itoa_16(int *ref);
+
 #endif

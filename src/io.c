@@ -31,6 +31,7 @@ void readString (char* buffer, char size){
                 // asm("jsr $E87C"); // do new line
                 // cputs ("\r");
                 // cputc(0x00);
+                cursor(0);
                 break;
             }
             if(byte0 == '\b' && idx8) {    // if backspace pressed and idx8 not null

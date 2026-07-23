@@ -9,6 +9,7 @@
     CLR = $01
     STR = $02
     INT = $03
+    BYTE = $04
     CHR = $05
     NL = $0D
 

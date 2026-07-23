@@ -6,12 +6,13 @@
 ; address is loaded into A(low) and X(high) when the function is called
 ;
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, sreg
-	.import		newline, putchar, gotoxy, pushax, _itoa, _itoa_buffer
+	.import		newline, putchar, gotoxy, pushax, _itoa, _utoa, _itoa_buffer, setup_itoa, _itoa_16
 	.export		_simplewrite, _simplewritexy
 	.include	"c64.inc"
 
 .segment "CODE"
 
+	unsigned = tmp1
 	init_pos = tmp4
 
 _simplewritexy:
@@ -31,10 +32,15 @@ _simplewrite:
 	lda     CURS_X
 	sta     init_pos		; store initial position
 loop:
+	lda		#$00
+	sta		unsigned
+
 	lda     (ptr1),y
 	bne     :+
 	jmp     done			; null
 	; all the way over here because it's closer so we can do a direct branch
+	cmp     #$01			; if $01 then next byte is color
+	beq		color
 :	cmp     #$05			; if $05 then next two bytes are pointer to character
 	beq		char
 	cmp     #$0D			; new line
@@ -65,25 +71,19 @@ char:
 	ldx		#$00
 	ldy		tmp3
 	jmp		j0
-integer:
+byte:
+	sec
+int:
 	iny
 	lda     (ptr1),y
 	sta		ptr2
 	iny
 	lda		(ptr1),y
-	sta		ptr2+1
+	tax
+	lda		ptr2
 	sty		tmp3
-	ldy		#$00
-	lda		(ptr2),y
-	ldx		#$00
-	sta		sreg
-	stx		sreg+1
-	lda		#<(_itoa_buffer)
-	ldx		#>(_itoa_buffer)
-	sta		ptr2
-	sta		ptr2+1
-	lda		#$0A
-	jsr		_itoa+3			; skip 3 bytes to avoid the popping, we're not using the stack
+	jsr		setup_itoa
+	jsr		_itoa_16
 	ldy		tmp3
 	sec						; set carry to indicate that we want to print an integer
 string:
@@ -127,13 +127,15 @@ np:	jsr		_simplewrite
 
 	jmp     loop
 notnl:
-	cmp     #$01			; if $01 then next byte is color
-	beq		color
 	cmp     #$02			; if $02 then next two bytes are pointer to string
 	clc
 	beq		string
+	clc
 	cmp     #$03			; if $03 then next two bytes are pointer to integer
-	beq		integer
+	beq		int
+	clc
+	cmp     #$04			; if $04 then next two bytes are pointer to byte
+	beq		byte
 j0:	cmp     #$80
 	bcc     lw
 	and     #$7F

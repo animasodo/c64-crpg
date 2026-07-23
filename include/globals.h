@@ -16,6 +16,11 @@ typedef struct {
     char y[8];
 } door;
 
+typedef struct {
+    char id[8];
+    char quantity[8];
+} item;
+
 #define FPS 50
 
 #define LFN 2
@@ -34,6 +39,7 @@ extern unsigned int playerExp;
 extern unsigned int gold;
 extern char species;
 extern char keys;
+extern item inventory;
 
 extern char mapId;
 extern char mapWidth;

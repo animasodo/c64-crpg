@@ -7,42 +7,16 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "io.h"
+#include "simplewrite.h"
+#include "strings.h"
 #include "globals.h"
-
 #include "ui.h"
 
 #define SCREEN_MEM 0xC800
 #define COLOR_MEM 0xD800
 #define SCREEN_WIDTH 40
-#define BLOCK_TILE_CHR 0x7A
-#define BLOCK_TILE_SCR 0xBA
 
 const char dirChar[4] = {0x61, 0x62, 0x63, 0x64};
-
-void drawBox(char x, char y, char length, char height){
-    byte0 = (x + length) - 1, byte1 = (y + height) - 1, byte2 = textcolor(LIGHT_PURPLE);
-    chlinexy(x, y, length);
-    cvlinexy(x, y, height);
-    chlinexy(x, byte1, length);
-    cvlinexy(byte0, y, height);
-
-    byte2 = textcolor(YELLOW);
-    cputcxy(x, y, 0x9C); // top left
-    cputcxy(byte0, y, 0x9C); // top right
-    cputcxy(x, byte1, 0x9C); // bottom left
-    cputcxy(byte0, byte1, 0x9C); // bottom right
-    textcolor(byte2);
-}
-
-void drawStats(void){
-    byte7 = textcolor(WHITE);
-    cputsxy(30, 3, utoa(playerHealth, (char*)byte0, 10));
-    cputsxy(30, 5, utoa(playerStamina, (char*)byte0, 10));
-    cputsxy(30, 7, utoa(playerPower, (char*)byte0, 10));
-    cputsxy(30, 9, utoa(playerExp, (char*)byte0, 10));
-    cputsxy(30, 11, utoa(gold, (char*)byte0, 10));
-    textcolor(byte7);
-}
 
 void drawMainUI(void){
     byte0 = textcolor(LIGHT_PURPLE);

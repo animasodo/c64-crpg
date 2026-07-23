@@ -48,6 +48,10 @@ void main(void){
     clrscr();
 
     createPlayer();
+
+    playerHealth = 34;
+    playerStamina = 67;
+    playerExp = 65535U;
     drawMainUI();
     
     load_map_compressed(0);
@@ -86,9 +90,6 @@ void main(void){
         }
 
         switch(lastKey){
-            case 's':
-                message("Stats are not yet\nimplemented!");
-                break;
             case 'o':
                 byte0 = playerx;
                 byte1 = playery;
@@ -140,6 +141,21 @@ void main(void){
                     readString(bufferPrompt, 14);
                     // loadData(strlower(bufferPrompt)); // to be added
                 }
+                break;
+            case 's':
+                clear_viewport();
+                setSpriteVisibility(0x00);
+                
+                textcolor(YELLOW);
+                gotoxy(2, 2);
+                simplewrite("Storage");
+
+                do{
+                    lastKey = cgetc();
+                }while(lastKey != 's');
+
+                drawmap();
+                setSpriteVisibility(0xFF);
                 break;
         }
     }
