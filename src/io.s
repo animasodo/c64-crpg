@@ -1,10 +1,10 @@
 
-    .importzp	c_sp
-	.importzp	_idx8, _idx16, _byte0, _byte1, _byte2, _uint0, _ptr
-	.import		_mapBuffer, _cbm_k_clrch, _cbm_k_chkin, _cbm_k_basin, _cbm_open, _cbm_close, _mapHeight, _mapWidth, _mapId, _warps, _doors, _waitvsync, _simplewrite, _gotoy, _cclearxy
-    .import     _disk_error, _map_error, pusha, pushax
-	.export		_load_map_compressed, _delayFrames, _get_filename, _message
-	.include    "c64.inc"
+	.importzp	c_sp
+	.importzp	_idx8, _idx16, _byte0, _byte1, _byte2, _byte3, _uint0, _ptr, arg0, arg1, tmp1, ptr1, ptr2
+	.import		_mapBuffer, _cbm_k_clrch, _cbm_k_chkin, _cbm_k_basin, _cbm_open, _cbm_close, _mapHeight, _mapWidth, _mapId, _warps, _doors, _waitvsync, _formatwrite, _cclearxy
+	.import		_disk_error, _map_error, pusha, pushax, draw_solid_box, goto, _isprint, _printchar, _cgetc, _bufferPrompt, cursor
+	.export		_load_map_compressed, _delayFrames, _get_filename, _message, _readString
+	.include	"c64.inc"
 
 ; ---------------------------------------------------------------
 ; void load_map_compressed(char id)
@@ -255,35 +255,154 @@ exit_loop:
 
 .proc	_message: near
 
-.segment	"CODE"
-
 	sta		_ptr
 	stx		_ptr+1
-	lda     #$01
-	sta		CHARCOLOR
-	jsr     pusha
-	lda     #$14
-	jsr     pusha
-	lda     #$1A
-	jsr     _cclearxy
-	lda     #$01
-	jsr     pusha
-	lda     #$15
-	jsr     pusha
-	lda     #$1A
-	jsr     _cclearxy
-	lda     #$01
-	jsr     pusha
-	lda     #$16
-	jsr     pusha
-	lda     #$1A
-	jsr     _cclearxy
-	lda     #$01
-	sta		CURS_X
-	lda     #$14
-	jsr     _gotoy
+	ldy     #$01
+	sty		CHARCOLOR
+
+	ldx		#$14
+	lda		#$1A
+	sta		arg0
+	lda		#$04
+	sta		arg1
+	lda		#' '
+	jsr		draw_solid_box
+
+	ldy     #$01
+	ldx     #$14
+	jsr     goto
 	lda		_ptr
 	ldx		_ptr+1
-	jmp     _simplewrite
+	jmp     _formatwrite
+
+.endproc
+
+; ---------------------------------------------------------------
+; void __near__ readString (char size)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_readString: near
+
+	char = _byte0
+	size = _byte3
+
+	; idx8 = 0;
+	sta		size
+	lda     #$00
+	sta     _idx8
+
+	; set up pointer
+	lda     #<(_bufferPrompt)
+	ldx     #>(_bufferPrompt)
+	sta		_ptr
+	stx		_ptr+1
+
+	; if (size > 1)
+	lda		size
+	cmp		#$02
+	bcs		:+
+	rts
+	:
+
+	; cursor(1);
+	lda     #$01
+	sta		cursor
+
+	; for (bufferPrompt[idx8] = '\0'; idx8 < size; )
+	ldy		_idx8
+	lda		#$00
+	sta		(_ptr),y
+for_loop:
+	jsr     _cgetc
+	sta     char
+
+	; if(idx8)
+	lda		_idx8
+	beq		skip_index
+	lda		char
+
+	; if(byte0 == ENTER)
+	cmp     #$0D		; ENTER
+	bne		skip_enter
+
+	lda		#$00
+	jmp		end
+skip_enter:
+
+	; if(byte0 == '\b')
+	cmp     #$14		; BACKSPACE
+	bne		skip_back
+
+	; bufferPrompt[--idx8] = '\0';
+	dec		_idx8
+	ldy		_idx8
+	lda		#$00
+	sta		(_ptr),y
+
+	lda		CURS_Y
+	sta		_byte2
+	lda		CURS_X
+	sta		_byte1
+
+	; byte2 = byte1? byte2: byte2 - 1;
+	lda		_byte1
+	bne		:+
+	dec		_byte2
+	:
+
+	; byte1 = byte1? byte1 - 1: (SCREEN_WIDTH - 1);
+	lda		_byte1
+	bne		:+
+	lda		#XSIZE-1
+	sta		_byte1
+	jmp		end_byte
+	:
+	dec		_byte1
+end_byte:
+
+	ldx		_byte2
+	ldy		_byte1
+	jsr		goto
+
+	lda		#' '
+	jsr		_printchar
+
+	ldx		_byte2
+	ldy		_byte1
+	jsr		goto
+
+skip_back:
+skip_index:
+
+	; if ((char)isprint(byte0) && idx8 < (size - 1))
+	lda		char
+	jsr		_isprint
+	beq		skip_printable
+
+	ldy		size
+	dey
+	sty		tmp1
+	lda		_idx8
+	cmp		tmp1
+	bcs		skip_printable
+	; printchar(byte0);
+	lda		char
+	jsr		_printchar
+	; bufferPrompt[idx8] = byte0;
+	ldy		_idx8
+	lda		char
+	sta		(_ptr),y
+	; bufferPrompt[++idx8] = '\0';
+	inc		_idx8
+	ldy		_idx8
+	lda		#$00
+	sta		(_ptr),y
+
+skip_printable:
+	jmp		for_loop
+end:
+	rts
 
 .endproc

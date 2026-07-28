@@ -1,30 +1,20 @@
 ;
 ; writes string to the screen. supports color highlighting, integers, strings and characters
-; void simplewritexy(char x, char y, const char *in);
-; void simplewrite(const char *in);
+; void formatwrite(const char *in);
 ;
 ; address is loaded into A(low) and X(high) when the function is called
 ;
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, sreg
-	.import		newline, putchar, gotoxy, pushax, _itoa, _utoa, _itoa_buffer, setup_itoa, _itoa_16
-	.export		_simplewrite, _simplewritexy
+	.import		advance_screen_ptr, setchar, _itoa, _utoa, _itoa_buffer, setup_itoa, _itoa_16
+	.export		_formatwrite
 	.include	"c64.inc"
 
 .segment "CODE"
 
 	unsigned = tmp1
 	init_pos = tmp4
-
-_simplewritexy:
-	pha
-	txa
-	pha
-	jsr		gotoxy
-	pla
-	tax
-	pla						; i don't have phx and plx instructions :(
         
-_simplewrite:
+_formatwrite:
 	sta     ptr1
 	stx     ptr1+1
 	ldy     #$00			; set pointer
@@ -46,7 +36,7 @@ loop:
 	cmp     #$0D			; new line
 	beq     :+
 	jmp		notnl
-:	jsr     newline
+:	jsr     advance_screen_ptr
 	lda     init_pos
 	sta     CURS_X
 	iny
@@ -112,7 +102,7 @@ p2:	tya
 	pha
 	lda		ptr2
 	ldx		ptr2+1
-np:	jsr		_simplewrite
+np:	jsr		_formatwrite
 
 	; restore the index, pointer and position
 	pla
@@ -142,7 +132,7 @@ j0:	cmp     #$80
 	jmp     :+
 lw:	and     #$3F
 :	sty	 	tmp2
-	jsr     putchar+2		; +2 as a test to skip the ora
+	jsr     setchar
 	ldy		tmp2
 	inc     CURS_X
 	iny

@@ -1,10 +1,11 @@
 
-	.importzp	tmp1, tmp2, tmp3, tmp4, arg0, arg1, arg2, sreg, ptr2, ptr3, _byte7
-	.import		newline, putchar, popa, _itoa, _utoa, _itoa_buffer, _simplewrite
-	.import		_playerHealth, _playerStamina, _playerPower, _playerExp, _gold
-	.export		_clear_viewport, _drawBox, _utoa_8, _utoa_16, _itoa_16, setup_itoa, _drawStats
-	.include    "c64.inc"
-	.include    "cbm_kernal.inc"
+	.importzp	tmp1, tmp2, tmp3, tmp4, arg0, arg1, arg2, sreg, ptr2, ptr3, _byte0, _byte7
+	.import		advance_screen_ptr, setchar, popa, _itoa, _utoa, _itoa_buffer, _formatwrite, _print
+	.import		_playerName, _playerHealth, _playerStamina, _playerPower, _playerExp, _gold, _dirChar, _direction, _clrscr
+	.import		health_str, stamina_str, power_str, exp_str, gold_str
+	.export		_clear_viewport, _drawBox, _utoa_8, _utoa_16, _itoa_16, setup_itoa, _drawStats, goto, draw_solid_box, _drawMainUI, draw_box_border
+	.include	"c64.inc"
+	.include	"cbm_kernal.inc"
 
 ; ---------------------------------------------------------------
 ; void clear_viewport(void);
@@ -42,35 +43,26 @@
 .proc	draw_solid_box: near
 
 	sta		tmp1			; store the character
-	stx		tmp2			; store the first x position
-	clc
-	jsr		PLOT
-	jsr		UPDCRAMPTR
+	sty		tmp2			; store the first x position
+	jsr		goto
 
 	ldx		arg1
-l0:
-	ldy     tmp2
-l1:
+box_row_loop:
+	ldy		tmp2
+box_char_loop:
 	lda		tmp1
-    sta		(SCREEN_PTR),y
+	sta		(SCREEN_PTR),y
 	lda		arg2
 	sta		(CRAM_PTR),y
 	iny
 	cpy		arg0
-	bne		l1
+	bne		box_char_loop
 
 	dex
-	; increase pointer
-	lda		SCREEN_PTR
-	clc
-	adc		#XSIZE
-	sta		SCREEN_PTR
-	lda		SCREEN_PTR+1
-	adc		#$00
-	sta		SCREEN_PTR+1
+	jsr		advance_screen_ptr
 
 	cpx		#$00
-	bne		l0
+	bne		box_row_loop
 	rts
 
 .endproc
@@ -78,27 +70,29 @@ l1:
 ; code for the border, will fix it up in a sec
 
 writev:
-        sta     tmp3
-loopv:  lda     #$5D
-        jsr     putchar         ; write
-        jsr     newline         ; nl
-        dec     tmp3
-        bne     loopv
-        rts
+	sta		tmp3
+write_vertical_border:
+	lda		#$5D
+	jsr		setchar					; write
+	jsr		advance_screen_ptr		; nl
+	dec		tmp3
+	bne		write_vertical_border
+	rts
 
 writeh:
-        sta     tmp3
-looph:  lda     #$40
-        jsr     putchar         ; write
-        inc     CURS_X          ; advance
-        dec     tmp3
-        bne     looph
-        rts
+	sta		tmp3
+write_horizontal_border:
+	lda		#$40
+	jsr		setchar					; write
+	inc		CURS_X					; advance
+	dec		tmp3
+	bne		write_horizontal_border
+	rts
 
 ; ---------------------------------------------------------------
 ; draw_box_border: draw the border of a box
-; x register = x
-; y register = y
+; x register = y
+; y register = x
 ; arg0 = length
 ; arg1 = height
 ; ---------------------------------------------------------------
@@ -124,7 +118,7 @@ looph:  lda     #$40
 	lda		#$07
 	sta		CHARCOLOR
 	lda		#CORNER
-	jsr		putchar
+	jsr		setchar
 	inc		CURS_X
 
 	lda		#$0E
@@ -135,8 +129,8 @@ looph:  lda     #$40
 	lda		#$07
 	sta		CHARCOLOR
 	lda		#CORNER
-	jsr		putchar
-	jsr		newline
+	jsr		setchar
+	jsr		advance_screen_ptr
 	
 	lda		#$0E
 	sta		CHARCOLOR
@@ -147,7 +141,7 @@ looph:  lda     #$40
 	ldx		tmp2
 	jsr		goto
 
-	jsr		newline
+	jsr		advance_screen_ptr
 	lda		#$0E
 	sta		CHARCOLOR
 	lda		arg1
@@ -156,7 +150,7 @@ looph:  lda     #$40
 	lda		#$07
 	sta		CHARCOLOR
 	lda		#CORNER
-	jsr		putchar
+	jsr		setchar
 	inc		CURS_X
 
 	lda		#$0E
@@ -167,7 +161,7 @@ looph:  lda     #$40
 	lda		#$07
 	sta		CHARCOLOR
 	lda		#CORNER
-	jsr		putchar
+	jsr		setchar
 
 	lda		tmp4
 	sta		CHARCOLOR
@@ -191,8 +185,8 @@ looph:  lda     #$40
 	jsr		popa
 	sta		tmp1
 	jsr		popa
-	tax
-	ldy		tmp1
+	tay
+	ldx		tmp1
 	jmp		draw_box_border
 
 .endproc
@@ -285,7 +279,7 @@ _utoa_16:
 	lda		#<(_playerHealth)
 	ldx		#>(_playerHealth)
 	jsr		_utoa_8
-	jsr		_simplewrite
+	jsr		_formatwrite
 
 	ldx		#5
 	ldy		#30
@@ -294,7 +288,7 @@ _utoa_16:
 	lda		#<(_playerStamina)
 	ldx		#>(_playerStamina)
 	jsr		_utoa_8
-	jsr		_simplewrite
+	jsr		_formatwrite
 
 	ldx		#7
 	ldy		#30
@@ -303,7 +297,7 @@ _utoa_16:
 	lda		#<(_playerPower)
 	ldx		#>(_playerPower)
 	jsr		_utoa_8
-	jsr		_simplewrite
+	jsr		_formatwrite
 
 	ldx		#9
 	ldy		#30
@@ -312,7 +306,7 @@ _utoa_16:
 	lda		#<(_playerExp)
 	ldx		#>(_playerExp)
 	jsr		_utoa_16
-	jsr		_simplewrite
+	jsr		_formatwrite
 
 	ldx		#11
 	ldy		#30
@@ -321,9 +315,106 @@ _utoa_16:
 	lda		#<(_gold)
 	ldx		#>(_gold)
 	jsr		_utoa_16
-	jsr		_simplewrite
+	jsr		_formatwrite
 
 	lda		_byte7
+	sta		CHARCOLOR
+	rts
+
+.endproc
+
+; ---------------------------------------------------------------
+; void drawMainUI(void)
+; ---------------------------------------------------------------
+
+.segment	"CODE"
+
+.proc	_drawMainUI: near
+
+	lda		CHARCOLOR
+	sta		_byte0
+
+	jsr     _clrscr
+
+	ldy		#0
+	ldx		#0
+	lda     #40
+	sta		arg0
+	lda     #25
+	sta		arg1
+	jsr     draw_box_border
+
+	ldy		#27
+	ldx		#0
+	lda     #13
+	sta		arg0
+	lda     #25
+	sta		arg1
+	jsr     draw_box_border
+
+	ldy		#0
+	ldx		#19
+	lda     #28
+	sta		arg0
+	lda     #6
+	sta		arg1
+	jsr     draw_box_border
+
+	lda     #$07
+	sta     CHARCOLOR
+
+	ldy		#29
+	ldx		#0
+	jsr		goto
+	lda     #<(_playerName)
+	ldx     #>(_playerName)
+	jsr     _print
+
+	ldy		#29
+	ldx		#2
+	jsr		goto
+	lda     #<(health_str)
+	ldx     #>(health_str)
+	jsr     _print
+
+	ldy		#29
+	ldx		#4
+	jsr		goto
+	lda     #<(stamina_str)
+	ldx     #>(stamina_str)
+	jsr     _print
+
+	ldy		#29
+	ldx		#6
+	jsr		goto
+	lda     #<(power_str)
+	ldx     #>(power_str)
+	jsr     _print
+
+	ldy		#29
+	ldx		#8
+	jsr		goto
+	lda     #<(exp_str)
+	ldx     #>(exp_str)
+	jsr     _print
+
+	ldy		#29
+	ldx		#10
+	jsr		goto
+	lda     #<(gold_str)
+	ldx     #>(gold_str)
+	jsr     _print
+
+	jsr     _drawStats
+
+	lda     #$02
+	sta     $D825
+
+	ldy     _direction
+	lda		_dirChar,y
+	sta     $C825
+
+	lda     _byte0
 	sta		CHARCOLOR
 	rts
 

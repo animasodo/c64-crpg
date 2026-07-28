@@ -13,7 +13,7 @@
 extern char lastKey;
 extern char bufferPrompt[];
 
-void readString (char* buffer, char size);
+void readString(char size);
 
 void message(const char* message);
 

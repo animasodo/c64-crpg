@@ -8,53 +8,50 @@
 #include <c64.h>
 #include "io.h"
 #include "ui.h"
-#include "simplewrite.h"
+#include "text.h"
 #include "strings.h"
 #include "globals.h"
 
 #define ENTER 13
-#define F1 133
 #define SCREEN_WIDTH 40
 #define SCREEN_HEIGHT 25
+#define PROMPT_BUFFER_SIZE 20
 
 char lastKey;
-char bufferPrompt[20];
+char bufferPrompt[PROMPT_BUFFER_SIZE];
 
-void readString (char* buffer, char size){
-    idx8 = 0;
-
-    if (buffer && size > 1) {   // if buffer is not null and size is bigger than 1
-        cursor (1);
-        for (buffer[idx8] = '\0', --size; idx8 < size; ) {
-            byte0 = cgetc ();
-            if(byte0 == ENTER && idx8){    // if enter pressed and idx8 not null
-                // asm("jsr $E87C"); // do new line
-                // cputs ("\r");
-                // cputc(0x00);
-                cursor(0);
-                break;
-            }
-            if(byte0 == '\b' && idx8) {    // if backspace pressed and idx8 not null
-                /* Remove the character */
-                buffer[--idx8] = '\0';
-                /* Logic to account for line wrapping */
-                byte2 = (*(char*)0xD6); // y cursor
-                byte1 = (*(char*)0xD3); // x cursor
-                byte2 = byte1? byte2: byte2 - 1;    // account for cursor being at 0
-                byte1 = byte1? byte1 - 1: (SCREEN_WIDTH - 1);
-                /* Clear the character */
-                gotoxy (byte1, byte2);
-                cputc (' ');
-                gotoxy (byte1, byte2);
-            // Handle regular characters
-            } else if ((char)isprint (byte0) && idx8 < (size - 1)) {   // if character printable
-                cputc (byte0);              // type character
-                buffer[idx8] = byte0;          // set idx8 in string to character
-                buffer[++idx8] = '\0';
-            }
-        }
-    }
-}
+// void readString(char size){
+//     idx8 = 0;
+// 
+//     if (bufferPrompt && size > 1){   // if buffer is not null and size is bigger than 1
+//         cursor(1);
+//         for (bufferPrompt[idx8] = '\0', --size; idx8 < size; ) {
+//             byte0 = cgetc ();
+//             if(byte0 == ENTER && idx8){    // if enter pressed and idx8 not null
+//                 cursor(0);
+//                 break;
+//             }
+//             if(byte0 == '\b' && idx8) {    // if backspace pressed and idx8 not null
+//                 /* Remove the character */
+//                 bufferPrompt[--idx8] = '\0';
+//                 /* Logic to account for line wrapping */
+//                 byte2 = (*(char*)0xD6); // y cursor
+//                 byte1 = (*(char*)0xD3); // x cursor
+//                 byte2 = byte1? byte2: byte2 - 1;    // account for cursor being at 0
+//                 byte1 = byte1? byte1 - 1: (SCREEN_WIDTH - 1);
+//                 /* Clear the character */
+//                 gotoxy(byte1, byte2);
+//                 printchar(' ');
+//                 gotoxy(byte1, byte2);
+//             // Handle regular characters
+//             } else if ((char)isprint(byte0) && idx8 < (size - 1)) {   // if character printable
+//                 printchar(byte0);              // type character
+//                 bufferPrompt[idx8] = byte0;          // set idx8 in string to character
+//                 bufferPrompt[++idx8] = '\0';
+//             }
+//         }
+//     }
+// }
 
 void saveData(char *filename){
     char testData[] = "\1test";

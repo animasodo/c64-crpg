@@ -31,9 +31,8 @@
     _doors_y = _doors+8
 	
 	; i can probably repurpose this code for something like npcs
-    sta     tmp1
-    jsr     popa
-    sta     tmp2
+    sty     tmp1
+    stx     tmp2
     ldy     #$00
 loop:
     lda     _doors_x,y
@@ -133,11 +132,9 @@ skip:
 	cmp		#$10
 	bcs		end_up
 
-; 	lda		_playerx
-; 	jsr		pusha
+; 	ldx		_playerx
 ; 	ldy		_playery
 ; 	dey
-; 	tya
 ; 	jsr		_findDoor
 ; 	bpl		end_up
 
@@ -164,11 +161,9 @@ skip_up:
 	cmp		#$10
 	bcs		end_down
 
-; 	lda		_playerx
-; 	jsr		pusha
+; 	ldx		_playerx
 ; 	ldy		_playery
 ; 	iny
-; 	tya
 ; 	jsr		_findDoor
 ; 	bpl		end_down
 
@@ -195,11 +190,9 @@ skip_down:
 	cmp		#$10
 	bcs		end_left
 
-; 	ldy		_playerx
-; 	dey
-; 	tya
-; 	jsr		pusha
-; 	lda		_playery
+; 	ldx		_playerx
+; 	dex
+; 	ldy		_playery
 ; 	jsr		_findDoor
 ; 	bpl		end_left
 
@@ -226,11 +219,9 @@ skip_left:
 	cmp		#$10
 	bcs		end_right
 
-; 	ldy		_playerx
-; 	iny
-; 	tya
-; 	jsr		pusha
-; 	lda		_playery
+; 	ldx		_playerx
+; 	inx
+; 	ldy		_playery
 ; 	jsr		_findDoor
 ; 	bpl		end_right
 

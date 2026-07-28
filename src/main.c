@@ -12,25 +12,10 @@
 #include "sprites.h"
 #include "topdown.h"
 #include "interrupts.h"
-#include "simplewrite.h"
+#include "text.h"
 #include "strings.h"
+#include "general.h"
 #include "globals.h"
-
-void createPlayer(void){
-    drawBox(0, 0, 40, 25);
-    textcolor(YELLOW);
-    simplewritexy(2, 2, "Welcome to the CRPG demo!");
-    simplewritexy(2, 4, "(N)ew game or (L)oad game? ");
-    textcolor(WHITE);
-    while(lastKey != 'n' && lastKey != 'l'){ // loading hasn't been implemented yet lolololol
-        lastKey = cgetc();
-    }
-    cputc(lastKey);
-    textcolor(YELLOW);
-    simplewritexy(2, 6, "Name of the player: ");
-    textcolor(WHITE);
-    readString(playerName, 10);
-}
 
 void main(void){
     // init
@@ -42,7 +27,7 @@ void main(void){
     POKE(BG_COLOR, BLACK);
     textcolor(WHITE);
     POKE(0xD016, byte0 | 0x10); // set multicolor character mode
-    cputsxy(0, 24, "Loading...");
+    printxy(0, 24, "Loading...");
 
     loadCharset();
     clrscr();
@@ -53,20 +38,20 @@ void main(void){
     playerStamina = 67;
     playerExp = 65535U;
     drawMainUI();
-    
+
     load_map_compressed(0);
 
     setSpritePointer(0xCC00, 0);
-	// the sprite pointer is located at (screen base + 1016)
+    // the sprite pointer is located at (screen base + 1016)
 
-	setSpriteMulticolorProperties(0b11111111);
-	setSpriteColor(CYAN, 0);
-	setSpriteMulticolor(WHITE, 0);
-	setSpriteMulticolor(BLUE, 1);
+    setSpriteMulticolorProperties(0b11111111);
+    setSpriteColor(CYAN, 0);
+    setSpriteMulticolor(WHITE, 0);
+    setSpriteMulticolor(BLUE, 1);
 
-	setSpriteVisibility(0b00000001);
-	setSpriteX(X_OFFSET + 88, 0);
-	setSpriteY(Y_OFFSET + 72, 0);
+    setSpriteVisibility(0b00000001);
+    setSpriteX(X_OFFSET + 88, 0);
+    setSpriteY(Y_OFFSET + 72, 0);
 
     loadSprite(0xCC00, lizard_sprite_0);
     loadSprite(0xCC40, lizard_sprite_1);
@@ -85,7 +70,7 @@ void main(void){
         cbm_k_scnkey();
         lastKey = cbm_k_getin();
         
-        if((playerInput & 0x0F) != 0) {
+        if((playerInput & 0x0F) != 0){
             walk();
         }
 
@@ -114,31 +99,31 @@ void main(void){
                 if(byte0 == 0x1F){
                     asm("lda #$03");
                     asm("sta (_ptr),y");
-                    message(doorOpen);
+                    message(door_open);
                     drawmap();
                 }else{
-                    message(noDoor);
+                    message(no_door);
                 }
                 break;
             case 'q':
                 message(save_to);
-                readString(bufferPrompt, 3);
+                readString(2);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
                     message(device_number_error);
                 }else{
                     message(save_to_as);
-                    readString(bufferPrompt, 14);
+                    readString(13);
                     saveData(strlower(bufferPrompt)); // not working correctly yet, just a test for now
                 }
                 break;
             case 'w':
                 message(load_from);
-                readString(bufferPrompt, 3);
+                readString(2);
                 if(bufferPrompt[0] != '8' && bufferPrompt[0] != '9'){
                     message(device_number_error);
                 }else{
                     message(load_from_as);
-                    readString(bufferPrompt, 14);
+                    readString(13);
                     // loadData(strlower(bufferPrompt)); // to be added
                 }
                 break;
@@ -147,8 +132,7 @@ void main(void){
                 setSpriteVisibility(0x00);
                 
                 textcolor(YELLOW);
-                gotoxy(2, 2);
-                simplewrite("Storage");
+                printxy(2, 2, "Storage");
 
                 do{
                     lastKey = cgetc();

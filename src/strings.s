@@ -3,6 +3,8 @@
 ;
 
     .import     _bufferPrompt
+    .export     health_str, stamina_str, power_str, exp_str, gold_str
+    .export     _door_open, _door_unlocked, _no_door
 	.export		_save_to, _load_from, _save_to_as, _load_from_as, _device_number_error, _disk_error, _map_error
 
     END = $00
@@ -15,16 +17,44 @@
 
 .segment "RODATA"
 
+; ui elements
+
+health_str:
+    .byte "Health:", END
+
+stamina_str:
+    .byte "Stamina:", END
+
+power_str:
+    .byte "Power", END
+
+exp_str:
+    .byte "Exp:", END
+
+gold_str:
+    .byte "Gold:", END
+
+; door messages
+
+_door_open:
+    .byte "Door open!", END
+
+_door_unlocked:
+    .byte "Door unlocked!", END
+
+_no_door:
+    .byte "No door in this", NL, "direction.", END
+
 ; io messages
 
 devices:
-    .byte "(8,9)", END
+    .byte " (8,9) ", END
 
 _save_to:
-    .byte "Save to ", STR, <(devices), >(devices), " ", END
+    .byte "Save to", STR, <(devices), >(devices), END
 
 _load_from:
-    .byte "Load from ", STR, <(devices), >(devices), " ", END
+    .byte "Load from", STR, <(devices), >(devices), END
 
 _save_to_as:
     .byte "Save to ", CHR, <(_bufferPrompt), >(_bufferPrompt), " as?", NL, END

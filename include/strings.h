@@ -1,6 +1,10 @@
 #ifndef STRINGS_H
 #define STRINGS_H
 
+extern char door_open[];
+extern char door_unlocked[];
+extern char no_door[];
+
 extern char save_to[];
 extern char load_from[];
 

@@ -5,10 +5,10 @@
 
 	.importzp	c_sp
 	.importzp	tmp1, _idx8, _jdx8, _byte0, _byte1, _byte2, _byte3, _byte4, _byte5, _byte6, _byte7, _ptr
-	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _mapHeight, _gotoy, aslax4, newline, putchar, _doors, pushax, _waitvsync, mul8x8
+	.import		_camerax, _cameray, _mapBuffer, _mapWidth, _mapHeight, advance_screen_ptr, setchar, _doors, pushax, _waitvsync, mul8x8, goto
 	.export		_drawmap
-	.include    "c64.inc"
-	.include    "cbm_kernal.inc"
+	.include	"c64.inc"
+	.include	"cbm_kernal.inc"
 
 	HEIGHT = $09
 	WIDTH = $0D
@@ -19,20 +19,20 @@
 
 ; graphics data
 topleft_chr:
-        .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B2, $B2, $B1, $B1, $B1, $B1, $B9, $B9, $BC
-		.byte $B2, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D0
+	.byte	$B0, $B8, $B5, $B4, $B7, $B9, $B8, $B2, $B2, $B1, $B1, $B1, $B1, $B9, $B9, $BC
+	.byte	$B2, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D0
 topright_chr:
-        .byte $B0, $B8, $B5, $B4, $B7, $B9, $B8, $B3, $B3, $B1, $B1, $B1, $B1, $B9, $B9, $BD
-		.byte $B3, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D1
+	.byte	$B0, $B8, $B5, $B4, $B7, $B9, $B8, $B3, $B3, $B1, $B1, $B1, $B1, $B9, $B9, $BD
+	.byte	$B3, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D1
 botleft_chr:
-        .byte $B0, $B8, $B6, $B4, $B7, $BA, $B8, $B2, $B3, $B1, $B1, $B1, $B1, $B9, $BA, $BE
-		.byte $B3, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D2
+	.byte	$B0, $B8, $B6, $B4, $B7, $BA, $B8, $B2, $B3, $B1, $B1, $B1, $B1, $B9, $BA, $BE
+	.byte	$B3, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D2
 botright_chr:
-        .byte $B0, $B8, $B6, $B4, $B7, $BB, $B8, $B3, $B2, $B1, $B1, $B1, $B1, $B9, $BB, $BF
-		.byte $B2, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D3
+	.byte	$B0, $B8, $B6, $B4, $B7, $BB, $B8, $B3, $B2, $B1, $B1, $B1, $B1, $B9, $BB, $BF
+	.byte	$B2, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $D3
 color:
-        .byte $0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02, $02, $02, $02, $00, $03, $03
-		.byte $0E, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $0F
+	.byte	$0D, $07, $0D, $0C, $08, $03, $07, $0E, $0E, $02, $02, $02, $02, $00, $03, $03
+	.byte	$0E, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $02, $0F
 
 .segment	"CODE"
 
@@ -61,9 +61,7 @@ color:
 	
 	ldx		#$01
 	ldy		#$01
-	clc
-	jsr		PLOT				; trying the plot kernal routine, having so many wrappers is kinda silly
-	jsr		UPDCRAMPTR			; needed for older versions of the kernal
+	jsr		goto
 
 	lda     #$00
 	sta     _y
@@ -300,10 +298,8 @@ yloop_done:
 
 end:
 	cli							; restore interrupt
-	ldx		_xCursor
-	ldy		_yCursor
-	clc
-	jsr		PLOT
-	jmp		UPDCRAMPTR
+	ldx		_yCursor
+	ldy		_xCursor
+	jmp		goto
 
 .endproc
