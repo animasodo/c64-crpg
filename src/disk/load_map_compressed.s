@@ -1,0 +1,208 @@
+; ---------------------------------------------------------------
+; load_map_compressed
+;   loads and decompresses a map file from disk into the map
+;   buffer based on an ID.
+;
+; in:  Y = map id
+; ---------------------------------------------------------------
+
+	.autoimport	on
+	.importzp	idx8, idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, ptr1, ptr2
+	.export		load_map_compressed
+	.include	"c64.inc"
+	.include	"cbm_kernal.inc"
+    .include	"definitions.inc"
+    .include	"macros.inc"
+
+	; header/entity codes
+	M = $4D
+	P = $50
+	W = $57
+	D = $44
+	E = $45 ; eof
+
+.segment	"CODE"
+
+.proc	load_map_compressed: near
+
+    ; zeropage temporary variables
+    id = byte0
+    compressed_length = uint0
+	compressed_index = idx16
+	tile = byte1
+	length = byte2
+
+	warp_index = byte1
+	door_index = byte2
+	
+    sty     id
+	jsr     get_filename
+	stx		byte1
+	ldy		byte1
+	tax
+	jsr		setnam_term
+	ldx     #FLOPPY
+	ldy     #$02
+	lda     #LFN
+	jsr     SETLFS
+	jsr		OPEN
+	bcc		disk_open
+
+	lda     disk_error
+	ldx     disk_error+1
+    jsr     message
+	jmp     done
+    
+disk_open:
+	ldx     #LFN
+	jsr     CHKIN			; set LFN 2 as active input channel
+
+	jsr     BASIN
+	cmp     #M
+    bne     map_header_unsuccessful
+    jsr     BASIN
+	cmp     #P
+    bne     map_header_unsuccessful
+    jmp     map_header_successful
+
+map_header_unsuccessful:
+    lda     map_error
+	ldx     map_error+1
+    jsr     message
+    jmp     done
+
+map_header_successful:
+    lda     id
+	sta     mapId
+	jsr     BASIN
+	sta     mapWidth
+	jsr     BASIN
+	sta     mapHeight
+	jsr     BASIN
+	sta     compressed_length
+	jsr     BASIN
+	sta     compressed_length+1	; get compressed length
+
+	lda     #$00
+	sta     compressed_index
+	sta     compressed_index+1
+
+	lda		#<(mapBuffer)
+	ldx		#>(mapBuffer)
+	sta     ptr
+	stx     ptr+1
+
+while_loop:
+	lda		compressed_index+1
+    cmp     compressed_length+1
+	bcc		:+
+	bne		done_while
+	lda		compressed_index
+	cmp		compressed_length
+	bcs		done_while
+	:
+	jsr		BASIN
+	tay
+	and		#$1F
+	sta		tile
+	tya
+	lsr		a
+	lsr		a
+	lsr		a
+	lsr		a
+	lsr		a
+	tay
+	iny
+	cpy		#$08
+	bne		:+						; if 3 most significant bits are 111, grab actual length from next byte
+	jsr		BASIN
+	tay
+	inc		compressed_index
+	bne		:+
+	inc		compressed_index+1
+	:
+	sty		length
+	ldy		#$00
+	lda		tile
+
+write_loop:
+	cpy		length
+	beq		done_write
+	sta		(ptr),y
+	iny
+	jmp		write_loop
+
+done_write:
+	lda		length
+	clc
+	adc		ptr
+	sta		ptr
+	bcc		:+
+	inc		ptr+1
+	:
+	inc		compressed_index
+	bne		:+
+	inc		compressed_index+1
+	:
+	jmp		while_loop
+
+done_while:
+	lda		#$00
+
+	; clear warps
+	ldy		#$00
+l0:	sta		warps,y
+	iny
+	cpy		#8*5
+	bne		l0
+
+	; clear doors
+	ldy		#$00
+l1:	sta		doors,y
+	iny
+	cpy		#8*2
+	bne		l1
+
+	sta		warp_index
+	sta		door_index
+
+while_not_eof:
+	jsr		BASIN
+	cmp		#E
+	beq		done
+
+	cmp		#W
+	bne		:+
+	ldy		warp_index
+	jsr		BASIN
+	sta		warp_id,y
+	jsr		BASIN
+	sta		warp_src_x,y
+	jsr		BASIN
+	sta		warp_src_y,y
+	jsr		BASIN
+	sta		warp_dst_x,y
+	jsr		BASIN
+	sta		warp_dst_y,y
+	inc		warp_index
+	:
+
+	cmp		#D
+	bne		:+
+	ldy		door_index
+	jsr		BASIN
+	sta		door_x,y
+	jsr		BASIN
+	sta		door_y,y
+	inc		door_index
+	:
+
+	jmp		while_not_eof
+
+done:
+	jsr		CLRCHN
+	lda		#LFN
+	jmp		CLOSE
+
+.endproc
+
