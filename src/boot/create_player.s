@@ -1,7 +1,7 @@
 	
 	.autoimport		on
 	.importzp		arg0, arg1, ptr1
-	.export         createPlayer
+	.export         create_player
 	.include        "c64.inc"
 
 .segment	"RODATA"
@@ -15,7 +15,7 @@ S0016:
 
 .segment	"CODE"
 
-.proc	createPlayer: near
+.proc	create_player: near
 
 	ldx     #$00
 	ldy     #$00

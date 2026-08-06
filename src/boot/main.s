@@ -69,8 +69,8 @@ S0019:
 	jsr     init_irq
 
 game_loop:
-	jsr     _cbm_k_scnkey
-	jsr     _cbm_k_getin
+	jsr     SCNKEY
+	jsr     GETIN
 	sta     lastKey
 
 	lda     playerInput	; if player has pressed a direction (walk)

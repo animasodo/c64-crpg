@@ -187,6 +187,7 @@ warp_check:
 	lda		warp_id,y
 	cmp		mapId
 	beq		:+
+	tay
 	jsr		load_map_compressed
 	:
 

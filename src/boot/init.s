@@ -62,7 +62,7 @@ start:
 	ora		#%00010000
 	sta		VIC_CTRL2
 
-	jmp     createPlayer
+	jmp     create_player
 
 ; ------------------------------------------------------------------------
 ; data
