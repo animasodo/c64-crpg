@@ -38,4 +38,5 @@ LIGHT_GREY		:= $0F
 
 ; *** disk operation stuff ***
 LFN				:= $02
+COMMAND			:= $0F
 FLOPPY			:= $08

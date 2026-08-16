@@ -34,15 +34,28 @@ start:
 	jsr		CLRSCR
 	
 	; load the character set
-	ldx     #24
-    ldy     #0
+	ldx     #12
+    ldy     #14
     jsr     goto
 
     lda     #<(loading)
     ldx     #>(loading)
     jsr     print
 
-	read_seq chrset, 6, $C000, $0800 ; macro for reading the charset
+	; load chrset from track and sector
+
+	; destination
+	lda     #<$C000
+    sta     ptr1
+	lda     #>$C000
+    sta     ptr1+1
+    ; length
+    lda     #<$0800
+    sta     ptr2
+    lda     #>$0800
+    sta     ptr2+1
+
+    jsr     load_from_ts ; unfinished, for testing rn
 
     ; set VIC-II bank to 3
     lda     CIA2

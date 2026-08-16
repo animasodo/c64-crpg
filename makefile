@@ -10,11 +10,13 @@ SRC_DIR     := src
 DATA_DIR    := data
 MAP_DIR     := $(DATA_DIR)/maps
 MAP_LIST    := $(MAP_DIR)/maps.txt
+MANIFEST    := $(DATA_DIR)/manifest.txt
 
 FILENAMES   := $(BUILD_DIR)/maps/filenames.s
 
 OUT         := $(BUILD_DIR)/$(TARGET).prg
 DISK        := $(BUILD_DIR)/$(TARGET).d64
+PACKED_DISK := $(BUILD_DIR)/$(TARGET)_final.d64
 LABELS      := $(BUILD_DIR)/$(TARGET).lbl
 MAP         := $(BUILD_DIR)/$(TARGET).map
 
@@ -25,6 +27,7 @@ CL65        := cl65
 CC1541      := cc1541
 MAPP        := mapp
 MAPP-LISTER := mapp-lister
+PACK-ASSETS := pack-assets
 EMU         := x64sc
 
 # -------------------------------------------------
@@ -69,7 +72,7 @@ PROC_MAP_FILES := $(patsubst $(MAP_DIR)/%.bin,$(PROC_MAP_DIR)/%.bin,$(MAP_FILES)
 .DELETE_ON_ERROR:
 MAKEFLAGS += -r
 
-all: $(DISK)
+all: $(PACKED_DISK)
 
 # -------------------------------------------------
 # Object files
@@ -116,6 +119,11 @@ $(DISK): $(OUT) $(PROC_MAP_FILES) $(DATA_FILES)
 			-f "$(notdir $(basename $(map)))" -T SEQ -w $(map)) \
 		$(DISK)
 
+# final disk with all the hidden data packed in
+$(PACKED_DISK): $(DISK)
+	@printf "PACK-ASSETS: creating %s\n" "$@"
+	$(Q)$(PACK-ASSETS) "$(DISK)" "$@" "$(MANIFEST)" /dev/null -t 30 -s 0 -c 1
+
 # -------------------------------------------------
 # Utility
 # -------------------------------------------------
@@ -125,8 +133,8 @@ clean:
 
 rebuild: clean all
 
-run: $(DISK)
-	$(EMU) -moncommands $(LABELS) $(DISK)
+run: $(PACKED_DISK)
+	$(EMU) -moncommands $(LABELS) $(PACKED_DISK)
 
 help:
 	@printf "Targets:\n"

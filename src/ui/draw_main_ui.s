@@ -9,6 +9,7 @@
 	.include	"c64.inc"
 	.include	"cbm_kernal.inc"
 	.include	"macros.inc"
+	.include	"definitions.inc"
 
 .segment	"CODE"
 
@@ -90,7 +91,7 @@
 
 	jsr     draw_stats
 
-	lda     #$02
+	lda     #WHITE
 	sta     $D825
 
 	show_direction
