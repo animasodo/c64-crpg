@@ -1,1 +1,1 @@
-chrset data/chrset 17:0 u
+chrset data/chrset 12:0 u

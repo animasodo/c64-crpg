@@ -2,23 +2,29 @@
 # Project
 # -------------------------------------------------
 TARGET      := crpg
-CONFIG      := c64.cfg
+MAIN_CONFIG := main.cfg
+LOADER_CONFIG := loader.cfg
 
 BUILD_DIR   := build
 OBJ_DIR     := $(BUILD_DIR)/obj
 SRC_DIR     := src
+LOADER_DIR  := loader
 DATA_DIR    := data
 MAP_DIR     := $(DATA_DIR)/maps
 MAP_LIST    := $(MAP_DIR)/maps.txt
 MANIFEST    := $(DATA_DIR)/manifest.txt
+MANIFEST_INC:= $(BUILD_DIR)/manifest.inc
 
 FILENAMES   := $(BUILD_DIR)/maps/filenames.s
 
 OUT         := $(BUILD_DIR)/$(TARGET).prg
+LOADER_OUT  := $(BUILD_DIR)/loader.prg
 DISK        := $(BUILD_DIR)/$(TARGET).d64
 PACKED_DISK := $(BUILD_DIR)/$(TARGET)_final.d64
 LABELS      := $(BUILD_DIR)/$(TARGET).lbl
 MAP         := $(BUILD_DIR)/$(TARGET).map
+
+LOADER_NAME := loader
 
 # -------------------------------------------------
 # Tools
@@ -45,11 +51,17 @@ endif
 TARGET_SYS := c64
 ASMFLAGS   := -t $(TARGET_SYS) --asm-include-dir $(SRC_DIR)
 LDFLAGS    := -t $(TARGET_SYS) -Ln $(LABELS) -m $(MAP)
+LOADER_LDFLAGS := -t $(TARGET_SYS)
+
+BOOT_TRACK  := 30
+BOOT_SECTOR := 0
+BOOT_COUNT  := 1
 
 # -------------------------------------------------
 # Sources
 # -------------------------------------------------
 SOURCES      := $(wildcard $(SRC_DIR)/*.s) $(wildcard $(SRC_DIR)/*/*.s)
+LOADER_SOURCES := $(wildcard $(LOADER_DIR)/*.s)
 DATA_FILES   := $(wildcard $(DATA_DIR)/*.bin)
 MAP_FILES    := $(wildcard $(MAP_DIR)/*.bin)
 
@@ -58,6 +70,9 @@ MAP_FILES    := $(wildcard $(MAP_DIR)/*.bin)
 # -------------------------------------------------
 OBJS := $(patsubst $(SRC_DIR)/%.s,$(OBJ_DIR)/%.o,$(SOURCES))
 DEPS := $(OBJS:.o=.d)
+
+LOADER_OBJS := $(patsubst $(LOADER_DIR)/%.s,$(OBJ_DIR)/loader/%.o,$(LOADER_SOURCES))
+LOADER_DEPS := $(LOADER_OBJS:.o=.d)
 
 # -------------------------------------------------
 # Processed Maps
@@ -88,15 +103,27 @@ $(FILENAMES): $(MAP_LIST)
 	@printf "MAPP-LISTER: creating %s\n" "$@"
 	$(Q)$(MAPP-LISTER) $(MAP_LIST) $@
 
+# loader is linked independently of the game
+$(OBJ_DIR)/loader/%.o: $(LOADER_DIR)/%.s
+	@mkdir -p $(dir $@)
+	@printf "CA65:  %s\n" "$<"
+	$(Q)$(CL65) -c $(ASMFLAGS) --create-dep $(@:.o=.d) -o $@ $<
+
 -include $(DEPS)
+-include $(LOADER_DEPS)
 
 # -------------------------------------------------
 # Link
 # -------------------------------------------------
-$(OUT): $(OBJS) $(CONFIG)
+$(OUT): $(OBJS) $(MAIN_CONFIG)
 	@mkdir -p $(dir $@)
 	@printf "LD65:  %s\n" "$@"
-	$(Q)$(CL65) -C $(CONFIG) $(LDFLAGS) -o $@ $(OBJS)
+	$(Q)$(CL65) -C $(MAIN_CONFIG) $(LDFLAGS) -o $@ $(OBJS)
+
+$(LOADER_OUT): $(LOADER_OBJS) $(LOADER_CONFIG)
+	@mkdir -p $(dir $@)
+	@printf "LD65:  %s\n" "$@"
+	$(Q)$(CL65) -C $(LOADER_CONFIG) $(LOADER_LDFLAGS) -o $@ $(LOADER_OBJS)
 
 # -------------------------------------------------
 # Maps
@@ -109,9 +136,10 @@ $(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json
 # -------------------------------------------------
 # Disk image
 # -------------------------------------------------
-$(DISK): $(OUT) $(PROC_MAP_FILES) $(DATA_FILES)
+$(DISK): $(LOADER_OUT) $(OUT) $(PROC_MAP_FILES) $(DATA_FILES)
 	@printf "CC1541: creating %s\n" "$@"
 	$(Q)$(CC1541) -n "$(TARGET)" -i "jay" \
+		-f "$(LOADER_NAME)" -w $(LOADER_OUT) \
 		-f "$(TARGET)" -w $(OUT) \
 		$(foreach data,$(DATA_FILES), \
 			-f "$(notdir $(basename $(data)))" -T SEQ -w $(data)) \
@@ -120,9 +148,9 @@ $(DISK): $(OUT) $(PROC_MAP_FILES) $(DATA_FILES)
 		$(DISK)
 
 # final disk with all the hidden data packed in
-$(PACKED_DISK): $(DISK)
+$(PACKED_DISK): $(DISK) $(MANIFEST)
 	@printf "PACK-ASSETS: creating %s\n" "$@"
-	$(Q)$(PACK-ASSETS) "$(DISK)" "$@" "$(MANIFEST)" /dev/null -t 30 -s 0 -c 1
+	$(Q)$(PACK-ASSETS) "$(DISK)" "$@" "$(MANIFEST)" "$(MANIFEST_INC)" -t $(BOOT_TRACK) -s $(BOOT_SECTOR) -c $(BOOT_COUNT)
 
 # -------------------------------------------------
 # Utility
@@ -138,7 +166,7 @@ run: $(PACKED_DISK)
 
 help:
 	@printf "Targets:\n"
-	@printf "  make          build %s\n" "$(OUT)"
+	@printf "  make          build %s (with %s)\n" "$(OUT)" "$(LOADER_OUT)"
 	@printf "  make clean    remove build directory\n"
 	@printf "  make rebuild  full rebuild\n"
 	@printf "  make run      build and launch in VICE (%s)\n" "$(EMU)"

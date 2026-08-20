@@ -99,6 +99,7 @@ fail:
 .endproc
 
 ; small routine to convert an integer to PETSCII characters and pass it to CHROUT
+; gee if only i could just PASS INTEGERS TO THE DISK DRIVE
 
 int_chrout:
     ldx     #$00
