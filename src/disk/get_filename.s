@@ -9,7 +9,7 @@
 
 	.export		get_filename
 
-.include    "../../build/maps/filenames.s"
+.include    "maps/filenames.s"
 
 .segment	"CODE"
 

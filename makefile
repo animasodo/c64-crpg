@@ -49,7 +49,7 @@ endif
 # Flags
 # -------------------------------------------------
 TARGET_SYS := c64
-ASMFLAGS   := -t $(TARGET_SYS) --asm-include-dir $(SRC_DIR)
+ASMFLAGS   := -t $(TARGET_SYS) --asm-include-dir $(SRC_DIR) --asm-include-dir $(BUILD_DIR)
 LDFLAGS    := -t $(TARGET_SYS) -Ln $(LABELS) -m $(MAP)
 LOADER_LDFLAGS := -t $(TARGET_SYS)
 

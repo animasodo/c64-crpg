@@ -106,4 +106,4 @@ end_load_prg:
 crpg:
     .byte "crpg"
 loading:
-	.byte "please wait", 0
+	.byte "PLEASE WAIT", 0

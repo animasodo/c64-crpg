@@ -25,6 +25,11 @@ databuf_name:
 
 .proc load_from_ts: near
 
+    lda     #8
+    sta     next_track
+    lda     #0
+    sta     next_sector
+
 	; open command channel
     lda     #COMMAND
     ldx     #FLOPPY
@@ -45,23 +50,23 @@ databuf_name:
     jsr     SETNAM
     jsr     OPEN
 
+read_loop:
     ldx     #COMMAND
     jsr     CHKOUT              ; we're gonna send some stuff to the disk drive
     ldy     #0
-brcmd_loop:
-    lda     brcmd,y
-    beq     brcmd_done
-    jsr     CHROUT
-    iny
-    bne     brcmd_loop
-brcmd_done:
-
-    lda     #12                 ; track
+    brcmd_loop:
+        lda     brcmd,y
+        beq     brcmd_done
+        jsr     CHROUT
+        iny
+        bne     brcmd_loop
+    brcmd_done:
+    lda     next_track          ; track
     jsr     int_chrout
-    lda     #0                  ; sector
+    lda     next_sector         ; sector
     jsr     int_chrout
 
-    jsr     CLRCHN              ; close command channel
+    jsr     CLRCHN
 
 	ldx     #LFN
 	jsr     CHKIN
@@ -73,17 +78,38 @@ brcmd_done:
     jsr     CHRIN
     sta     next_sector
 
-	ldy     #0
-readloop:
-	jsr     CHRIN
-    sta     (ptr1),y
-    iny
-    bne     readloop
+    ldx     #254 ; X register is not used for CHRIN so it's safe to use
+    read_block:
+        lda     ptr2
+        ora     ptr2+1
+        beq     success
 
-    jsr     CLRCHN
+        jsr     CHRIN
+        ldy     #0
+        sta     (ptr1),y
+        
+        inc     ptr1
+        bne     :+
+        inc     ptr1+1
+        :
+        lda     ptr2
+        bne     :+
+        dec     ptr2+1
+        :
+        dec     ptr2
+        bne     :+
+        :
+        dex
+        bne     read_block
+
+    lda     next_track
+    bne     read_loop ; while track is not 0, repeat
 
 success:
-	clc
+    jsr     CLRCHN
+    ldx     #COMMAND
+    jsr     CHKOUT
+    jsr     CLRCHN
 
 fail_close:
 	php
@@ -111,9 +137,9 @@ div_loop:
     jmp     div_loop
 done:
     ; now X is tens and A is ones
+    tay
     cpx     #0
     beq     skip_tens
-    tay
     txa
     clc
     adc     #'0'
@@ -121,7 +147,6 @@ done:
     tya
     jmp     add_ones
 skip_tens:
-    tay
     lda     #' '
     jsr     CHROUT
 add_ones:

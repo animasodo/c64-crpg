@@ -22,9 +22,20 @@ print:
 loop:
 	lda     (ptr1),y		; limit is 256 characters but it'll be fine i think, if not i can always add the y register to the pointer
 	beq		done			; null
-
 	sty	 	tmp1
-	jsr     modifychar
+	
+	cmp     #$80
+	bcc     :+
+	and     #$7F
+	jmp     setchar
+:	and     #$3F
+
+	setchar:
+	ldy     CURS_X
+	sta     (SCREEN_PTR),y  ; Set char
+	lda     CHARCOLOR
+	sta     (CRAM_PTR),y    ; Set color
+
 	ldy		tmp1
 	inc     CURS_X
 	iny
@@ -32,16 +43,3 @@ loop:
 done:
 	rts
 
-modifychar:
-	cmp     #$80
-	bcc     :+
-	and     #$7F
-	jmp     setchar
-:	and     #$3F
-
-setchar:
-	ldy     CURS_X
-	sta     (SCREEN_PTR),y  ; Set char
-	lda     CHARCOLOR
-	sta     (CRAM_PTR),y    ; Set color
-	rts
