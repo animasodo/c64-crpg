@@ -1,1 +1,3 @@
-chrset data/chrset 8:0 u
+chrset data/chrset 17:0 u
+overworld build/resources/maps/overworld.bin auto
+castle build/resources/maps/castle.bin auto

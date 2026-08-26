@@ -104,7 +104,7 @@
 	buffer_prompt:
 		.res	20,$00
 
-.segment	"GPZP" : zeropage
+.segment	"ZEROPAGE" : zeropage
 
     .exportzp byte0, byte1, byte2, byte3, byte4, byte5, byte6, byte7
     .exportzp uint0, uint1, int0, int1

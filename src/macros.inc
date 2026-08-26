@@ -4,8 +4,8 @@
 ;   they can take up a lot of space compared to subroutines.
 ; ---------------------------------------------------------------
 
-
 	.autoimport	on
+	
 .macro prepare_disk name, name_length
 
 	.ifblank name

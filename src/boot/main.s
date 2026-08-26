@@ -2,12 +2,12 @@
 	.autoimport	on
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 	.macpack	longbranch
-	.forceimport	__STARTUP__
 	.importzp	byte0, byte1, ptr
 	.export		main
 	.include	"definitions.inc"
 	.include	"macros.inc"
 	.include	"c64.inc"
+	.include	"manifest.inc"
 
 .segment	"RODATA"
 
@@ -23,7 +23,7 @@ S0019:
 
 	jsr     draw_main_ui
 
-	lda     #$00
+	lda     #OVERWORLD
 	jsr     load_map_compressed
 
 	set_sprite_pointer $CC00, 0

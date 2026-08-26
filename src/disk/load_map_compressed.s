@@ -3,11 +3,11 @@
 ;   loads and decompresses a map file from disk into the map
 ;   buffer based on an ID.
 ;
-; in:  Y = map id
+; in:  A = map id
 ; ---------------------------------------------------------------
 
 	.autoimport	on
-	.importzp	idx8, idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, ptr1, ptr2
+	.importzp	idx8, idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, ptr1, ptr2, byte_in_sector
 	.export		load_map_compressed
 	.include	"c64.inc"
 	.include	"cbm_kernal.inc"
@@ -35,35 +35,16 @@
 	warp_index = byte1
 	door_index = byte2
 	
-    sty     id
-	jsr     get_filename
-	stx		byte1
-	ldy		byte1
-	tax
-	jsr		setnam_term
-	ldx     #FLOPPY
-	ldy     #$02
-	lda     #LFN
-	jsr     SETLFS
-	jsr		OPEN
-	bcc		disk_open
+    sta     id
+	jsr     get_disk_location
+	jsr     open_ts
 
-	lda     disk_error
-	ldx     disk_error+1
-    jsr     message
-	jmp     done
-    
-disk_open:
-	ldx     #LFN
-	jsr     CHKIN			; set LFN 2 as active input channel
-
-	jsr     BASIN
+	jsr     get_byte
 	cmp     #M
     bne     map_header_unsuccessful
-    jsr     BASIN
+    jsr     get_byte
 	cmp     #P
-    bne     map_header_unsuccessful
-    jmp     map_header_successful
+    beq     map_header_successful
 
 map_header_unsuccessful:
     lda     map_error
@@ -74,13 +55,13 @@ map_header_unsuccessful:
 map_header_successful:
     lda     id
 	sta     mapId
-	jsr     BASIN
+	jsr     get_byte
 	sta     mapWidth
-	jsr     BASIN
+	jsr     get_byte
 	sta     mapHeight
-	jsr     BASIN
+	jsr     get_byte
 	sta     compressed_length
-	jsr     BASIN
+	jsr     get_byte
 	sta     compressed_length+1	; get compressed length
 
 	lda     #$00
@@ -101,7 +82,7 @@ while_loop:
 	cmp		compressed_length
 	bcs		done_while
 	:
-	jsr		BASIN
+	jsr		get_byte
 	tay
 	and		#$1F
 	sta		tile
@@ -115,7 +96,7 @@ while_loop:
 	iny
 	cpy		#$08
 	bne		:+						; if 3 most significant bits are 111, grab actual length from next byte
-	jsr		BASIN
+	jsr		get_byte
 	tay
 	inc		compressed_index
 	bne		:+
@@ -167,22 +148,22 @@ l1:	sta		doors,y
 	sta		door_index
 
 while_not_eof:
-	jsr		BASIN
+	jsr		get_byte
 	cmp		#E
 	beq		done
 
 	cmp		#W
 	bne		:+
 	ldy		warp_index
-	jsr		BASIN
+	jsr		get_byte
 	sta		warp_id,y
-	jsr		BASIN
+	jsr		get_byte
 	sta		warp_src_x,y
-	jsr		BASIN
+	jsr		get_byte
 	sta		warp_src_y,y
-	jsr		BASIN
+	jsr		get_byte
 	sta		warp_dst_x,y
-	jsr		BASIN
+	jsr		get_byte
 	sta		warp_dst_y,y
 	inc		warp_index
 	:
@@ -190,9 +171,9 @@ while_not_eof:
 	cmp		#D
 	bne		:+
 	ldy		door_index
-	jsr		BASIN
+	jsr		get_byte
 	sta		door_x,y
-	jsr		BASIN
+	jsr		get_byte
 	sta		door_y,y
 	inc		door_index
 	:
@@ -200,9 +181,7 @@ while_not_eof:
 	jmp		while_not_eof
 
 done:
-	jsr		CLRCHN
-	lda		#LFN
-	jmp		CLOSE
+	jmp     close_ts
 
 .endproc
 
