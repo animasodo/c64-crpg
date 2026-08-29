@@ -45,7 +45,7 @@ get_byte_read:
 	ldx     #LFN
 	jsr     CHKIN
     
-    lda     #254 ; 254 bytes per sector
+    lda     #253 ; 254 bytes per sector, -1 because it would run into the end of the block and return 0d
     sta     byte_in_sector
     jsr     CHRIN
     sta     next_track

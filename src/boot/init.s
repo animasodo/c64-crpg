@@ -80,6 +80,10 @@ correct:
 	ldx     #>(playerName)
 	jsr     strcpy
 
+	lda		#$00
+	sta		playerInput
+	sta		direction
+
 	jmp		main
 
 .segment	"RODATA"
