@@ -20,17 +20,14 @@
 	ldy     #$01
 	sty		CHARCOLOR
 
-	ldx		#$14
-	lda		#$1A
-	sta		arg0
-	lda		#$04
-	sta		arg1
-	lda		#' '
-	jsr		draw_solid_box
-
 	ldy     #$01
-	ldx     #$14
+	ldx     #$17
 	jsr     goto
+	jsr		scroll_text
+
+	lda		#'@'
+	jsr		printchar
+
 	lda		ptr
 	ldx		ptr+1
 	jmp     formatwrite

@@ -98,6 +98,6 @@
 
 	ldy     direction
 	lda		dir_char,y
-	sta     $C800 + (40 * 0) + 37
+	sta     SCREEN_AREA + (40 * 0) + 37
 
 .endmacro

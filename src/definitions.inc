@@ -17,6 +17,7 @@ RIGHT           := 8
 FPS				:= 50
 X_OFFSET        := 24
 Y_OFFSET        := 50
+HORIZONTAL_VIEW := $1A
 
 ; *** colors ***
 BLACK			:= $00
@@ -42,3 +43,4 @@ COMMAND			:= $0F
 FLOPPY			:= $08
 MANIFEST_AREA	:= $9000
 VICII_BANK_AREA	:= $C000
+SCREEN_AREA     := $C800

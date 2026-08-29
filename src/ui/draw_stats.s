@@ -25,7 +25,7 @@
 	lda		#<(playerHealth)
 	ldx		#>(playerHealth)
 	jsr		utoa_8
-	jsr		formatwrite
+	jsr		print
 
 	ldx		#5
 	ldy		#30
@@ -34,7 +34,7 @@
 	lda		#<(playerStamina)
 	ldx		#>(playerStamina)
 	jsr		utoa_8
-	jsr		formatwrite
+	jsr		print
 
 	ldx		#7
 	ldy		#30
@@ -43,7 +43,7 @@
 	lda		#<(playerPower)
 	ldx		#>(playerPower)
 	jsr		utoa_8
-	jsr		formatwrite
+	jsr		print
 
 	ldx		#9
 	ldy		#30
@@ -52,7 +52,7 @@
 	lda		#<(playerExp)
 	ldx		#>(playerExp)
 	jsr		utoa_16
-	jsr		formatwrite
+	jsr		print
 
 	ldx		#11
 	ldy		#30
@@ -61,7 +61,7 @@
 	lda		#<(gold)
 	ldx		#>(gold)
 	jsr		utoa_16
-	jsr		formatwrite
+	jsr		print
 
 	lda		byte7
 	sta		CHARCOLOR

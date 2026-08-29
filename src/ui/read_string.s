@@ -109,9 +109,11 @@ skip_back:
 skip_index:
 
 	; if ((char)isprint(byte0) && idx8 < (size - 1))
-	lda		char
-	jsr		_isprint
-	beq		skip_printable
+	lda     char
+	cmp     #$20
+	bcc     skip_printable
+	cmp     #$DB
+	bcs     skip_printable ; i might want to make sure this doesn't let the user type anything??
 
 	ldy		size
 	dey

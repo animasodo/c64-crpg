@@ -7,7 +7,7 @@
 ; ---------------------------------------------------------------
 
 	.autoimport	on
-	.importzp	ptr1, ptr2, tmp1, tmp2, tmp3, tmp4
+	.importzp	ptr1, ptr2, ptr3, tmp1, tmp2, tmp3, tmp4
 	.export		formatwrite
 	.include	"c64.inc"
 
@@ -38,7 +38,10 @@ loop:
 	cmp     #$0D			; new line
 	beq     :+
 	jmp		notnl
-:	jsr     advance_screen_ptr
+:	; jsr     advance_screen_ptr
+	sty		ptr3
+	jsr		scroll_text
+	ldy		ptr3
 	lda     init_pos
 	sta     CURS_X
 	iny

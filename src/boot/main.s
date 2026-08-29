@@ -201,8 +201,6 @@ L0023:
 	bne     L0023
 	jsr     drawmap
 	set_sprite_visibility $FF
-
 	jmp     game_loop
 
 .endproc
-
