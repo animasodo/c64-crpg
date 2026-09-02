@@ -14,11 +14,12 @@
 	.export		keys
 	.export		inventory, item_id, item_quantity
 	.export		mapId
+	.export		flags
 	.export		mapWidth
 	.export		mapHeight
 	.export		mapBuffer
 	.export		warps, warp_id, warp_src_x, warp_src_y, warp_dst_x, warp_dst_y
-	.export		doors, door_x, door_y
+	.export		scripts, script_x, script_y, script
 	.export		itoa_buffer
 	.export		frameCount
 	.export		playerInput
@@ -65,6 +66,8 @@
 
 		mapId:
 			.res	1,$00
+		flags:
+			.res	8,$00
 
 	end_game_save:
 
@@ -87,10 +90,12 @@
 		warp_dst_y:
 			.res	8
 
-	doors:
-		door_x:
-			.res	8
-		door_y:
+	scripts:
+		script_x:
+			.res	1
+		script_y:
+			.res	1
+		script:
 			.res	8
 
 	itoa_buffer:

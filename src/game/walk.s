@@ -198,6 +198,20 @@ skip_warp:
 	bne		warp_check
 end_warp:
 
+script_check:
+	lda		playerx
+	cmp		script_x
+	bne		skip_script
+	lda		playery
+	cmp		script_y
+	bne		skip_script
+
+	lda		#<(script)
+	ldx		#>(script)
+	jsr		execute_script
+skip_script:
+
+
 	jsr		set_camera_sprite
 	show_direction
 	jsr		drawmap

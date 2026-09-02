@@ -69,7 +69,6 @@ S0019:
 	jsr     init_irq
 
 game_loop:
-	jsr     SCNKEY
 	jsr     GETIN
 	sta     lastKey
 

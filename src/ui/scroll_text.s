@@ -17,12 +17,32 @@
     sta     lower_ptr
     lda     #>(SCREEN_AREA + (40 * 20) + 1)
     sta     lower_ptr+1
-
     lda     #<(SCREEN_AREA + (40 * 21) + 1)
     sta     upper_ptr
     lda     #>(SCREEN_AREA + (40 * 21) + 1)
     sta     upper_ptr+1
+    jsr     scroll_up ; first pass for characters
 
+    ; clear the last line before we scroll up the colors
+    ldy     #$00
+    lda     #' '
+clear_last_line_loop:
+    sta     (lower_ptr),y
+    iny
+    cpy     #HORIZONTAL_VIEW
+    bne     clear_last_line_loop
+
+    lda     #<(COLOR_AREA + (40 * 20) + 1)
+    sta     lower_ptr
+    lda     #>(COLOR_AREA + (40 * 20) + 1)
+    sta     lower_ptr+1
+    lda     #<(COLOR_AREA + (40 * 21) + 1)
+    sta     upper_ptr
+    lda     #>(COLOR_AREA + (40 * 21) + 1)
+    sta     upper_ptr+1
+    jmp     scroll_up ; second pass for colors
+
+scroll_up:
     ldx     #$03
 outer_loop:
     ldy     #$00
@@ -51,19 +71,10 @@ inner_loop:
 
     dex
     bne     outer_loop
-
-    ldy     #$00
-clear_last_line_loop:
-    lda     #' '
-    sta     (lower_ptr),y
-    iny
-    cpy     #HORIZONTAL_VIEW
-    bne     clear_last_line_loop
-
     rts
 
 .endproc
 
-.segment    "ZEROPAGE"
+.segment    "ZEROPAGE" : zeropage
     upper_ptr: .res 2
     lower_ptr: .res 2

@@ -25,8 +25,12 @@
 	jsr     goto
 	jsr		scroll_text
 
-	lda		#'@'
+	lda		#CYAN
+	sta		CHARCOLOR
+	lda		#'*'
 	jsr		printchar
+	lda		#WHITE
+	sta		CHARCOLOR
 
 	lda		ptr
 	ldx		ptr+1

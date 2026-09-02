@@ -138,11 +138,11 @@ l0:	sta		warps,y
 	bne		l0
 
 	; clear doors
-	ldy		#$00
-l1:	sta		doors,y
-	iny
-	cpy		#8*2
-	bne		l1
+; 	ldy		#$00
+; l1:	sta		doors,y
+; 	iny
+; 	cpy		#8*2
+; 	bne		l1
 
 	sta		warp_index
 	sta		door_index
@@ -168,15 +168,31 @@ while_not_eof:
 	inc		warp_index
 	:
 
-	cmp		#D
+	cmp		#'s'
 	bne		:+
-	ldy		door_index
 	jsr		get_byte
-	sta		door_x,y
+	sta		script_x
 	jsr		get_byte
-	sta		door_y,y
-	inc		door_index
+	sta		script_y
+	ldy		#$00
+	script_loop:
+		jsr		get_byte
+		sta		script,y
+		beq		end_script
+		iny
+		jmp		script_loop
+	end_script:
 	:
+
+	; cmp		#D
+	; bne		:+
+	; ldy		door_index
+	; jsr		get_byte
+	; sta		door_x,y
+	; jsr		get_byte
+	; sta		door_y,y
+	; inc		door_index
+	; :
 
 	jmp		while_not_eof
 
