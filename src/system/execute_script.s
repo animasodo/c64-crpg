@@ -2,29 +2,31 @@
 ; execute_script
 ;   read a script and execute it
 ;
-; in:  A, X = pointer to script
+; in:  A = script index
 ; ---------------------------------------------------------------
 
     .autoimport on
-	.export		execute_script
+    .exportzp   script_ptr
+	.export		execute_script, inc_ptr
     .macpack	longbranch
     .include    "definitions.inc"
 
+.segment    "ZEROPAGE" : zeropage
+    script_ptr: .res 2
+
 .segment	"CODE"
 
-.proc	execute_script: near
-
-    sta     script_ptr
-    stx     script_ptr+1
+execute_script:
+    jsr     retrieve_script
 read_next:
     ldy     #$00
     lda     (script_ptr),y
 
     cmp     #END
     beq     done
-    cmp     #LD_R0_VALUE
+    cmp     #LD_R0
     jeq     ld_r0_value
-    cmp     #LD_R1_VALUE
+    cmp     #LD_R1
     jeq     ld_r1_value
     cmp     #LD_R0_R1
     jeq     ld_r0_r1
@@ -32,6 +34,8 @@ read_next:
     jeq     ld_r1_r0
     cmp     #LOAD_MAP
     jeq     load_map
+    cmp     #MESSAGE
+    jeq     display_message
 
 next_ops:
     jsr     inc_ptr
@@ -113,16 +117,30 @@ load_map:
     lda     (script_ptr),y
     sta     playery
     lda     r0
+    cmp     mapId
+    beq     :+
     jsr     load_map_compressed
+:   jmp     next_ops
+
+display_message:
+    jsr     inc_ptr
+    lda     script_ptr
+    ldx     script_ptr+1
+    jsr     message
+    tya
+    jsr     add_ptr
     jmp     next_ops
+
+add_ptr:
+    clc
+    adc     script_ptr
+    sta     script_ptr
+    adc     script_ptr+1
+    sta     script_ptr+1
+    rts
 
 inc_ptr:
     inc     script_ptr
     bne     :+
     inc     script_ptr+1
 :   rts
-
-.endproc
-
-.segment    "ZEROPAGE" : zeropage
-    script_ptr: .res 2

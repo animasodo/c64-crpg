@@ -9,7 +9,7 @@
 ;      next_sector = asset's location on disk (sector)
 ; ---------------------------------------------------------------
 
-    .importzp   ptr2, ptr3, next_track, next_sector
+    .importzp   ptr2, next_track, next_sector
 	.export		get_disk_location
     .include    "definitions.inc"
 

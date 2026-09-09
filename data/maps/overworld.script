@@ -1,0 +1,34 @@
+
+.declare OVERWORLD 0
+.declare CASTLE 1
+
+.begin goto_little_room
+
+    ld_r0           OVERWORLD
+    load_map        37, 5
+    end
+
+.end
+
+.begin go_back_outside
+
+    ld_r0           OVERWORLD
+    load_map        13, 13
+    end
+
+.end
+
+.begin goto_castle
+
+    ld_r0           CASTLE
+    load_map        15, 30
+    end
+
+.end
+
+.begin give_welcome
+
+    say             "Welcome to the game!\n\c3Color \c4test\c1."
+    end
+
+.end

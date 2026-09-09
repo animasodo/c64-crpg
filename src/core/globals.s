@@ -18,8 +18,8 @@
 	.export		mapWidth
 	.export		mapHeight
 	.export		mapBuffer
-	.export		warps, warp_id, warp_src_x, warp_src_y, warp_dst_x, warp_dst_y
-	.export		scripts, script_x, script_y, script
+	.export		warps, warp_x, warp_y, warp_script
+	.export		script_blob, script_count, script_ptr_table, script_data
 	.export		itoa_buffer
 	.export		frameCount
 	.export		playerInput
@@ -79,24 +79,20 @@
 		.res	4096,$00
 
 	warps:
-		warp_id:
+		warp_x:
 			.res	8
-		warp_src_x:
+		warp_y:
 			.res	8
-		warp_src_y:
+		warp_script:
 			.res	8
-		warp_dst_x:
-			.res	8
-		warp_dst_y:
-			.res	8
-
-	scripts:
-		script_x:
+	
+	script_blob:
+		script_count:
 			.res	1
-		script_y:
-			.res	1
-		script:
-			.res	8
+		script_ptr_table:
+			.res	32 ; 16 scripts * 2 bytes, i feel like that's a good number
+		script_data:
+			.res	512
 
 	itoa_buffer:
 		.res	7,$00

@@ -5,45 +5,6 @@
 ; ---------------------------------------------------------------
 
 	.autoimport	on
-	
-.macro prepare_disk name, name_length
-
-	.ifblank name
-	.else
-		ldx     #<(name)
-		ldy     #>(name)
-	.endif
-	.ifblank name_length
-		jsr     setnam_term
-	.else
-		lda     #name_length
-		jsr     SETNAM
-	.endif
-
-	ldx     #FLOPPY
-	ldy     #$02
-	lda     #LFN
-	jsr     SETLFS
-
-.endmacro
-
-.macro read_seq name, name_length, destination, length
-
-	prepare_disk name, name_length
-
-    lda     #<destination
-    sta     ptr1
-	lda     #>destination
-    sta     ptr1+1
-    ; length
-    lda     #<length
-    sta     ptr2
-    lda     #>length
-    sta     ptr2+1
-
-    jsr     load_seq
-
-.endmacro
 
 .macro set_sprite_pointer address, index
 

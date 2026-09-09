@@ -162,7 +162,7 @@ save:	lda     #<(save_to)
 	ldx     #>(device_number_error)
 	jsr     message
 	jmp     game_loop
-L0017:	jsr     save_data
+L0017:	; jsr     save_data
 	jmp     game_loop
 
 load:

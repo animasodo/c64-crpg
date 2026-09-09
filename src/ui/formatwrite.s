@@ -29,11 +29,11 @@ loop:
 
 	lda     (ptr1),y
 	bne     :+
-	jmp     done			; null
+	rts						; null
 	; all the way over here because it's closer so we can do a direct branch
-	cmp     #$01			; if $01 then next byte is color
+:	cmp     #$01			; if $01 then next byte is color
 	beq		color
-:	cmp     #$05			; if $05 then next two bytes are pointer to character
+	cmp     #$05			; if $05 then next two bytes are pointer to character
 	beq		char
 	cmp     #$0D			; new line
 	beq     :+

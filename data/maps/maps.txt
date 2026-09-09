@@ -1,2 +1,0 @@
-overworld,0
-castle,1

@@ -5,6 +5,7 @@
 ; out:  A = byte read
 ; ---------------------------------------------------------------
 
+    .importzp   ptr2
     .export		get_byte, byte_in_sector, databuf_name, next_track, next_sector
     .include    "c64.inc"
     .include    "cbm_kernal.inc"
@@ -21,10 +22,16 @@ databuf_name:
 
 .proc	get_byte: near
 
-    lda     byte_in_sector
+    lda     ptr2
+    ora     ptr2+1
+    bne     :+
+    sec
+    rts
+
+:   lda     byte_in_sector
     beq     get_byte_read ; if byte_in_sector is 0, we need to read a new t/s
     dec     byte_in_sector
-    jmp     CHRIN
+    jmp     dec_chrin
 
 get_byte_read:
     ldx     #COMMAND
@@ -51,7 +58,7 @@ get_byte_read:
     sta     next_track
     jsr     CHRIN
     sta     next_sector
-    jmp     CHRIN
+    jmp     dec_chrin
 
 .endproc
 
@@ -81,6 +88,15 @@ skip_tens:
     clc
     adc     #'0'
     jmp     CHROUT
+
+dec_chrin:
+    lda     ptr2
+    bne     :+
+    dec     ptr2+1
+:   dec     ptr2
+    jsr     CHRIN
+    clc
+    rts
 
 .segment    "ZEROPAGE" : zeropage
     byte_in_sector:     .res 1

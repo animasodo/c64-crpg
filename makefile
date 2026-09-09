@@ -12,7 +12,7 @@ SRC_DIR     := src
 LOADER_DIR  := loader
 DATA_DIR    := data
 MAP_DIR     := $(DATA_DIR)/maps
-MAP_LIST    := $(MAP_DIR)/maps.txt
+SCRIPT_OUT_DIR := $(BUILD_RES)/scripts
 MANIFEST    := $(DATA_DIR)/manifest.txt
 MANIFEST_INC:= $(BUILD_RES)/manifest.inc
 
@@ -22,7 +22,6 @@ PRE_DISK    := $(BUILD_RES)/$(TARGET)_prepacked.d64
 DISK 		:= $(BUILD_DIR)/$(TARGET).d64
 LABELS      := $(BUILD_DIR)/$(TARGET).lbl
 MAP         := $(BUILD_DIR)/$(TARGET).map
-
 LOADER_NAME := loader
 
 # -------------------------------------------------
@@ -33,6 +32,7 @@ CC1541      := cc1541
 MAPP        := mapp
 PACK-ASSETS := pack-assets
 MANIFEST-GEN:= manifest-gen
+BYTECODE-COMP:= bytecode-comp
 EMU         := x64sc
 
 # -------------------------------------------------
@@ -80,6 +80,12 @@ PROC_MAP_DIR   := $(BUILD_RES)/maps
 PROC_MAP_FILES := $(patsubst $(MAP_DIR)/%.bin,$(PROC_MAP_DIR)/%.bin,$(MAP_FILES))
 
 # -------------------------------------------------
+# Compiled scripts (one per map, same basename)
+# -------------------------------------------------
+SCRIPT_BINS  := $(patsubst $(MAP_DIR)/%.bin,$(SCRIPT_OUT_DIR)/%.scr,$(MAP_FILES))
+SCRIPT_NAMES := $(patsubst $(MAP_DIR)/%.bin,$(SCRIPT_OUT_DIR)/%.names,$(MAP_FILES))
+
+# -------------------------------------------------
 # Housekeeping
 # -------------------------------------------------
 .PHONY: all clean rebuild help run
@@ -125,12 +131,20 @@ $(LOADER_OUT): $(LOADER_OBJS) $(LOADER_CONFIG)
 	@printf "$@ is %s bytes.\n" "$$(stat -c %s "$@")"
 
 # -------------------------------------------------
+# Scripts
+# -------------------------------------------------
+$(SCRIPT_OUT_DIR)/%.scr: $(MAP_DIR)/%.script
+	@mkdir -p $(dir $@)
+	@printf "BYTECODE-COMP: %s\n" "$<"
+	$(Q)$(BYTECODE-COMP) "$<" -o "$@" -s "$(SCRIPT_OUT_DIR)/$*.names"
+
+# -------------------------------------------------
 # Maps
 # -------------------------------------------------
-$(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json
+$(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json $(SCRIPT_OUT_DIR)/%.scr
 	@mkdir -p $(dir $@)
 	@printf "MAPP:  %s\n" "$<"
-	$(Q)$(MAPP) $< -j $(MAP_DIR)/$*.json -l $(MAP_LIST) -o $@
+	$(Q)$(MAPP) "$<" -j "$(MAP_DIR)/$*.json" -s "$(SCRIPT_OUT_DIR)/$*.scr" -n "$(SCRIPT_OUT_DIR)/$*.names" -o "$@"
 
 # -------------------------------------------------
 # Disk image

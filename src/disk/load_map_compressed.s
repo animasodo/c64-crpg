@@ -7,7 +7,7 @@
 ; ---------------------------------------------------------------
 
 	.autoimport	on
-	.importzp	idx8, idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, ptr1, ptr2, byte_in_sector
+	.importzp	idx8, idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, byte_in_sector, script_ptr, ptr3
 	.export		load_map_compressed
 	.include	"c64.inc"
 	.include	"cbm_kernal.inc"
@@ -17,14 +17,12 @@
 	; header/entity codes
 	M = $4D
 	P = $50
-	W = $57
-	D = $44
-	E = $45 ; eof
+	WARP = $57
+	SCRIPT = $53
 
 .segment	"CODE"
 
-.proc	load_map_compressed: near
-
+load_map_compressed:
     ; zeropage temporary variables
     id = byte0
     compressed_length = uint0
@@ -33,7 +31,9 @@
 	length = byte2
 
 	warp_index = byte1
-	door_index = byte2
+
+	script_index = byte2
+	multiplied_script_count = byte3
 	
     sta     id
 	jsr     get_disk_location
@@ -132,72 +132,77 @@ done_while:
 
 	; clear warps
 	ldy		#$00
-l0:	sta		warps,y
+:	sta		warps,y
 	iny
 	cpy		#8*5
-	bne		l0
+	bne		:-
 
-	; clear doors
-; 	ldy		#$00
-; l1:	sta		doors,y
-; 	iny
-; 	cpy		#8*2
-; 	bne		l1
+	; clear scripts
+	ldy		#$00
+:	sta		script_blob,y
+	iny
+	cpy		#32+1
+	bne		:-
 
 	sta		warp_index
-	sta		door_index
+	sta		script_index
 
-while_not_eof:
+	lda		#<(script_data)
+	sta		script_ptr
+	lda		#>(script_data)
+	sta		script_ptr+1
+
+entity_loop:
 	jsr		get_byte
-	cmp		#E
-	beq		done
 
-	cmp		#W
+	cmp		#WARP
 	bne		:+
 	ldy		warp_index
 	jsr		get_byte
-	sta		warp_id,y
+	sta		warp_x,y
 	jsr		get_byte
-	sta		warp_src_x,y
+	sta		warp_y,y
 	jsr		get_byte
-	sta		warp_src_y,y
-	jsr		get_byte
-	sta		warp_dst_x,y
-	jsr		get_byte
-	sta		warp_dst_y,y
+	sta		warp_script,y
 	inc		warp_index
 	:
 
-	cmp		#'s'
-	bne		:+
+	cmp		#SCRIPT
+	bne		entity_loop
+
+	; copy the index and add table
 	jsr		get_byte
-	sta		script_x
+	sta		script_count
+	asl		a
+	sta		multiplied_script_count
+script_offset_loop:
+	; we add the offsets and the data pointer so we get a regular pointer table for when we want to run scripts
 	jsr		get_byte
-	sta		script_y
+	clc
+	adc		#<(script_data)
+	sta		ptr3
+	php
+	jsr		get_byte
+	plp
+	adc		#>(script_data)
+
+	ldy		script_index
+	sta		script_ptr_table+1,y
+	lda		ptr3
+	sta		script_ptr_table,y
+	inc		script_index
+	inc		script_index
+	lda		script_index
+
+	cmp		multiplied_script_count
+	bne		script_offset_loop
+script_data_loop: ; the actual scripts
+	jsr		get_byte
+	bcs		done
 	ldy		#$00
-	script_loop:
-		jsr		get_byte
-		sta		script,y
-		beq		end_script
-		iny
-		jmp		script_loop
-	end_script:
-	:
-
-	; cmp		#D
-	; bne		:+
-	; ldy		door_index
-	; jsr		get_byte
-	; sta		door_x,y
-	; jsr		get_byte
-	; sta		door_y,y
-	; inc		door_index
-	; :
-
-	jmp		while_not_eof
+	sta		(script_ptr),y
+	jsr		inc_ptr
+	jmp		script_data_loop
 
 done:
 	jmp     close_ts
-
-.endproc
-

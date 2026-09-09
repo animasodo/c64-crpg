@@ -3,25 +3,24 @@
     "height": 32,
     "warps": [
         {
-            "map": "overworld",
-            "src_x": 13,
-            "src_y": 13,
-            "dst_x": 37,
-            "dst_y": 5
+            "x": 13,
+            "y": 13,
+            "script": "goto_little_room"
         },
         {
-            "map": "overworld",
-            "src_x": 37,
-            "src_y": 5,
-            "dst_x": 13,
-            "dst_y": 13
+            "x": 37,
+            "y": 5,
+            "script": "go_back_outside"
         },
         {
-            "map": "castle",
-            "src_x": 20,
-            "src_y": 7,
-            "dst_x": 15,
-            "dst_y": 30
+            "x": 20,
+            "y": 7,
+            "script": "goto_castle"
+        },
+        {
+            "x": 8,
+            "y": 8,
+            "script": "give_welcome"
         }
     ]
 }

@@ -173,44 +173,20 @@ skip_sprite_1:
 	ldy		#$00
 warp_check:
 	lda		playerx
-	cmp		warp_src_x,y
+	cmp		warp_x,y
 	bne		skip_warp
 	lda		playery
-	cmp		warp_src_y,y
+	cmp		warp_y,y
 	bne		skip_warp
 
-	lda		warp_dst_x,y
-	sta		playerx
-	lda		warp_dst_y,y
-	sta		playery
-
-	lda		warp_id,y
-	cmp		mapId
-	beq		:+
-	tay
-	jsr		load_map_compressed
-	:
-
+	lda		warp_script,y
+	jsr		execute_script
 	jmp		end_warp
 skip_warp:
 	iny
 	cpy		#$08
 	bne		warp_check
 end_warp:
-
-script_check:
-	lda		playerx
-	cmp		script_x
-	bne		skip_script
-	lda		playery
-	cmp		script_y
-	bne		skip_script
-
-	lda		#<(script)
-	ldx		#>(script)
-	jsr		execute_script
-skip_script:
-
 
 	jsr		set_camera_sprite
 	show_direction

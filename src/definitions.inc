@@ -54,13 +54,15 @@ vm_tmp          := $FD ; tmp register for the interpreter
 ptr_idx         := $FE
 ; opcode definitions
 END             := $00
-LD_R0_VALUE     := $01
-LD_R1_VALUE     := $02
+LD_R0           := $01
+LD_R1           := $02
 LD_R0_R1        := $03
 LD_R1_R0        := $04
 ADD             := $05 ; add r1 to r0, result in r0
 SUB             := $06 ; subtract r1 from r0, result in r0
-LD_FLAGS_R0     := $07
-LD_R0_FLAGS     := $08
-LOAD_MAP        := $09 ; load map from disk, r0 = map id, two bytes follow: x, y
-SET_TILE        := $0A ; set tile to value in r0, two bytes follow: x, y
+SET_FLAG        := $07
+CLR_FLAG        := $08
+LD_R0_FLAG      := $09
+LOAD_MAP        := $10 ; load map from disk, r0 = map id, two bytes follow: x, y
+SET_TILE        := $11 ; set tile to value in r0, two bytes follow: x, y
+MESSAGE         := $12 ; following bytes are string
