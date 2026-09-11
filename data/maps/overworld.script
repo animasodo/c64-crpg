@@ -1,6 +1,6 @@
 
-.declare OVERWORLD 0
-.declare CASTLE 1
+OVERWORLD = 0
+CASTLE = 1
 
 .begin goto_little_room
 
@@ -29,6 +29,12 @@
 .begin give_welcome
 
     say             "Welcome to the game!\n\c3Color \c4test\c1."
+    wsp
+    say             "I'm testing multiple\nmessages."
+    wsp
+    say             "This is useful for big\ndialogues."
+    ld_r0           4
+    set_tile        2, 2
     end
 
 .end

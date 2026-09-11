@@ -113,7 +113,7 @@ wait_loop:
 	ldy		#00
 copy_loop:
 	lda		load_prg_code,y
-	sta		$033C,y ; cassette tape buffer, 192 bytes
+	sta		$0334,y ; cassette tape buffer, 192 bytes
 	iny
 	cpy		end_load_prg-load_prg_code
 	bne		copy_loop
@@ -129,19 +129,19 @@ copy_loop:
 	jsr     SETLFS
 	
 	lda		#$00
-	ldx		#<$0801
-	ldy		#>$0801
+	ldx		#<$033F
+	ldy		#>$033F
 
-	jmp		$033C ; then, jump to the cassette buffer
+	jmp		$0334 ; then, jump to the cassette buffer
 
-load_prg_code:
+load_prg_code: ; this code takes 3+3+2+3 = 11 bytes
 	jsr		LOAD
 
 	jsr		CLRCHN
 	lda		#LFN
 	jsr		CLOSE
 
-	jmp		$0801
+	; no jump needed because the cpu continues where the program has loaded
 end_load_prg:
 
 .segment	"RODATA"

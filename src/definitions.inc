@@ -41,7 +41,7 @@ LIGHT_GREY		:= $0F
 LFN				:= $02
 COMMAND			:= $0F
 FLOPPY			:= $08
-MANIFEST_AREA	:= $9000
+MANIFEST_AREA	:= $BF00 ; manifest sector is 256 bytes so this is fine
 VICII_BANK_AREA	:= $C000
 SCREEN_AREA     := $C800
 COLOR_AREA      := $D800
@@ -61,8 +61,14 @@ LD_R1_R0        := $04
 ADD             := $05 ; add r1 to r0, result in r0
 SUB             := $06 ; subtract r1 from r0, result in r0
 SET_FLAG        := $07
-CLR_FLAG        := $08
-LD_R0_FLAG      := $09
+LD_FLAG         := $08
+BRANCH_EQ       := $0A ; r0 == r1
+BRANCH_NE       := $0B ; r0 != r1
+BRANCH_LT       := $0C ; r0 < r1
+BRANCH_GT       := $0D ; r0 > r1
+BRANCH          := $0E ; always branch
 LOAD_MAP        := $10 ; load map from disk, r0 = map id, two bytes follow: x, y
 SET_TILE        := $11 ; set tile to value in r0, two bytes follow: x, y
 MESSAGE         := $12 ; following bytes are string
+YNQ             := $13 ; yes/no question
+WSP             := $14 ; wait for spacebar press
