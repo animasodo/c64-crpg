@@ -4,7 +4,7 @@
 ; ---------------------------------------------------------------
 
 	.autoimport	on
-	.importzp	tmp1, tmp2, tmp3, tmp4, arg0, arg1, arg2, sreg, ptr2, ptr3, byte0, byte7
+	.importzp	tmp1, tmp2, tmp3, tmp4, arg0, arg1, arg2, ptr2, ptr3, byte0, byte7
 	.export		draw_main_ui
 	.include	"c64.inc"
 	.include	"cbm_kernal.inc"

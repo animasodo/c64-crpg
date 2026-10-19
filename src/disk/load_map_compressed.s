@@ -7,7 +7,7 @@
 ; ---------------------------------------------------------------
 
 	.autoimport	on
-	.importzp	idx8, idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, byte_in_sector, script_ptr, ptr3
+	.importzp	idx16, byte0, byte1, byte2, byte3, uint0, ptr, arg0, arg1, tmp1, byte_in_sector, script_ptr, ptr3
 	.export		load_map_compressed
 	.include	"c64.inc"
 	.include	"cbm_kernal.inc"

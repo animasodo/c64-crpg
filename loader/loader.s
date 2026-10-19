@@ -15,21 +15,18 @@
 
 .segment        "STARTUP"
 
-start:
-	; check the floppy drive number
-	lda		$BA
-	cmp		#8
-	beq		correct_drive
-	ldy		#0
-wrong_drive_loop:
-	lda		wrong_drive_message,y
-	beq		:+
-	jsr		CHROUT
-	iny
-	jmp		wrong_drive_loop
-:	rts
+	.byte	<start, >start ; start vector, it'll get triggered when the KERNAL tries to call CHROUT\
+	.byte	$ED, $F6 ; KERNAL may still trigger this one
 
-correct_drive:
+start:
+	; turn screen off while we're still doing stuff because garbage is ugly
+	lda		#%00001011
+	sta		VIC_CTRL1
+	lda		#$00
+	jsr		SETMSG
+
+	jsr		RESTOR ; restore the vectors
+
 	; switch basic rom off
 	lda     $01
 	and     #$F8
@@ -81,18 +78,18 @@ correct_drive:
 	sta		VIC_CTRL2
 
 	; print a small "please wait" text in the meantime
-	ldx		#12
-	ldy		#14
-	clc
-	jsr		PLOT
 	ldy     #$00
 wait_loop:
 	lda     loading,y
 	beq		:+
-	jsr		CHROUT			; CHROUT is actually an okay way to do a simple print to screen
+	sta		SCREEN_AREA+((40*12)+14),y
 	iny
 	jmp     wait_loop
-:
+
+	; turn screen back on
+:	lda		#%00011011
+	sta		VIC_CTRL1
+
 	; load manifest table
 	; destination
 	lda     #<MANIFEST_AREA
@@ -115,7 +112,7 @@ copy_loop:
 	lda		load_prg_code,y
 	sta		$0334,y ; cassette tape buffer, 192 bytes
 	iny
-	cpy		end_load_prg-load_prg_code
+	cpy		#end_load_prg-load_prg_code
 	bne		copy_loop
 
 	; prepare the disk
@@ -123,7 +120,7 @@ copy_loop:
 	ldy     #>(crpg)
 	lda     #4
 	jsr     SETNAM
-	ldx     #FLOPPY
+	ldx     FLOPPY
 	ldy     #$00
 	lda     #LFN
 	jsr     SETLFS
@@ -149,6 +146,4 @@ end_load_prg:
 crpg:
     .byte "crpg"
 loading:
-	.byte "PLEASE WAIT", 0
-wrong_drive_message:
-    .byte "put disk in 8 and reload", 0
+	.byte "please wait", 0

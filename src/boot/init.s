@@ -84,6 +84,12 @@ correct:
 	sta		playerInput
 	sta		direction
 
+	; initialize player properties
+	ldy		#<(player_parameters_end - player_parameters)
+:	sta		player_parameters,y
+	dey
+	bne		:-
+
 	jmp		main
 
 .segment	"RODATA"

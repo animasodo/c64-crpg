@@ -18,17 +18,26 @@
     lda     #<(y_n)
     ldx     #>(y_n)
     jsr     print
+
+    lda     #$00
+	sta		CURS_FLAG ; blinking cursor
 wait_for_input:
 	jsr     GETIN
+    tay
     cmp     #'y'
     beq     yes
     cmp     #'n'
     beq     no
     jmp     wait_for_input
 no:
-    lda     #$00
+    ldy     #$00
 yes:
     cmp     #$00 ; restore zero status in only two bytes
+
+    inc     CURS_FLAG ; turn off blink
+    jsr     printchar
+    tya
+
     rts
 
 .endproc

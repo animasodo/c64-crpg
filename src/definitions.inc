@@ -19,6 +19,9 @@ X_OFFSET        := 24
 Y_OFFSET        := 50
 HORIZONTAL_VIEW := $1A
 
+; *** keys ***
+F1_KEY          := $85
+
 ; *** colors ***
 BLACK			:= $00
 WHITE			:= $01
@@ -40,7 +43,7 @@ LIGHT_GREY		:= $0F
 ; *** disk operation stuff ***
 LFN				:= $02
 COMMAND			:= $0F
-FLOPPY			:= $08
+FLOPPY			:= $BA ; this is an address not a const
 MANIFEST_AREA	:= $BF00 ; manifest sector is 256 bytes so this is fine
 VICII_BANK_AREA	:= $C000
 SCREEN_AREA     := $C800
@@ -72,3 +75,12 @@ SET_TILE        := $11 ; set tile to value in r0, two bytes follow: x, y
 MESSAGE         := $12 ; following bytes are string
 YNQ             := $13 ; yes/no question
 WSP             := $14 ; wait for spacebar press
+
+; *** string stuff ***
+NULL            := $00
+CLR             := $01
+STR             := $02
+INT             := $03
+BYTE            := $04
+CHR             := $05
+NL              := $0D

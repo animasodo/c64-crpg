@@ -1,40 +1,28 @@
 
-OVERWORLD = 0
-CASTLE = 1
+.include "data/maps/definitions.script"
 
 .begin goto_little_room
-
     ld_r0           OVERWORLD
     load_map        37, 5
     end
 
-.end
-
 .begin go_back_outside
-
     ld_r0           OVERWORLD
     load_map        13, 13
     end
 
-.end
-
 .begin goto_castle
-
     ld_r0           CASTLE
     load_map        15, 30
     end
 
-.end
-
 .begin give_welcome
-
     say             "Welcome to the game!\n\c3Color \c4test\c1."
     wsp
     say             "I'm testing multiple\nmessages."
     wsp
-    say             "This is useful for big\ndialogues."
+    say             "This is useful for big\ndialogues. Do you\nagree?"
+    ynq
     ld_r0           4
     set_tile        2, 2
     end
-
-.end

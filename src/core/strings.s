@@ -1,69 +1,65 @@
 
 	.autoimport	on
-    .export     health_str, stamina_str, power_str, exp_str, gold_str
+    .export     health_str, stamina_str, power_str, exp_str, gold_str, storage_str
     .export     door_open, door_unlocked, no_door
 	.export		save_to, load_from, save_to_as, load_from_as, device_number_error, disk_error, map_error
-
-    END = $00
-    CLR = $01
-    STR = $02
-    INT = $03
-    BYTE = $04
-    CHR = $05
-    NL = $0D
+    .include    "definitions.inc"
 
 .segment "RODATA"
 
 ; ui elements
 
 health_str:
-    .byte "Health:", END
+    .byte "Health:", NULL
 
 stamina_str:
-    .byte "Stamina:", END
+    .byte "Stamina:", NULL
 
 power_str:
-    .byte "Power", END
+    .byte "Power", NULL
 
 exp_str:
-    .byte "Exp:", END
+    .byte "Exp:", NULL
 
 gold_str:
-    .byte "Gold:", END
+    .byte "Gold:", NULL
+
+storage_str:
+	.byte "Storage", NULL
 
 ; door messages
 
 door_open:
-    .byte "Door open!", END
+    .byte "Door open!", NULL
 
 door_unlocked:
-    .byte "Door unlocked!", END
+    .byte "Door unlocked!", NULL
 
 no_door:
-    .byte "No door in this", NL, "direction.", END
+    .byte "No door in this", NL, "direction.", NULL
 
 ; io messages
 
 devices:
-    .byte " (8,9) ", END
+    .byte " (8,9) ", NULL
 
 save_to:
-    .byte "Save to", STR, <(devices), >(devices), END
+    .byte "Save to", STR, <(devices), >(devices), NULL
 
 load_from:
-    .byte "Load from", STR, <(devices), >(devices), END
+    .byte "Load from", STR, <(devices), >(devices), NULL
 
 save_to_as:
-    .byte "Save to ", CHR, <(buffer_prompt), >(buffer_prompt), " as?", NL, END
+    .byte "Save to ", CHR, <(buffer_prompt), >(buffer_prompt), " as?", NL, NULL
 
 load_from_as:
-    .byte "Load from ", CHR, <(buffer_prompt), >(buffer_prompt), " as?", NL, END
+    .byte "Load from ", CHR, <(buffer_prompt), >(buffer_prompt), " as?", NL, NULL
 
 device_number_error:
-    .byte "Not a valid device", NL, "number.", END
+    .byte "Not a valid device", NL, "number.", NULL
 
 disk_error:
-    .byte "Disk error.", END
+    .byte "Disk error.", NULL
 
 map_error:
-    .byte "Not a map.", END
+    .byte "Not a map.", NULL

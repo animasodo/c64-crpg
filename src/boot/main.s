@@ -1,6 +1,7 @@
 
 	.autoimport	on
 	.importzp	tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
+	.importzp	idx8, sreg
 	.macpack	longbranch
 	.importzp	byte0, byte1, ptr
 	.export		main
@@ -8,11 +9,6 @@
 	.include	"macros.inc"
 	.include	"c64.inc"
 	.include	"manifest.inc"
-
-.segment	"RODATA"
-
-S0019:
-	.byte	"Storage", 0
 
 ; this is the main() function mostly unmodified
 ; it will get chopped up later on
@@ -83,7 +79,7 @@ game_loop:
 	beq     open
 	cmp     #'q'
 	jeq     save
-	cmp     #'s'
+	cmp     #F1_KEY
 	jeq     storage
 	cmp     #'w'
 	jeq     load
@@ -183,20 +179,62 @@ load:
 
 storage:
 	jsr     clear_viewport
-	lda     #$00
-	sta     $D015
+	set_sprite_visibility 0
 	lda     #$07
 	sta		CHARCOLOR
 	ldx		#$02
 	ldy     #$02
 	jsr		goto
-	lda     #<(S0019)
-	ldx     #>(S0019)
+	lda     #<(storage_str)
+	ldx     #>(storage_str)
 	jsr     print
+
+	ldx		#$04
+	ldy     #$03
+	jsr		goto
+
+	ldx		#0
+	stx		idx8
+draw_item_name_loop:
+
+.export draw_item_name_loop
+
+	ldy		item_id,x
+	lda		item_name_hi,y
+	tax
+	lda		item_name_lo,y
+	jsr		print
+
+	lda		#25
+	sta		CURS_X
+
+	; gotta find a nicer way to do this
+	ldx		idx8
+	lda		item_quantity,x
+	sta		sreg
+	lda		#0
+	sta		sreg+1
+	lda		#<(itoa_buffer)
+	lda		#>(itoa_buffer)
+	sta		ptr1
+	sta		ptr1+1
+	jsr		utoa
+	jsr		print
+
+	ldx		CURS_Y
+	inx
+	ldy     #$03
+	jsr		goto
+
+	inc		idx8
+	ldx		idx8
+	cpx		#10
+	bne		draw_item_name_loop
+
 L0023:
 	jsr     _cgetc
 	sta     lastKey
-	cmp     #'s'
+	cmp     #F1_KEY
 	bne     L0023
 	jsr     drawmap
 	set_sprite_visibility $FF

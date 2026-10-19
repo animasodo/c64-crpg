@@ -16,7 +16,7 @@
 
     ; open command channel
     lda     #COMMAND
-    ldx     #FLOPPY
+    ldx     FLOPPY
     ldy     #COMMAND
     jsr     SETLFS
     lda     #0
@@ -26,7 +26,7 @@
     
     ; open data channel
     lda     #LFN
-    ldx     #FLOPPY
+    ldx     FLOPPY
     ldy     #LFN
     jsr     SETLFS
     lda     #1

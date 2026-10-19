@@ -27,6 +27,8 @@
 	.export		buffer_prompt
 	.export		game_save, end_game_save
 
+	.export		player_parameters, player_parameters_end
+
 .segment	"BSS"
 
 	game_save:
@@ -37,12 +39,11 @@
 			.res	1,$00
 		playery:
 			.res	1,$00
-		camerax:
-			.res	1,$00
-		cameray:
-			.res	1,$00
 		direction:
 			.res	1,$00
+
+	player_parameters: ; label for initializing stuff
+
 		playerHealth:
 			.res	1,$00
 		playerStamina:
@@ -60,17 +61,23 @@
 
 		inventory:
 			item_id:
-				.res	8
+				.res	10
 			item_quantity:
-				.res	8
+				.res	10
+		flags:
+			.res	8
+
+	player_parameters_end:
 
 		mapId:
 			.res	1,$00
-		flags:
-			.res	8,$00
 
 	end_game_save:
 
+	camerax:
+		.res	1,$00
+	cameray:
+		.res	1,$00
 	mapWidth:
 		.res	1,$00
 	mapHeight:
