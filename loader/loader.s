@@ -43,6 +43,9 @@ start:
 	sta		VIC_BORDERCOLOR
 	sta		VIC_BG_COLOR0
 
+	; first things first, upload our routine to the disk drive
+	jsr		upload_to_drive
+
 	; load chrset from track and sector
 	; destination
 	lda     #<VICII_BANK_AREA

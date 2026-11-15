@@ -7,139 +7,84 @@
     .include		"definitions.inc"
     .include        "manifest.inc"
 
-.segment    "RODATA"
+    ATN_OUT := $08 ; bit 3
+    DATA_OUT := $20 ; bit 5
+    CLK_OUT  := $10 ; bit 4
+    VIC_OUT  := $00 ; bits need to be on to keep VIC happy
 
-brcmd:
-    .byte "u1:2 0", 0
-
-databuf_name:
-    .byte "#"                   ; opens the data channel as a direct-access buffer channel
-
-.segment	"CODE"
-
+    ; on the computer side
     next_track = tmp1
     next_sector = tmp2
 
-.proc load_from_ts: near
-    sta     next_track
-    stx     next_sector
+    ; on the drive side
+    track = $06
+    sector = $07
 
-	; open command channel
-    lda     #COMMAND
-    ldx     FLOPPY
-    ldy     #COMMAND
-    jsr     SETLFS
-    lda     #0
-    jsr     SETNAM
-    jsr     OPEN
-    
-    ; open data channel
-    lda     #LFN
-    ldx     FLOPPY
-    ldy     #LFN
-    jsr     SETLFS
-    lda     #1
-    ldx     #<databuf_name
-    ldy     #>databuf_name
-    jsr     SETNAM
-    jsr     OPEN
+.segment    "CODE"
 
-read_loop:
-    ldx     #COMMAND
-    jsr     CHKOUT              ; we're gonna send some stuff to the disk drive
+load_from_ts:
+
+    ; modify command to pass track and sector to drive
+    sta     t+1
+    stx     s+1
+
+    lda     #15
+	sta     $b9
+	sta     $b8
+	ldx     #<memory_execute
+	ldy     #>memory_execute
+	lda     #memory_execute_end - memory_execute
+	jsr     SETNAM
+	jsr     OPEN
+
+    sei
+	lda     #VIC_OUT | DATA_OUT ; CLK=0 DATA=1
+	sta     CIA2_PRA ; we're not ready to receive
+
+wait_for_disk_routine:
+	bit     CIA2_PRA
+	bvs     wait_for_disk_routine
+    ; we need to make sure our drive code is running before doing anything
+
+block_loop:
+    lda     ptr2
+    ora     ptr2+1
+    beq     success
+get_rest_loop:
+	
+    jsr     receive_byte
     ldy     #0
-    brcmd_loop:
-        lda     brcmd,y
-        beq     brcmd_done
-        jsr     CHROUT
-        iny
-        bne     brcmd_loop
-    brcmd_done:
-    ldy     next_track
-    jsr     int_chrout
-    ldy     next_sector
-    jsr     int_chrout
+	sta     (ptr1),y
 
-    jsr     CLRCHN
+    inc     ptr1
+    bne     :+
+    inc     ptr1+1
+    :
+    lda     ptr2
+    bne     :+
+    dec     ptr2+1
+    :
+    dec     ptr2
+    bne     :+
+    :
 
-	ldx     #LFN
-	jsr     CHKIN
-	; bcs     fail_close
-
-    ; get next track and sector
-    jsr     CHRIN
-    sta     next_track
-    jsr     CHRIN
-    sta     next_sector
-
-    ldx     #254 ; X register is not used for CHRIN so it's safe to use
-    read_block:
-        lda     ptr2
-        ora     ptr2+1
-        beq     success
-
-        jsr     CHRIN
-        ldy     #0
-        sta     (ptr1),y
-        
-        inc     ptr1
-        bne     :+
-        inc     ptr1+1
-        :
-        lda     ptr2
-        bne     :+
-        dec     ptr2+1
-        :
-        dec     ptr2
-        bne     :+
-        :
-        dex
-        bne     read_block
-
-    lda     next_track
-    bne     read_loop ; while track is not 0, repeat
+	jmp     block_loop
 
 success:
-    jsr     CLRCHN
-    ldx     #COMMAND
-    jsr     CHKOUT
-    jsr     CLRCHN
+    lda     #VIC_OUT | ATN_OUT ; send ATN signal so that the drive goes back to normal
+    sta     CIA2_PRA
+    cli
 
-    lda     #COMMAND
-	jsr     CLOSE
-	lda     #LFN
-	jsr     CLOSE
-	jmp     CLRCHN
+    lda     #15
+    jmp     CLOSE
 
-.endproc
-
-; small routine to convert an integer to PETSCII characters and pass it to CHROUT
-; gee if only i could just PASS INTEGERS TO THE DISK DRIVE
-
-; pass in the integer in Y register
-
-int_chrout:
-    lda     #' '
-    jsr     CHROUT          ; print a space before the number
-    tya
-    ldx     #$00
-div_loop:
-    cmp     #10
-    bcc     done           ; if we're over 10, we subtract 10
-    sbc     #10
-    inx
-    jmp     div_loop
-done:
-    ; now X is tens and A is ones
-    cpx     #0
-    beq     skip_tens
-    tay
-    txa
-    clc
-    adc     #'0'
-    jsr     CHROUT
-    tya
-skip_tens:
-    clc
-    adc     #'0'
-    jmp     CHROUT
+memory_execute:
+	.byte   "m-e"
+	.word   $0205
+execute_cmd:
+t:  lda     #00
+    sta     track
+s:  lda     #00
+    sta     sector
+    jmp     $0402
+memory_execute_end:

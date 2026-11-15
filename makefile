@@ -4,6 +4,7 @@
 TARGET      := crpg
 MAIN_CONFIG := main.cfg
 LOADER_CONFIG := loader.cfg
+DRIVE_CONFIG := disk.cfg
 
 BUILD_DIR   := build
 BUILD_RES	:= $(BUILD_DIR)/resources
@@ -15,7 +16,9 @@ MAP_DIR     := $(DATA_DIR)/maps
 SCRIPT_OUT_DIR := $(BUILD_RES)/scripts
 MANIFEST    := $(DATA_DIR)/manifest.txt
 MANIFEST_INC:= $(BUILD_RES)/manifest.inc
+DSK_RTN_SRC := disk_routine.s
 
+DSK_RTN_OUT := $(BUILD_RES)/disk_routine.prg
 MAIN_OUT    := $(BUILD_RES)/$(TARGET).prg
 LOADER_OUT  := $(BUILD_RES)/loader.prg
 PRE_DISK    := $(BUILD_RES)/$(TARGET)_prepacked.d64
@@ -103,13 +106,13 @@ $(MANIFEST_INC): $(MANIFEST) $(PROC_MAP_FILES)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s $(MANIFEST_INC)
 	@mkdir -p $(dir $@)
-	@printf "CA65:  %s\n" "$<"
+	@printf "CL65:  %s\n" "$<"
 	$(Q)$(CL65) -c $(ASMFLAGS) --create-dep $(@:.o=.d) -o $@ $<
 
 # loader is linked independently of the game
 $(OBJ_DIR)/loader/%.o: $(LOADER_DIR)/%.s $(MANIFEST_INC)
 	@mkdir -p $(dir $@)
-	@printf "CA65:  %s\n" "$<"
+	@printf "CL65:  %s\n" "$<"
 	$(Q)$(CL65) -c $(ASMFLAGS) --create-dep $(@:.o=.d) -o $@ $<
 
 -include $(DEPS)
@@ -129,6 +132,11 @@ $(LOADER_OUT): $(LOADER_OBJS) $(LOADER_CONFIG)
 	@printf "LD65:  %s\n" "$@"
 	$(Q)$(CL65) -C $(LOADER_CONFIG) $(LOADER_LDFLAGS) -o $@ $(LOADER_OBJS)
 	@printf "$@ is %s bytes.\n" "$$(stat -c %s "$@")"
+
+$(DSK_RTN_OUT): $(DSK_RTN_SRC)
+	@mkdir -p $(dir $@)
+	@printf "CL65:  %s\n" "$@"
+	$(Q)$(CL65) -C $(DRIVE_CONFIG) $(LOADER_LDFLAGS) -o $@ $<
 
 # -------------------------------------------------
 # Scripts
@@ -159,9 +167,9 @@ $(PRE_DISK): $(LOADER_OUT) $(MAIN_OUT) $(PROC_MAP_FILES) $(DATA_FILES)
 		$(PRE_DISK)
 
 # final disk with all the hidden data packed in
-$(DISK): $(PRE_DISK) $(MANIFEST) $(PROC_MAP_FILES)
+$(DISK): $(PRE_DISK) $(MANIFEST) $(PROC_MAP_FILES) $(DSK_RTN_OUT)
 	@printf "PACK-ASSETS: creating %s\n" "$@"
-	$(Q)$(PACK-ASSETS) "$(PRE_DISK)" "$@" "$(MANIFEST)" -t $(BOOT_TRACK) -s $(BOOT_SECTOR) -c $(BOOT_COUNT)
+	$(Q)$(PACK-ASSETS) "$(PRE_DISK)" "$@" "$(MANIFEST)" -t $(BOOT_TRACK) -s $(BOOT_SECTOR) -c $(BOOT_COUNT) -x
 
 # -------------------------------------------------
 # Utility
