@@ -9,7 +9,7 @@
 ;      next_sector = asset's location on disk (sector)
 ; ---------------------------------------------------------------
 
-    .importzp   ptr2, next_track, next_sector
+    .importzp   ptr2
 	.export		get_disk_location
     .include    "definitions.inc"
 
@@ -21,14 +21,15 @@
     asl
     tax ; (ID << 2)
 
-    lda     MANIFEST_AREA+1,x ; track
-    sta     next_track
-    lda     MANIFEST_AREA+2,x ; sector
-    sta     next_sector
     lda     MANIFEST_AREA+3,x ; size (low)
     sta     ptr2
     lda     MANIFEST_AREA+4,x ; size (high)
     sta     ptr2+1
+    lda     MANIFEST_AREA+1,x ; track
+    pha
+    lda     MANIFEST_AREA+2,x ; sector
+    tax
+    pla
     rts
 
 .endproc

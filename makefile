@@ -64,7 +64,6 @@ BOOT_COUNT  := 1
 # -------------------------------------------------
 SOURCES      := $(wildcard $(SRC_DIR)/*.s) $(wildcard $(SRC_DIR)/*/*.s)
 LOADER_SOURCES := $(wildcard $(LOADER_DIR)/*.s)
-DATA_FILES   := $(wildcard $(DATA_DIR)/*.bin)
 MAP_FILES    := $(wildcard $(MAP_DIR)/*.bin)
 
 # -------------------------------------------------
@@ -157,13 +156,10 @@ $(PROC_MAP_DIR)/%.bin: $(MAP_DIR)/%.bin $(MAP_DIR)/%.json $(SCRIPT_OUT_DIR)/%.sc
 # -------------------------------------------------
 # Disk image
 # -------------------------------------------------
-$(PRE_DISK): $(LOADER_OUT) $(MAIN_OUT) $(PROC_MAP_FILES) $(DATA_FILES)
+$(PRE_DISK): $(LOADER_OUT) $(MAIN_OUT) $(PROC_MAP_FILES)
 	@printf "CC1541: creating %s\n" "$@"
 	$(Q)$(CC1541) -n "$(TARGET)" -i "jay" \
 		-f "$(LOADER_NAME)" -w $(LOADER_OUT) \
-		-f "$(TARGET)" -w $(MAIN_OUT) \
-		$(foreach data,$(DATA_FILES), \
-			-f "$(notdir $(basename $(data)))" -T SEQ -w $(data)) \
 		$(PRE_DISK)
 
 # final disk with all the hidden data packed in

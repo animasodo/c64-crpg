@@ -1,49 +1,44 @@
-; ---------------------------------------------------------------
-; load_from_ts
-;   reads ptr2 bytes from a disk drive into ptr1
-;
-; in:  A = track to read from
-;      X = sector to read from
-;      ptr1 = destination address
-;      ptr2 = number of bytes to read
-; ---------------------------------------------------------------
 
 	.autoimport		on
-	.importzp		ptr1, ptr2, ptr3, next_track, next_sector
+	.importzp		ptr1, ptr2, ptr3, tmp1, tmp2
 	.export			load_from_ts
 	.include		"c64.inc"
     .include		"cbm_kernal.inc"
     .include		"definitions.inc"
     .include        "manifest.inc"
 
-.segment	"CODE"
+    ATN_OUT := $08 ; bit 3
+    DATA_OUT := $20 ; bit 5
+    CLK_OUT  := $10 ; bit 4
+    VIC_OUT  := $00 ; bits need to be on to keep VIC happy
 
-.proc load_from_ts: near
-    sta     next_track
-    stx     next_sector
-	jsr     open_ts
+    ; on the drive side
+    track = $06
+    sector = $07
 
-read_loop:
+.segment    "CODE"
+
+load_from_ts:
+    jsr		open_disk
+
+block_loop:
     lda     ptr2
     ora     ptr2+1
     beq     success
-
-    jsr     get_byte
+get_rest_loop:
+	
+    jsr     receive_byte
     ldy     #0
-    sta     (ptr1),y
-    
+	sta     (ptr1),y
+
     inc     ptr1
     bne     :+
     inc     ptr1+1
     :
-    lda     ptr2
-    bne     :+
-    dec     ptr2+1
-    :
-    dec     ptr2
-    bne     read_loop
+
+	jmp     block_loop
 
 success:
-    jmp     close_ts
-
-.endproc
+    cli
+    lda     #15
+    jmp     CLOSE

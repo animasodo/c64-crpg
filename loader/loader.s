@@ -113,40 +113,99 @@ wait_loop:
 	ldy		#00
 copy_loop:
 	lda		load_prg_code,y
-	sta		$0334,y ; cassette tape buffer, 192 bytes
+	sta		$B000,y ; random address that is far enough and won't get overwritten
 	iny
 	cpy		#end_load_prg-load_prg_code
 	bne		copy_loop
 
 	; prepare the disk
-	ldx     #<(crpg)
-	ldy     #>(crpg)
-	lda     #4
-	jsr     SETNAM
-	ldx     FLOPPY
-	ldy     #$00
-	lda     #LFN
-	jsr     SETLFS
+	lda     #<$0334
+    sta     ptr1
+	lda     #>$0334
+    sta     ptr1+1
+    ; length
+    lda     MANIFEST_AREA+3 ; i know the main program is the first asset in the manifest table
+    sta     ptr2
+    lda     MANIFEST_AREA+4
+    sta     ptr2+1
+
+	lda		MANIFEST_AREA+1
+	ldx		MANIFEST_AREA+2
+    jsr		open_disk
+	jmp		$B000
+
+load_prg_code:
+
+block_loop:
+    lda     ptr2
+    ora     ptr2+1
+    beq     success
+get_rest_loop:
+
+    ; wait till the byte is ready
+:   bit     CIA2_PRA
+	bvc     :- ; wait for CLK=0 (inverted read!)
+
+    ; wait for the raster to be out of the unsafe zone so we can send the data
+wait_raster:
+	lda     VIC_HLINE
+	cmp     #50
+	bcc     wait_raster_end
+	and 	#$07
+	cmp 	#$02
+	beq 	wait_raster
+wait_raster_end:
+
+	lda     #$00 ; CLK=0 DATA=0
+	sta     CIA2_PRA ; we're ready, start sending!
 	
-	lda		#$00
-	ldx		#<$033F
-	ldy		#>$033F
+    pha     ; 3 cycles
+    pla     ; 4 cycles
+	bit		$00 ; 3 cycles
+
+	lda     CIA2_PRA ; get 2 bits into bits 6&7
+	lsr 
+	lsr     ; move down by 2 (bits 4&5)
+	eor     CIA2_PRA ; get 2 more bits
+	lsr 
+	lsr     ; move everything down (bits 2-5)
+	eor     CIA2_PRA; get 2 more bits
+	lsr 
+	lsr     ; move everything down (bits 0-5)
+	eor     CIA2_PRA ; get last 2 bits, now 0-7 are populated
+
+	ldy     #$20 ; CLK=0 DATA=1
+	sty     CIA2_PRA ; not ready anymore
+
+    ldy     #0
+	sta     (ptr1),y
+
+    inc     ptr1
+    bne     :+
+    inc     ptr1+1
+    :
+    lda     ptr2
+    bne     :+
+    dec     ptr2+1
+    :
+    dec     ptr2
+    bne     :+
+    :
+
+	sec
+	bcs		block_loop ; relative because i can't get the trampoline working right
+
+success:
+    lda     #$08 ; send ATN signal so that the drive goes back to normal
+    sta     CIA2_PRA
+    cli
+
+    lda     #15
+    jsr     CLOSE
 
 	jmp		$0334 ; then, jump to the cassette buffer
 
-load_prg_code: ; this code takes 3+3+2+3 = 11 bytes
-	jsr		LOAD
-
-	jsr		CLRCHN
-	lda		#LFN
-	jsr		CLOSE
-
-	; no jump needed because the cpu continues where the program has loaded
 end_load_prg:
 
-.segment	"RODATA"
-
-crpg:
-    .byte "crpg"
 loading:
 	.byte "please wait", 0

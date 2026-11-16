@@ -68,8 +68,9 @@ send_buffer_loop:
     lda     enc_tab,x ; super-encoded low nybble in A
     
     ; i wanna buy myself some time to here's some stuff to waste cycles
-    nop
-    nop
+    pha     ; 3 cycles
+    pla     ; 4 cycles
+	bit		$00 ; 3 cycles
 
     ldx     VIA2_PRA
     bmi     end ; checking for an exit signal from ATN

@@ -1,4 +1,5 @@
 chrset data/chrset 17:0 u
 disk_seek build/resources/disk_routine.prg 18:18 u
+main build/resources/crpg.prg auto
 overworld build/resources/maps/overworld.bin auto
 castle build/resources/maps/castle.bin auto

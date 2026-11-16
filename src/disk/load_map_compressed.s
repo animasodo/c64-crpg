@@ -14,6 +14,15 @@
     .include	"definitions.inc"
     .include	"macros.inc"
 
+	ATN_OUT := $08 ; bit 3
+    DATA_OUT := $20 ; bit 5
+    CLK_OUT  := $10 ; bit 4
+    VIC_OUT  := $00 ; bits need to be on to keep VIC happy
+
+	; on the drive side
+    track = $06
+    sector = $07
+
 	; header/entity codes
 	M = $4D
 	P = $50
@@ -37,12 +46,12 @@ load_map_compressed:
 	
     sta     id
 	jsr     get_disk_location
-	jsr     open_ts
+	jsr		open_disk
 
-	jsr     get_byte
+	jsr     receive_byte
 	cmp     #M
     bne     map_header_unsuccessful
-    jsr     get_byte
+    jsr     receive_byte
 	cmp     #P
     beq     map_header_successful
 
@@ -55,13 +64,13 @@ map_header_unsuccessful:
 map_header_successful:
     lda     id
 	sta     mapId
-	jsr     get_byte
+	jsr     receive_byte
 	sta     mapWidth
-	jsr     get_byte
+	jsr     receive_byte
 	sta     mapHeight
-	jsr     get_byte
+	jsr     receive_byte
 	sta     compressed_length
-	jsr     get_byte
+	jsr     receive_byte
 	sta     compressed_length+1	; get compressed length
 
 	lda     #$00
@@ -82,7 +91,7 @@ while_loop:
 	cmp		compressed_length
 	bcs		done_while
 	:
-	jsr		get_byte
+	jsr		receive_byte
 	tay
 	and		#$1F
 	sta		tile
@@ -96,7 +105,7 @@ while_loop:
 	iny
 	cpy		#$08
 	bne		:+						; if 3 most significant bits are 111, grab actual length from next byte
-	jsr		get_byte
+	jsr		receive_byte
 	tay
 	inc		compressed_index
 	bne		:+
@@ -153,16 +162,16 @@ done_while:
 	sta		script_ptr+1
 
 entity_loop:
-	jsr		get_byte
+	jsr		receive_byte
 
 	cmp		#WARP
 	bne		:+
 	ldy		warp_index
-	jsr		get_byte
+	jsr		receive_byte
 	sta		warp_x,y
-	jsr		get_byte
+	jsr		receive_byte
 	sta		warp_y,y
-	jsr		get_byte
+	jsr		receive_byte
 	sta		warp_script,y
 	inc		warp_index
 	:
@@ -171,18 +180,18 @@ entity_loop:
 	bne		entity_loop
 
 	; copy the index and add table
-	jsr		get_byte
+	jsr		receive_byte
 	sta		script_count
 	asl		a
 	sta		multiplied_script_count
 script_offset_loop:
 	; we add the offsets and the data pointer so we get a regular pointer table for when we want to run scripts
-	jsr		get_byte
+	jsr		receive_byte
 	clc
 	adc		#<(script_data)
 	sta		ptr3
 	php
-	jsr		get_byte
+	jsr		receive_byte
 	plp
 	adc		#>(script_data)
 
@@ -197,7 +206,7 @@ script_offset_loop:
 	cmp		multiplied_script_count
 	bne		script_offset_loop
 script_data_loop: ; the actual scripts
-	jsr		get_byte
+	jsr		receive_byte
 	bcs		done
 	ldy		#$00
 	sta		(script_ptr),y
@@ -205,4 +214,7 @@ script_data_loop: ; the actual scripts
 	jmp		script_data_loop
 
 done:
-	jmp     close_ts
+    cli
+
+    lda     #15
+    jmp     CLOSE
